@@ -569,10 +569,10 @@ function compute() {
   const A = adjustedAccounts(), derived = deriveInputs(A), INP = {};
   for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info")) INP[full] = prodInputVal(full, derived);
   INP["total.do_andre"] = prodInputVal("total.do_andre", derived);
-  const nAny = PKEYS.some(k => INP[k + ".n"] > 0), firstAmt = {};
+  const firstAmt = {};
   Object.values(A).forEach(a => { if (!a.amt) return; const m = mapFor(a.nr);
-    const c = m ? [m.t1] : candidates(a.nr); const p = c.find(isProd); if (p) firstAmt[p] = (firstAmt[p] || 0) + Math.abs(a.amt); });
-  const active = new Set(PKEYS.filter(k => S.active[k] != null ? S.active[k] : (nAny ? INP[k + ".n"] > 0 : (firstAmt[k] || 0) > 0)));
+    const c = m ? [m.t1] : candidates(a.nr); if (c.some(x => SPECIAL_LABEL[x])) return; const p = c.find(isProd); if (p) firstAmt[p] = (firstAmt[p] || 0) + Math.abs(a.amt); });
+  const active = new Set(PKEYS.filter(k => S.active[k] != null ? S.active[k] : (INP[k + ".n"] > 0 || (firstAmt[k] || 0) > 0)));
   const V0 = engine(INP, active), act = [...active];
   const aP = {}, aM = {}, aI = {};
   act.forEach(k => { const g = SHEET[k].group, ku = g === "grovfor" ? V0(k + ".kueiningar") : 0;
