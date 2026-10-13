@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import spec  # noqa: E402
 from formula import render, tokenize  # noqa: E402
+from bokmal import nb  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 TEMPLATE = os.path.join(ROOT, "app", "src", "template.html")
@@ -33,6 +34,8 @@ def compile_sheet(sh):
     for r in sh["rows"]:
         o = {k: r.get(k) for k in ("t", "id", "label", "unit", "fmt", "kind", "acc", "sign", "src", "note", "kpi")}
         o = {k: v for k, v in o.items() if v not in (None, "", False)}
+        if r.get("label"):
+            o["label_nb"] = nb(r["label"])
         if r["t"] == "input":
             o["ex"] = r["val"]
         if r["t"] == "calc":
@@ -43,21 +46,26 @@ def compile_sheet(sh):
                 lambda k: "1 dersom %s er med" % spec.PNAME[k], "txt")
         rows.append(o)
     out = {k: sh.get(k) for k in ("key", "sheet", "title", "dg", "group", "unit_label", "per_label", "desc")}
+    for k in ("sheet", "title", "unit_label", "per_label", "desc"):
+        if sh.get(k):
+            out[k + "_nb"] = nb(sh[k])
     out["rows"] = rows
     return out
 
 
 def kontoplan():
     K = json.load(open(os.path.join(os.path.dirname(__file__), "kontoplan_full.json"), encoding="utf-8"))
-    out = []
+    out, groups = [], {}
     for k in K:
         if k["inaktiv"]:
             continue
         parts = k["nr"].split(".")
         if len(parts) > 1 and parts[1] not in ("20", "10"):
             continue
-        out.append([k["nr"], k["navn"], k["type"][:1] if k["type"] else "", k["m1"], k["m2"]])
-    return out
+        g = (k.get("grp") or "")[:2]
+        groups[g] = (k.get("grp") or "")[3:]
+        out.append([k["nr"], k["navn"], k["type"][:1] if k["type"] else "", k["m1"], k["m2"], g])
+    return {"accounts": out, "groups": groups}
 
 
 SPECJSON = {
