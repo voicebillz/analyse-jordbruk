@@ -39,6 +39,7 @@ def compile_sheet(sh):
         if r["t"] == "input":
             o["ex"] = r["val"]
         if r["t"] == "calc":
+            o["expr"] = r["expr"]
             toks = tokenize(r["expr"])
             o["js"] = render(toks, lambda n: 'V("%s")' % full(n, key), lambda k: 'ACTIVE("%s")' % k, "js")
             o["txt"] = render(toks, lambda n: labels[full(n, key)] + ("" if "." not in n else " (%s)" % dict(
@@ -55,17 +56,18 @@ def compile_sheet(sh):
 
 def kontoplan():
     K = json.load(open(os.path.join(os.path.dirname(__file__), "kontoplan_full.json"), encoding="utf-8"))
-    out, groups = [], {}
+    out, groups, avds = [], {}, {}
     for k in K:
         if k["inaktiv"]:
             continue
-        parts = k["nr"].split(".")
-        if len(parts) > 1 and parts[1] not in ("20", "10"):
-            continue
         g = (k.get("grp") or "")[:2]
         groups[g] = (k.get("grp") or "")[3:]
-        out.append([k["nr"], k["navn"], k["type"][:1] if k["type"] else "", k["m1"], k["m2"], g])
-    return {"accounts": out, "groups": groups}
+        avd = (k.get("avd") or "").strip()
+        code = avd.split(" ")[0] if avd else ""
+        if code:
+            avds[code] = avd[len(code):].replace("(Inaktiv)", "").strip()
+        out.append([k["nr"], k["navn"], k["type"][:1] if k["type"] else "", k["m1"], k["m2"], g, code])
+    return {"accounts": out, "groups": groups, "avds": avds}
 
 
 SPECJSON = {

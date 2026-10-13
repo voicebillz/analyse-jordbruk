@@ -137,7 +137,7 @@ details.grp>summary::-webkit-details-marker{display:none}
 details.grp>summary:before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);transition:transform .15s;margin-right:4px}
 details.grp[open]>summary:before{transform:rotate(45deg)}
 details.grp .inner{padding:0 14px 12px}
-.maprow{display:grid;grid-template-columns:110px minmax(160px,1fr) minmax(170px,240px) minmax(150px,200px) 80px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+.maprow{display:grid;grid-template-columns:110px minmax(150px,1fr) 170px minmax(170px,220px) minmax(140px,180px) 70px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
 .maprow:last-child{border-bottom:0}
 .maprow.manual .nr{font-weight:700;color:var(--accent)}
 .maprow .inp.num{max-width:80px}
@@ -150,6 +150,47 @@ details.grp .inner{padding:0 14px 12px}
 .pdfwrap .ph{display:grid;place-items:center;height:100%;color:var(--ink-3)}
 .foot{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:15}
 .foot-in{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;gap:12px;align-items:center}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px}
+.tab{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--ink-3);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.maprow.mhead{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:650;border:0;padding:0 15px 4px}
+.sel.ovr{border-color:var(--in-line);background:var(--in-bg)}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.fcard.ovr,.frow.ovr{border-left:3px solid var(--warn)}
+.fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fval{margin-left:10px;font-variant-numeric:tabular-nums;color:var(--ink-3);font-weight:500;font-size:13px}
+.terms{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+.term{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line-2)}
+.term .sg{width:18px;text-align:center;font-weight:700;color:var(--ink-3);padding-top:2px}
+.term .tb{flex:1;min-width:0}
+.term .tl{font-size:13.5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 4px 2px 10px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.chip.muted{border-color:var(--line);background:var(--surface-3);color:var(--ink-3);padding-right:10px}
+.chip.neg{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.chip .x{border:0;background:none;color:inherit;cursor:pointer;width:18px;height:18px;border-radius:50%;line-height:1;font-size:14px;opacity:.7}
+.chip .x:hover{opacity:1;background:rgba(0,0,0,.08)}
+.chip.add{cursor:pointer;border-style:dashed;background:transparent;padding-right:10px}
+.chips.big .chip{font-size:13.5px;padding:4px 6px 4px 12px}
+.ftext{font-size:13px;color:var(--ink-2);margin-top:6px}
+.frow{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0 10px 8px;border-bottom:1px solid var(--line-2)}
+.overlay{position:fixed;inset:0;background:rgba(10,16,12,.45);z-index:50;display:grid;place-items:center;padding:20px}
+.dialog{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:20px 22px}
+.dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.dhead h2{margin:2px 0 0;font-size:18px}
+.dhead .k{font-size:12px;font-weight:650;color:var(--accent);text-transform:uppercase;letter-spacing:.07em}
+.dfoot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.alist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
+.arow{display:flex;gap:12px;align-items:center;border:0;border-bottom:1px solid var(--line-2);background:var(--surface);padding:8px 12px;text-align:left;cursor:pointer;font-size:13.5px}
+.arow:hover{background:var(--surface-3)}
+.arow.on{background:var(--accent-soft)}
+.tedit{display:flex;flex-direction:column;gap:8px}
+.trow{display:flex;gap:8px;align-items:center}
+.trow .sel{flex:1}.trow .sg2{flex:none;width:58px}
+.fedit{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface-2);font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+.fprev{margin-top:12px;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.fprev.bad{background:var(--bad-soft);color:var(--bad)}
+.bad{color:var(--bad)}
 .hidden{display:none!important}
 @media (max-width:760px){
   .wrap{padding:18px 16px 110px}
@@ -163,6 +204,8 @@ details.grp .inner{padding:0 14px 12px}
   table.t td.n{text-align:left}
   table.t td.wide{grid-column:1/-1}
   .maprow{grid-template-columns:1fr 1fr}
+  .maprow.mhead{display:none}
+  .trow{flex-wrap:wrap}
   .moves .mv{grid-template-columns:1fr 1fr}
 }
 </style>
@@ -246,6 +289,47 @@ const NN = {
   "Kontroller tallene og overstyr ved behov.": "Kontroller tala og overstyr ved behov.",
   "Teksten genereres automatisk og kan redigeres før rapporten lages.": "Teksten blir laga automatisk og kan redigerast før rapporten blir laga.",
   "Hentet fra saldobalansen": "Henta frå saldobalansen",
+  "Ugyldig formel ved": "Ugyldig formel ved",
+  "Mangler parentes etter": "Manglar parentes etter",
+  "Parentesene går ikke opp": "Parentesane går ikkje opp",
+  "Ukjent ledd": "Ukjent ledd",
+  "HVIS": "VISS",
+  "AVRUND": "AVRUND",
+  "Andre næringer": "Andre næringar",
+  "Konteringsoppsett": "Konteringsoppsett",
+  "Kontoplan": "Kontoplan",
+  "Ingen avdeling": "Inga avdeling",
+  "Alle avdelinger": "Alle avdelingar",
+  "Avdeling": "Avdeling",
+  "Fylles inn manuelt": "Fyllast inn manuelt",
+  "Fordeles med nøkkel": "Fordelast med nøkkel",
+  "unntatt": "unnateke",
+  "Fjern": "Fjern",
+  "Øvrige 3xxx-kontoer": "Andre 3xxx-kontoar",
+  "Øvrige 4xxx-kontoer": "Andre 4xxx-kontoar",
+  "Standard": "Standard",
+  "Endret": "Endra",
+  "Endre formel": "Endre formel",
+  "Formel": "Formel",
+  "endringer": "endringar",
+  "Tilbakestill standard": "Tilbakestill standard",
+  "Nøkkeltall og tall per enhet": "Nøkkeltal og tal per eining",
+  "Vil du tilbakestille alle formler og kontoer til standard?": "Vil du tilbakestille alle formlar og kontoar til standard?",
+  "Kontoer i posten": "Kontoar i posten",
+  "Ingen kontoer": "Ingen kontoar",
+  "Intervall, f.eks. 4020-4029": "Intervall, t.d. 4020-4029",
+  "Legg til": "Legg til",
+  "Unnta kontoene fra posten": "Ta kontoane ut av posten",
+  "Unnta": "Ta ut",
+  "Med": "Med",
+  "Ferdig": "Ferdig",
+  "Sett inn ledd": "Set inn ledd",
+  "Legg til ledd": "Legg til ledd",
+  "Enkel redigering": "Enkel redigering",
+  "Avansert redigering": "Avansert redigering",
+  "Avbryt": "Avbryt",
+  "Lagre": "Lagre",
+  "Formelen er for sammensatt for enkel redigering.": "Formelen er for samansett for enkel redigering.",
   /* rapport */
   "NØKKELTALLSANALYSE JORDBRUK": "NØKKELTALSANALYSE JORDBRUK", "Hovedtall": "Hovudtal",
   "Dekningsbidrag med tilskudd": "Dekningsbidrag med tilskot", "Driftsoverskudd jordbruk": "Driftsoverskot jordbruk", "Nettoinntekt": "Nettoinntekt",
@@ -353,7 +437,7 @@ function rules(str) {
 function inRule(n, str) { const r = rules(str); return r.inc.some(([a, b]) => n >= a && n <= b) && !r.exc.some(([a, b]) => n >= a && n <= b); }
 const byNr = (a, b) => String(a).localeCompare(String(b), "nb", {numeric: true});
 
-const KP = {}; KONTOPLAN.accounts.forEach(([nr, navn, type, m1, m2, g]) => KP[nr] = {nr, navn, type, m1, m2, g});
+const KP = {}; KONTOPLAN.accounts.forEach(([nr, navn, type, m1, m2, g, avd]) => KP[nr] = {nr, navn, type, m1, m2, g, avd});
 function kontoNavn(nr) {
   if (KP[nr]) return KP[nr].navn;
   const a = parseAcc(nr);
@@ -368,7 +452,7 @@ const PKEYS = SPEC.prodKeys;
 const isProd = k => PKEYS.includes(k);
 const SL = (obj, f) => (LANG === "nb" && obj[f + "_nb"]) ? obj[f + "_nb"] : obj[f];
 const LBL = r => (LANG === "nb" && r.label_nb) ? r.label_nb : r.label;
-const PN = k => isProd(k) ? SL(SHEET[k], "sheet") : T(SPECIAL_LABEL[k] || k);
+const PN = k => isProd(k) ? SL(SHEET[k], "sheet") : k === "ANDRE" ? T("Andre næringer") : T(SPECIAL_LABEL[k] || k);
 /* rein etikett for rapport: utan parentesar og forkortingar */
 function clean(s) {
   return String(s).replace(/\s*\([^)]*\)/g, "").replace(/ u\/(tilskudd|tilskot)/, (m, w) => (w === "tilskudd" ? " uten " : " utan ") + w)
@@ -376,9 +460,71 @@ function clean(s) {
 }
 const FUNCS = {DIV: (a, b) => (b ? a / b : 0), IF: (c, a, b) => (c ? a : b), MAX: Math.max, MIN: Math.min, ABS: Math.abs,
   ROUND: (x, n) => { const f = Math.pow(10, n || 0); return Math.round(x * f) / f; }, SUM: (...a) => a.reduce((x, y) => x + y, 0)};
-const COMPILED = {};
-for (const [k, r] of Object.entries(ROW)) if (r.t === "calc")
-  COMPILED[k] = new Function("V", "DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "SUM", "ACTIVE", "return (" + r.js + ");");
+/* ---------- formelspråk (same som tools/formula.py) ---------- */
+const FN = new Set(["DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "ACTIVE", "SUM"]);
+function ftok(expr) {
+  const re = /\s*(?:(\d+\.\d+|\d+)|("[^"]*")|([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)|(<=|>=|<>|[-+*/(),<>=]))/y;
+  const out = []; let pos = 0; expr = String(expr || "").trim();
+  while (pos < expr.length) {
+    re.lastIndex = pos; const m = re.exec(expr);
+    if (!m) throw new Error(T("Ugyldig formel ved") + " «" + expr.slice(pos, pos + 12) + "»");
+    if (m[1] != null) out.push(["num", m[1]]); else if (m[2] != null) out.push(["str", m[2]]);
+    else if (m[3] != null) out.push([FN.has(m[3]) ? "fn" : "id", m[3]]); else out.push(["op", m[4]]);
+    pos = re.lastIndex;
+  }
+  return out;
+}
+function fsplit(tokens, i) {
+  if (!tokens[i + 1] || tokens[i + 1][1] !== "(") throw new Error(T("Mangler parentes etter") + " " + tokens[i][1]);
+  let d = 0, j = i + 1; const args = []; let cur = [];
+  for (; j < tokens.length; j++) {
+    const t = tokens[j];
+    if (t[0] === "op" && t[1] === "(") { d++; if (d > 1) cur.push(t); }
+    else if (t[0] === "op" && t[1] === ")") { d--; if (d === 0) { args.push(cur); return [args, j + 1]; } cur.push(t); }
+    else if (t[0] === "op" && t[1] === "," && d === 1) { args.push(cur); cur = []; }
+    else cur.push(t);
+  }
+  throw new Error(T("Parentesene går ikke opp"));
+}
+function fullId(name, key) {
+  const f = name.includes(".") ? name : key + "." + name;
+  if (!ROW[f]) throw new Error(T("Ukjent ledd") + ": " + name);
+  return f;
+}
+function frender(tokens, key, mode) {
+  let out = "", i = 0;
+  while (i < tokens.length) {
+    const [k, v] = tokens[i];
+    if (k === "fn") {
+      const [args, j] = fsplit(tokens, i);
+      if (v === "ACTIVE") { const pk = args[0] && args[0][0] ? args[0][0][1] : "";
+        out += mode === "js" ? `ACTIVE("${pk}")` : "[" + PN(pk) + "]"; }
+      else { const ra = args.map(a => frender(a, key, mode));
+        if (v === "DIV") out += mode === "js" ? `DIV(${ra[0]},${ra[1]})` : `${args[0].length > 1 ? "(" + ra[0] + ")" : ra[0]} ÷ ${args[1].length > 1 ? "(" + ra[1] + ")" : ra[1]}`;
+        else out += mode === "js" ? `${v}(${ra.join(",")})` : `${{IF: T("HVIS"), MAX: "MAKS", MIN: "MIN", ABS: "ABS", ROUND: T("AVRUND"), SUM: "SUM"}[v]}(${ra.join("; ")})`; }
+      i = j; continue;
+    }
+    if (k === "id") { const f = fullId(v, key);
+      out += mode === "js" ? `V("${f}")` : LBL(ROW[f]) + (f.split(".")[0] !== key ? " (" + SL(SHEET[f.split(".")[0]], "sheet") + ")" : ""); }
+    else if (k === "op") out += mode === "js" ? ({"=": "==", "<>": "!="}[v] || v) : ({"*": " × ", "-": " − ", "+": " + ", "/": " / "}[v] || v);
+    else out += mode === "txt" && k === "num" ? v.replace(".", ",") : v;
+    i++;
+  }
+  return out;
+}
+const fexpr = full => (SET.formulas && SET.formulas[full]) || ROW[full].expr;
+const ftext = (full, expr) => { try { return frender(ftok(expr ?? fexpr(full)), ROW[full].sheet, "txt"); } catch (e) { return expr ?? fexpr(full); } };
+const FCACHE = {};
+function compileExpr(expr, key) {
+  const id = key + "|" + expr;
+  if (!FCACHE[id]) FCACHE[id] = new Function("V", "DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "SUM", "ACTIVE", "return (" + frender(ftok(expr), key, "js") + ");");
+  return FCACHE[id];
+}
+function fnFor(full) {
+  try { return compileExpr(fexpr(full), ROW[full].sheet); } catch (e) { return compileExpr(ROW[full].expr, ROW[full].sheet); }
+}
+const accFor = full => (SET.acc && SET.acc[full] != null ? SET.acc[full] : ROW[full].acc) || "";
+const AVD = KONTOPLAN.avds;
 
 const LAGER_BEH = [["1400-1402", 4090], ["1403", 4091], ["1405-1406", 4092], ["1407", 4094], ["1410-1412", 4197], ["1413-1414", 4095],
   ["1415", 4191], ["1416", 4098], ["1420", 4190], ["1430-1433", 4194], ["1440", 4290], ["1441", 4291], ["1442", 4292], ["1443", 4293],
@@ -477,9 +623,10 @@ function freshState() {
   return {node: 0, maxNode: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [],
     overrides: {}, prodInputs: {}, active: {}, poolKey: null, maskinKey: null, innmekKey: null, texts: {}, kontrollProd: null, filter: ""};
 }
-let S = freshState(), SET = {map: {}, lang: "nb", theme: null};
+let S = freshState(), SET = {map: {}, avd: {}, acc: {}, formulas: {}, lang: "nb", theme: null, tab: "kontoplan"};
 try { const r = localStorage.getItem(STORE); if (r) S = Object.assign(freshState(), JSON.parse(r)); } catch (e) { /* ingen lagring */ }
 try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET, JSON.parse(r)); } catch (e) { /* ingen lagring */ }
+["map", "avd", "acc", "formulas"].forEach(k => SET[k] = SET[k] || {});
 LANG = SET.lang || "nb";
 let VIEW = "wizard";
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* ignorer */ } }
@@ -550,7 +697,7 @@ function engine(INP, active, FORCE = {}) {
     if (S.overrides[full] != null && S.overrides[full] !== "") v = num(S.overrides[full]);
     else if (full in FORCE) v = FORCE[full];
     else { const r = ROW[full]; if (!r) v = 0; else if (r.t === "input") v = INP[full] ?? 0;
-      else { try { v = COMPILED[full](V, FUNCS.DIV, FUNCS.IF, FUNCS.MAX, FUNCS.MIN, FUNCS.ABS, FUNCS.ROUND, FUNCS.SUM, ACTIVE); } catch (e) { v = 0; } } }
+      else { try { v = fnFor(full)(V, FUNCS.DIV, FUNCS.IF, FUNCS.MAX, FUNCS.MIN, FUNCS.ABS, FUNCS.ROUND, FUNCS.SUM, ACTIVE); } catch (e) { v = 0; } } }
     if (typeof v === "number" && !isFinite(v)) v = 0;
     return (memo[full] = v);
   }
@@ -563,14 +710,20 @@ function normKey(obj, keys) {
   return out;
 }
 function mapFor(nr) { const m = SET.map[nr]; return m && m.t1 ? m : null; }
+const avdDefault = nr => (KP[nr] ? KP[nr].avd : parseAcc(nr).avd) || "";
+const effAvd = nr => (SET.avd[nr] != null && SET.avd[nr] !== "" ? SET.avd[nr] : avdDefault(nr));
+const isJord = nr => ["", "20", "10"].includes(effAvd(nr));
 
 let M = null;
 function compute() {
   const A = adjustedAccounts(), derived = deriveInputs(A), INP = {};
+  let andreNaering = 0;
+  Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr) && b >= 3000 && b <= 7999) andreNaering += -a.amt; });
+  if (Object.values(A).some(a => !isJord(a.nr))) derived["total.do_andre"] = andreNaering;
   for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info")) INP[full] = prodInputVal(full, derived);
   INP["total.do_andre"] = prodInputVal("total.do_andre", derived);
   const firstAmt = {};
-  Object.values(A).forEach(a => { if (!a.amt) return; const m = mapFor(a.nr);
+  Object.values(A).forEach(a => { if (!a.amt || !isJord(a.nr)) return; const m = mapFor(a.nr);
     const c = m ? [m.t1] : candidates(a.nr); if (c.some(x => SPECIAL_LABEL[x])) return; const p = c.find(isProd); if (p) firstAmt[p] = (firstAmt[p] || 0) + Math.abs(a.amt); });
   const active = new Set(PKEYS.filter(k => S.active[k] != null ? S.active[k] : (INP[k + ".n"] > 0 || (firstAmt[k] || 0) > 0)));
   const V0 = engine(INP, active), act = [...active];
@@ -585,13 +738,13 @@ function compute() {
   const poolKey = pick(S.poolKey, autoP, poolKeys), innmekKey = pick(S.innmekKey, autoI, innmekKeys), maskinKey = pick(S.maskinKey, autoM, act);
   const contrib = {}, add = (full, nr, v) => { INP[full] = (INP[full] || 0) + v; (contrib[full] = contrib[full] || []).push({nr, v}); };
   const krRows = {}; SPEC.prods.forEach(p => krRows[p.key] = p.rows.filter(r => r.t === "input" && ["tilskot", "inn", "kost", "gf"].includes(r.kind)));
-  const fasteRows = SHEET.faste.rows.filter(r => r.t === "input" && r.acc);
+  const fasteRows = SHEET.faste.rows.filter(r => r.t === "input" && accFor("faste." + r.id));
   const tsum = {}, tadd = (t, nr, v) => { const b = parseAcc(nr).base, o = tsum[t] || (tsum[t] = {inn: 0, kost: 0}); if (b < 4000 || (b >= 8000 && b < 8100)) o.inn -= v; else o.kost += v; };
   function toProd(k, nr, amt) { const base = parseAcc(nr).base;
-    const row = krRows[k].find(r => r.acc && inRule(base, r.acc)) || krRows[k].find(r => r.id === (base < 4000 ? "andre_inn" : "andre_kost"));
+    const row = krRows[k].find(r => accFor(k + "." + r.id) && inRule(base, accFor(k + "." + r.id))) || krRows[k].find(r => r.id === (base < 4000 ? "andre_inn" : "andre_kost"));
     add(k + "." + row.id, nr, row.sign * amt); tadd(k, nr, amt); }
   function toFaste(nr, amt) { const base = parseAcc(nr).base;
-    const row = fasteRows.find(r => inRule(base, r.acc)) || fasteRows.find(r => r.id === "a_admin");
+    const row = fasteRows.find(r => inRule(base, accFor("faste." + r.id))) || fasteRows.find(r => r.id === "a_admin");
     add("faste." + row.id, nr, row.sign * amt); tadd("FASTE", nr, amt); }
   function toTotal(nr, amt) { const b = parseAcc(nr).base;
     if (b >= 8000 && b <= 8099) add("total.renteinn", nr, -amt); else if (b >= 8100) add("total.renteut", nr, amt);
@@ -603,6 +756,7 @@ function compute() {
   const alloc = {}; let innmekTotal = 0, ikkjeMed = 0, poolTotal = 0, poolCost = 0, poolInn = 0;
   Object.values(A).forEach(a => {
     if (!a.amt) return; const b = parseAcc(a.nr).base; if (b < 3000 || b > 8999) return;
+    if (!isJord(a.nr)) { alloc[a.nr] = [{t: "ANDRE", s: 1}]; tadd("ANDRE", a.nr, a.amt); return; }
     const man = mapFor(a.nr); let parts;
     if (man) { const p2 = man.t2 ? Math.min(100, Math.max(0, num(man.p2))) : 0; parts = [{t: man.t1, s: 1 - p2 / 100}]; if (p2) parts.push({t: man.t2, s: p2 / 100}); }
     else parts = [{t: resolve(a.nr), s: 1}];
@@ -618,7 +772,7 @@ function compute() {
   innmekKeys.forEach(k => add("faste.innmek_" + k, "INNMEK", innmekTotal * (innmekKey[k] || 0) / 100));
   act.forEach(k => INP["faste.pct_" + k] = (maskinKey[k] || 0) / 100);
   let doSkatt = 0, avskrS = 0, avskrD = 0, behS = 0, behD = 0;
-  Object.values(A).forEach(a => { const b = parseAcc(a.nr).base;
+  Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr)) return;
     if (b >= 3000 && b <= 7999) doSkatt += -a.orig;
     if (b >= 6000 && b <= 6099) { avskrS += a.orig; avskrD += a.amt; }
     if (inRule(b, BEH_RULE)) { behS += -a.orig; behD += -a.amt; } });
@@ -914,7 +1068,7 @@ function vKontroll(m) {
       if (r.t === "head") { sec = r.label; if (!/^5\./.test(sec)) rowsHtml += `<tr class="grp"><td colspan="3">${esc(secTitle(r))}</td></tr>`; return; }
       if (/^5\./.test(sec)) return;
       const full = sel + "." + r.id, ov = S.overrides[full] != null && S.overrides[full] !== "", c = M.contrib[full];
-      const tip = r.t === "calc" ? "= " + r.txt : (c && c.length ? c.map(x => x.nr + ": " + kr(x.v)).join("\n") : (r.src || ""));
+      const tip = r.t === "calc" ? "= " + ftext(full) : (c && c.length ? c.map(x => x.nr + ": " + kr(x.v)).join("\n") : (r.src || ""));
       rowsHtml += `<tr title="${esc(tip)}">${td(cols[0], r.kpi ? `<b>${esc(LBL(r))}</b>` : esc(LBL(r)), "wide")}${td(cols[1], `<span class="${ov ? "pill warn" : ""}">${fmt(V(full), r.fmt)}</span>`, "n")}
         ${td(cols[2], r.fmt !== "txt" ? `<input class="inp num" data-full="${full}" value="${ov ? S.overrides[full] : ""}">` : "", "n")}</tr>`;
     });
@@ -1193,7 +1347,7 @@ function buildDoc() {
   C.push(P.table([T("Kontogruppe"), T("Skattemessig"), T("Korrigering"), T("Driftsmessig")],
     drift.map(gRow).concat([{sum: true, cells: [T("Driftsresultat"), kr(sumS), kr(sumD - sumS), kr(sumD)]}]).concat(fin.map(gRow)), ["*", 75, 70, 75]));
   C.push(P.h2(T("Fordeling av regnskapet")));
-  const tOrder = [...prods.map(p => p.key), "FASTE", "INNMEK", "TOTAL", "NONE"].filter(t => M.tsum[t]);
+  const tOrder = [...prods.map(p => p.key), "FASTE", "INNMEK", "TOTAL", "ANDRE", "NONE"].filter(t => M.tsum[t]);
   C.push(P.table([T("Mottaker"), T("Inntekter"), T("Kostnader")], tOrder.map(t => ({cells: [t === "NONE" ? T("Ikke med i analysen") : PN(t), kr(M.tsum[t].inn), kr(M.tsum[t].kost)]})), ["*", 90, 90]));
   /* 8. Korrigeringar */
   C.push(P.h1(T("Korrigeringer og forutsetninger")));
@@ -1236,34 +1390,182 @@ function buildDoc() {
 
 /* ================================================================ INNSTILLINGER */
 function renderSettings(m) {
-  const f = (SET.filter || "").toLowerCase(), onlyMan = !!SET.onlyManual;
+  const tab = SET.tab === "kontering" ? "kontering" : "kontoplan";
+  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T(tab === "kontering" ? "Konteringsoppsett" : "Kontoplan")}</h1></div></div>
+    <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
+    <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button></div><div id="setBody"></div>`;
+  $$(".tabs .tab", m).forEach(b => b.onclick = () => { SET.tab = b.dataset.tab; saveSet(); renderSettings(m); });
+  (tab === "kontering" ? renderKontering : renderKontoplan)($("#setBody"), m);
+}
+function avdOptions(sel, def) {
+  return `<option value="" ${!sel ? "selected" : ""}>${def ? def + " " + esc(AVD[def] || "") : T("Ingen avdeling")}</option>` +
+    Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("");
+}
+function renderKontoplan(el, m) {
+  const f = (SET.filter || "").toLowerCase(), onlyMan = !!SET.onlyManual, avdF = SET.avdFilter ?? "20";
   const inSb = new Set(S.sb.map(r => r.nr));
-  const inRange = nr => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; };
-  const all = [...new Set([...KONTOPLAN.accounts.map(a => a[0]).filter(inRange), ...[...inSb].filter(inRange)])].sort(byNr);
+  const all = [...new Set([...KONTOPLAN.accounts.map(a => a[0]), ...inSb])].sort(byNr);
   const target = nr => (mapFor(nr) ? mapFor(nr).t1 : autoTarget(nr));
-  const shown = all.filter(nr => (!onlyMan || mapFor(nr)) && (!f || nr.includes(f) || kontoNavn(nr).toLowerCase().includes(f) || PN(target(nr)).toLowerCase().includes(f)));
+  const isRes = nr => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; };
+  const manual = nr => !!mapFor(nr) || (SET.avd[nr] != null && SET.avd[nr] !== "");
+  const shown = all.filter(nr => (!onlyMan || manual(nr)) && (avdF === "*" || effAvd(nr) === avdF || (avdF === "20" && effAvd(nr) === ""))
+    && (!f || nr.includes(f) || kontoNavn(nr).toLowerCase().includes(f) || (isRes(nr) && PN(target(nr)).toLowerCase().includes(f))));
   const groups = {}; shown.forEach(nr => { const g = String(parseAcc(nr).base).slice(0, 2); (groups[g] = groups[g] || []).push(nr); });
-  const nMan = Object.keys(SET.map).filter(mapFor).length;
-  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T("Kobling konto → produksjon")}</h1></div><span class="grow"></span>
-    <span class="pill acc">${nMan} ${T("manuelle")}</span></div>
-    <div class="card"><div class="row"><input class="search" id="sflt" placeholder="${T("Søk konto eller navn")}" value="${esc(SET.filter || "")}">
+  const nMan = all.filter(manual).length;
+  el.innerHTML = `<div class="card"><div class="row">
+      <input class="search" id="sflt" placeholder="${T("Søk konto eller navn")}" value="${esc(SET.filter || "")}">
+      <select class="sel" id="avdF"><option value="*" ${avdF === "*" ? "selected" : ""}>${T("Alle avdelinger")}</option>${Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === avdF ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("")}</select>
       <label class="row sm"><input type="checkbox" id="onlyMan" ${onlyMan ? "checked" : ""}> ${T("Vis bare manuelle")}</label><span class="grow"></span>
-      <button class="btn sm ghost" id="resetMap">${T("Tilbakestill alle")}</button></div></div>
+      <span class="pill acc">${nMan} ${T("manuelle")}</span><button class="btn sm ghost" id="resetMap">${T("Tilbakestill alle")}</button></div></div>
+    <div class="maprow mhead"><span>${T("Konto")}</span><span>${T("Navn")}</span><span>${T("Avdeling")}</span><span>${T("Kobling")}</span><span>${T("Del med")}</span><span>%</span></div>
     ${Object.keys(groups).sort().map(g => `<details class="grp" data-g="${g}" ${f || onlyMan || (SET.openGroups || []).includes(g) ? "open" : ""}>
       <summary>${g} ${esc(KONTOPLAN.groups[g] || "")} <span class="grow"></span><span class="muted sm">${groups[g].length}</span></summary><div class="inner"></div></details>`).join("")}`;
-  const fill = d => { const g = d.dataset.g, box = $(".inner", d);
-    box.innerHTML = groups[g].map(nr => { const x = mapFor(nr) || {};
-      return `<div class="maprow ${x.t1 ? "manual" : ""}" data-nr="${esc(nr)}"><span class="nr acc">${esc(nr)}${inSb.has(nr) ? " •" : ""}</span><span>${esc(kontoNavn(nr))}</span>
-        <select class="sel" data-f="t1">${targetOptions(x.t1 || "", autoTarget(nr))}</select>
+  const fill = d => { const box = $(".inner", d);
+    box.innerHTML = groups[d.dataset.g].map(nr => { const x = mapFor(nr) || {}, res = isRes(nr), av = SET.avd[nr] || "", ad = avdDefault(nr);
+      return `<div class="maprow ${manual(nr) ? "manual" : ""}" data-nr="${esc(nr)}"><span class="nr acc">${esc(nr)}${inSb.has(nr) ? " •" : ""}</span><span>${esc(kontoNavn(nr))}</span>
+        <select class="sel ${av ? "ovr" : ""}" data-f="avd">${avdOptions(av, ad)}</select>
+        ${res ? `<select class="sel" data-f="t1">${targetOptions(x.t1 || "", autoTarget(nr))}</select>
         <select class="sel" data-f="t2"><option value="">${T("Del med")} …</option>${PKEYS.concat(Object.keys(SPECIAL_LABEL)).map(k => `<option value="${k}" ${k === x.t2 ? "selected" : ""}>${esc(PN(k))}</option>`).join("")}</select>
-        <input class="inp num" data-f="p2" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}></div>`; }).join("");
-    $$("select, input", box).forEach(el => el.onchange = e => { setMap(e.target.closest(".maprow").dataset.nr, e.target.dataset.f, e.target.value);
-      if (S.sb.length) compute(); fill(d); renderChrome(); $(".pill.acc", m).textContent = Object.keys(SET.map).filter(mapFor).length + " " + T("manuelle"); }); };
-  $$("details.grp", m).forEach(d => { if (d.open) fill(d); d.ontoggle = () => { if (d.open) fill(d);
+        <input class="inp num" data-f="p2" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}>` : `<span class="muted sm">${T("Balanse")}</span><span></span><span></span>`}</div>`; }).join("");
+    $$("select, input", box).forEach(e2 => e2.onchange = e => { const nr = e.target.closest(".maprow").dataset.nr;
+      if (e.target.dataset.f === "avd") { if (e.target.value) SET.avd[nr] = e.target.value; else delete SET.avd[nr]; saveSet(); }
+      else setMap(nr, e.target.dataset.f, e.target.value);
+      if (S.sb.length) compute(); fill(d); renderChrome(); }); };
+  $$("details.grp", el).forEach(d => { if (d.open) fill(d); d.ontoggle = () => { if (d.open) fill(d);
     const o = new Set(SET.openGroups || []); d.open ? o.add(d.dataset.g) : o.delete(d.dataset.g); SET.openGroups = [...o]; saveSet(); }; });
-  $("#sflt").oninput = e => { SET.filter = e.target.value; const pos = e.target.selectionStart; renderSettings(m); const n = $("#sflt"); n.focus(); n.setSelectionRange(pos, pos); };
-  $("#onlyMan").onchange = e => { SET.onlyManual = e.target.checked; saveSet(); renderSettings(m); };
-  $("#resetMap").onclick = () => { if (confirm(T("Vil du fjerne alle manuelle koblinger?"))) { SET.map = {}; saveSet(); render(); } };
+  $("#sflt").oninput = e => { SET.filter = e.target.value; const pos = e.target.selectionStart; renderKontoplan(el, m); const n = $("#sflt"); n.focus(); n.setSelectionRange(pos, pos); };
+  $("#avdF").onchange = e => { SET.avdFilter = e.target.value; saveSet(); renderKontoplan(el, m); };
+  $("#onlyMan").onchange = e => { SET.onlyManual = e.target.checked; saveSet(); renderKontoplan(el, m); };
+  $("#resetMap").onclick = () => { if (confirm(T("Vil du fjerne alle manuelle koblinger?"))) { SET.map = {}; SET.avd = {}; saveSet(); render(); } };
+}
+
+/* ---------- Konteringsoppsett ---------- */
+const KSHEETS = () => [...SPEC.prods.map(p => p.key), "faste", "total"];
+function simpleTerms(expr) {
+  let t; try { t = ftok(expr); } catch (e) { return null; }
+  const terms = []; let sign = 1, expect = "id";
+  for (const [k, v] of t) {
+    if (expect === "id") { if (k === "op" && (v === "+" || v === "-")) { sign = v === "-" ? -sign : sign; continue; } if (k !== "id") return null; terms.push({sign, id: v}); sign = 1; expect = "op"; }
+    else { if (k !== "op" || (v !== "+" && v !== "-")) return null; sign = v === "-" ? -1 : 1; expect = "id"; }
+  }
+  return terms.length ? terms : null;
+}
+function termsToExpr(terms) { return terms.map((t, i) => (t.sign < 0 ? "-" : (i ? "+" : "")) + t.id).join(""); }
+function sectionOf(sh) { const out = {}; let sec = ""; sh.rows.forEach(r => { if (r.t === "head") { if (/^\d\./.test(r.label)) sec = r.label; } else out[r.id] = sec; }); return out; }
+const isDetailSec = l => /OUTPUT – (Per|Nøkkeltal)/.test(l || "");
+function accChips(full) {
+  const r = ROW[full], acc = accFor(full), toks = acc.split(",").map(x => x.trim()).filter(Boolean), ov = SET.acc[full] != null;
+  if (!["tilskot", "inn", "kost", "gf", "fast"].includes(r.kind)) return `<div class="chips"><span class="chip muted">${T(r.kind === "info" ? "Fylles inn manuelt" : "Produksjonsdata")}</span></div>`;
+  if (r.acc == null && !ov && !acc && !/\.andre_(inn|kost)$/.test(full)) return `<div class="chips"><span class="chip muted">${T("Fordeles med nøkkel")}</span></div>`;
+  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" title="${esc(chipTitle(t))}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
+    ${!toks.length && /andre_(inn|kost)$/.test(full) ? `<span class="chip muted">${T(full.endsWith("andre_inn") ? "Øvrige 3xxx-kontoer" : "Øvrige 4xxx-kontoer")}</span>` : ""}
+    <button class="chip add" data-add="${full}">+ ${T("Konto")}</button>${ov ? `<button class="btn sm ghost" data-racc="${full}">${T("Standard")}</button>` : ""}</div>`;
+}
+function chipTitle(t) {
+  const x = t.replace("!", ""), m = x.match(/^(\d{4})(?:-(\d{4}))?$/); if (!m) return x;
+  return m[2] ? `${kontoNavn(m[1] + ".20")} … ${kontoNavn(m[2] + ".20")}` : kontoNavn(m[1] + ".20");
+}
+function renderKontering(el, m) {
+  const keys = KSHEETS(), sel = keys.includes(SET.kSheet) ? SET.kSheet : (M && M.prods[0] ? M.prods[0].key : "mjolk"), sh = SHEET[sel];
+  const secs = sectionOf(sh), V = S.sb.length && M ? M.V : null;
+  const calcs = sh.rows.filter(r => r.t === "calc"), main = calcs.filter(r => !isDetailSec(secs[r.id])), rest = calcs.filter(r => isDetailSec(secs[r.id]));
+  const nOv = Object.keys(SET.acc).length + Object.keys(SET.formulas).length;
+  const val = full => V ? `<span class="fval">${fmt(V(full), ROW[full].fmt)}</span>` : "";
+  const fcard = r => { const full = sel + "." + r.id, expr = fexpr(full), terms = simpleTerms(expr), ov = !!SET.formulas[full];
+    return `<div class="fcard ${ov ? "ovr" : ""}"><div class="fhead"><b>${esc(LBL(r))}</b>${val(full)}<span class="grow"></span>
+      ${ov ? `<span class="pill warn">${T("Endret")}</span>` : ""}<button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>
+      ${terms ? `<div class="terms">${terms.map(t => { let f; try { f = fullId(t.id, sel); } catch (e) { return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><span class="bad">${esc(t.id)}</span></div>`; }
+        const rr = ROW[f]; return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><div class="tb"><div class="tl">${esc(LBL(rr))}${f.split(".")[0] !== sel ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : ""}${val(f)}</div>
+          ${rr.t === "input" ? accChips(f) : `<div class="chips"><span class="chip muted">${T("Formel")}</span></div>`}</div></div>`; }).join("")}</div>`
+      : `<div class="ftext">= ${esc(ftext(full))}</div>`}</div>`; };
+  el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
+      <span class="grow"></span>${nOv ? `<span class="pill warn">${nOv} ${T("endringer")}</span>` : ""}<button class="btn sm" id="resetStd">${T("Tilbakestill standard")}</button></div></div>
+    ${main.map(fcard).join("")}
+    <details class="grp"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">
+      ${rest.map(r => { const full = sel + "." + r.id, ov = !!SET.formulas[full];
+        return `<div class="frow ${ov ? "ovr" : ""}"><div><b>${esc(LBL(r))}</b>${val(full)}<div class="ftext">= ${esc(ftext(full))}</div></div><button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>`; }).join("")}</div></details>`;
+  $("#kSel").onchange = e => { SET.kSheet = e.target.value; saveSet(); renderKontering(el, m); };
+  $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); if (S.sb.length) compute(); renderKontering(el, m); } };
+  const redraw = () => { if (S.sb.length) compute(); renderKontering(el, m); };
+  $$(".chip .x", el).forEach(b => b.onclick = () => { const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
+    toks.splice(+b.dataset.i, 1); SET.acc[full] = toks.join(", "); saveSet(); redraw(); });
+  $$("[data-add]", el).forEach(b => b.onclick = () => accModal(b.dataset.add, redraw));
+  $$("[data-racc]", el).forEach(b => b.onclick = () => { delete SET.acc[b.dataset.racc]; saveSet(); redraw(); });
+  $$("[data-edit]", el).forEach(b => b.onclick = () => formulaModal(b.dataset.edit, redraw));
+}
+/* ---------- overlay ---------- */
+function modal(html, onMount) {
+  closeModal();
+  const o = document.createElement("div"); o.className = "overlay"; o.id = "overlay";
+  o.innerHTML = `<div class="dialog" role="dialog" aria-modal="true">${html}</div>`;
+  o.addEventListener("mousedown", e => { if (e.target === o) closeModal(); });
+  document.body.appendChild(o); document.body.style.overflow = "hidden";
+  onMount($(".dialog", o));
+}
+function closeModal() { const o = $("#overlay"); if (o) o.remove(); document.body.style.overflow = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+function baseAccounts() {
+  const seen = {}; KONTOPLAN.accounts.forEach(([nr, navn]) => { const p = parseAcc(nr); if (p.base < 3000 || p.base > 8999 || p.suf) return;
+    if (!seen[p.base] || p.avd === "20") seen[p.base] = navn; });
+  return Object.entries(seen).map(([b, n]) => [b, n]).sort((a, b) => a[0] - b[0]);
+}
+function accModal(full, done) {
+  const r = ROW[full];
+  const draw = d => { const toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean), q = (d.q || "").toLowerCase();
+    const list = baseAccounts().filter(([b, n]) => !q || b.includes(q) || n.toLowerCase().includes(q)).slice(0, 80);
+    d.el.innerHTML = `<div class="dhead"><div><div class="k">${T("Kontoer i posten")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      <div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div>
+      <div class="row" style="margin:14px 0 8px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
+        <input class="inp" id="mRange" placeholder="${T("Intervall, f.eks. 4020-4029")}" style="width:190px"><button class="btn sm" id="mAddR">+ ${T("Legg til")}</button>
+        <button class="btn sm" id="mExR" title="${T("Unnta kontoene fra posten")}">− ${T("Unnta")}</button></div>
+      <div class="alist">${list.map(([b, n]) => { const has = toks.some(t => !t.startsWith("!") && inRule(+b, t));
+        return `<button class="arow ${has ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has ? "" : "muted"}">${has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div>
+      <div class="row dfoot"><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
+    const setToks = t => { SET.acc[full] = t.join(", "); saveSet(); draw(d); };
+    $$(".chip .x", d.el).forEach(b => b.onclick = () => { toks.splice(+b.dataset.i, 1); setToks(toks); });
+    $$(".arow", d.el).forEach(b => b.onclick = () => { const v = b.dataset.b;
+      if (b.classList.contains("on")) { const i = toks.indexOf(v); if (i >= 0) toks.splice(i, 1); else toks.push("!" + v); } else toks.push(v); setToks(toks); });
+    const addR = neg => { const v = $("#mRange", d.el).value.replace(/\s/g, ""); if (!/^\d{4}(-\d{4})?$/.test(v)) return; toks.push((neg ? "!" : "") + v); setToks(toks); };
+    $("#mAddR", d.el).onclick = () => addR(false); $("#mExR", d.el).onclick = () => addR(true);
+    const q2 = $("#mq", d.el); q2.oninput = e => { d.q = e.target.value; const p = e.target.selectionStart; draw(d); const n = $("#mq", d.el); n.focus(); n.setSelectionRange(p, p); };
+    $("#mClose", d.el).onclick = $("#mOk", d.el).onclick = () => { closeModal(); done(); };
+  };
+  modal("", el => draw({el}));
+}
+function formulaModal(full, done) {
+  const r = ROW[full], key = r.sheet, sh = SHEET[key];
+  const st = {expr: fexpr(full)}; st.terms = simpleTerms(st.expr); st.adv = !st.terms;
+  const opts = sel => sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc")).map(x => `<option value="${x.id}" ${x.id === sel ? "selected" : ""}>${esc(LBL(x))}</option>`).join("");
+  const draw = el => {
+    const expr = st.adv ? st.expr : termsToExpr(st.terms || []);
+    let err = "", txt = "", val = "";
+    try { frender(ftok(expr), key, "js"); txt = ftext(full, expr);
+      if (S.sb.length) { const old = SET.formulas[full]; SET.formulas[full] = expr; compute(); val = fmt(M.V(full), r.fmt); if (old == null) delete SET.formulas[full]; else SET.formulas[full] = old; compute(); }
+    } catch (e) { err = e.message; }
+    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Endre formel")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      ${st.adv ? `<textarea class="fedit" id="fx" spellcheck="false">${esc(st.expr)}</textarea>
+        <div class="row" style="margin-top:8px"><select class="sel" id="ins"><option value="">${T("Sett inn ledd")} …</option>${opts("")}</select>
+        <span class="muted sm">DIV(a,b) · IF(a&lt;b,x,y) · MAX · MIN · ROUND</span></div>`
+      : `<div class="tedit">${(st.terms || []).map((t, i) => `<div class="trow" data-i="${i}"><select class="sel sg2" data-f="sign"><option value="1" ${t.sign > 0 ? "selected" : ""}>+</option><option value="-1" ${t.sign < 0 ? "selected" : ""}>−</option></select>
+          <select class="sel" data-f="id">${opts(t.id)}</select><button class="btn sm ghost" data-del="${i}" aria-label="${T("Fjern")}">×</button></div>`).join("")}
+        <button class="btn sm" id="addT">+ ${T("Legg til ledd")}</button></div>`}
+      <div class="fprev ${err ? "bad" : ""}">${err ? esc(err) : `= ${esc(txt)}${val ? `<div class="sm muted" style="margin-top:4px">${T("Resultat")}: <b>${val}</b></div>` : ""}`}</div>
+      <div class="row dfoot"><button class="btn sm ghost" id="toggleAdv">${T(st.adv ? "Enkel redigering" : "Avansert redigering")}</button>
+        <button class="btn sm ghost" id="fStd">${T("Tilbakestill standard")}</button><span class="grow"></span>
+        <button class="btn" id="fCancel">${T("Avbryt")}</button><button class="btn pri" id="fSave" ${err ? "disabled" : ""}>${T("Lagre")}</button></div>`;
+    $("#mClose", el).onclick = $("#fCancel", el).onclick = closeModal;
+    $("#toggleAdv", el).onclick = () => { if (st.adv) { const t = simpleTerms(st.expr); if (!t) { alert(T("Formelen er for sammensatt for enkel redigering.")); return; } st.terms = t; st.adv = false; } else { st.expr = termsToExpr(st.terms || []); st.adv = true; } draw(el); };
+    $("#fStd", el).onclick = () => { st.expr = r.expr; st.terms = simpleTerms(r.expr); st.adv = !st.terms; draw(el); };
+    $("#fSave", el).onclick = () => { const e2 = st.adv ? st.expr : termsToExpr(st.terms); if (e2 === r.expr) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); closeModal(); done(); };
+    if (st.adv) { const fx = $("#fx", el); fx.onchange = e => { st.expr = e.target.value; draw(el); };
+      $("#ins", el).onchange = e => { if (!e.target.value) return; st.expr = (fx.value.trim() ? fx.value.trim() + "+" : "") + e.target.value; draw(el); }; }
+    else {
+      $$(".trow select", el).forEach(s2 => s2.onchange = e => { const t = st.terms[+e.target.closest(".trow").dataset.i]; if (e.target.dataset.f === "sign") t.sign = +e.target.value; else t.id = e.target.value; draw(el); });
+      $$("[data-del]", el).forEach(b => b.onclick = () => { st.terms.splice(+b.dataset.del, 1); draw(el); });
+      $("#addT", el).onclick = () => { st.terms = st.terms || []; st.terms.push({sign: 1, id: sh.rows.find(x => x.t === "input").id}); draw(el); };
+    }
+  };
+  modal("", draw);
 }
 
 /* ================================================================ HENDINGAR */
