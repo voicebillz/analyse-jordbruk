@@ -352,6 +352,14 @@ const NN = {
   "Bilag": "Bilag",
   "Tekst": "Tekst",
   "Årsoppgjør": "Årsoppgjer",
+  "saldo- og sumlinjer er holdt utenfor": "saldo- og sumlinjer er haldne utanfor",
+  "Kolonner i fila": "Kolonnar i fila",
+  "Last opp fila på nytt for å endre kolonnene.": "Last opp fila på nytt for å endre kolonnane.",
+  "Kontonavn": "Kontonamn",
+  "Debet": "Debet",
+  "Kredit": "Kredit",
+  "Mengde 1": "Mengd 1",
+  "Mengde 2": "Mengd 2",
   /* rapport */
   "NØKKELTALLSANALYSE JORDBRUK": "NØKKELTALSANALYSE JORDBRUK", "Hovedtall": "Hovudtal",
   "Dekningsbidrag med tilskudd": "Dekningsbidrag med tilskot", "Driftsoverskudd jordbruk": "Driftsoverskot jordbruk", "Nettoinntekt": "Nettoinntekt",
@@ -949,7 +957,8 @@ function vImport(m) {
   $("#btnHb").onclick = () => $("#fileHb").click();
   $("#fileHb").onchange = e => importHovedbok(e.target.files[0]);
   const hq = $("#hbQty"); if (hq) hq.onchange = e => { S.hbQty = e.target.checked; save(); rerender(); };
-  const hr = $("#hbRemove"); if (hr) hr.onclick = () => { S.hb = null; save(); rerender(); };
+  const hr = $("#hbRemove"); if (hr) hr.onclick = () => { if (S.source === S.hbSource) { S.sb = []; S.source = ""; } S.hb = null; save(); rerender(); };
+  $$("[data-hbcol]", m).forEach(sl => sl.onchange = e => { HBRAW.map[e.target.dataset.hbcol] = +e.target.value; hbApply(HBRAW); });
   const hd = $("#hbDiff"); if (hd) hd.onclick = () => { S.hbShowDiff = !S.hbShowDiff; rerender(); };
   $$("[data-hb]", m).forEach(b => b.onclick = () => hbModal(b.dataset.hb));
   $("#inKlient").onchange = e => { S.klient = e.target.value; save(); renderChrome(); };
@@ -977,6 +986,21 @@ function accFromCell(v) {
   let nr = m[0]; if (typeof v === "number" && /^\d{4}\.\d$/.test(nr)) nr += "0";
   return {nr, rest: raw.slice(m[0].length).replace(/^[\s\-–:]+/, "").trim()};
 }
+const normName = x => String(x || "").toLowerCase().replace(/[^a-z0-9æøåô]+/g, "");
+let KPBASE = null;
+function resolveAcc(nr, name, avdCell) {
+  if (nr.includes(".")) return nr;
+  if (!KPBASE) { KPBASE = {}; KONTOPLAN.accounts.forEach(a => { const b = parseAcc(a[0]).base; (KPBASE[b] = KPBASE[b] || []).push(a); }); }
+  const base = parseInt(nr, 10), cands = KPBASE[base] || [], avd = (String(avdCell ?? "").match(/^\s*(\d{1,3})/) || [])[1] || "";
+  if (!cands.length) return avd ? nr + "." + avd : nr;
+  const nn2 = normName(name);
+  if (nn2) { const hits = cands.filter(a => normName(a[1]) === nn2);
+    const h = hits.find(a => a[6] === avd) || hits.find(a => a[6] === "20") || hits[0]; if (h) return h[0]; }
+  const plain = cands.filter(a => !parseAcc(a[0]).suf);
+  const p2 = (avd && plain.find(a => a[6] === avd)) || plain.find(a => a[6] === "20") || plain[0];
+  return p2 ? p2[0] : nr;
+}
+const SUMRE = /(inng[åa]ende|utg[åa]ende)\s*(saldo|balanse)|^(sum|totalt?|saldo|ib|ub)\b|^(sum|total)\s/i;
 function parseDate(v) {
   if (v == null || v === "") return "";
   if (typeof v === "number" && v > 20000 && v < 80000) { const d = new Date(Math.round((v - 25569) * 86400000)); return d.toISOString().slice(0, 10); }
@@ -994,14 +1018,17 @@ function importFile(file) {
     const cNavn = col(/navn|namn|beskrivelse|tekst/), cIb = col(/^inng(?!.*mengde)|^ib$|opening/, /inng/), cUb = col(/^utg(?!.*mengde)/, /^ub$|closing/, /^saldo$/, /utg(?!.*mengde)/);
     const cEnd = col(/endring|bevegelse|periode/, /beløp|belop/);
     const cM1ib = col(/mengde.*(inng|ib)|(inng|ib).*mengde/), cM1ub = col(/mengde.*(utg|ub)|(utg|ub).*mengde/);
-    const cM1 = col(/mengde ?1(?!.*(inng|utg|ib|ub))|^antall$|^mengde$/), cM2 = col(/mengde ?2/);
-    const sb = [];
+    const cM1 = col(/mengde ?1(?!.*(inng|utg|ib|ub))|^antall$|^mengde$/), cM2 = col(/mengde ?2/), cAvd = col(/avdeling|department/);
+    const sb = [], seen = {};
     rows.slice(hi + 1).forEach(r => {
       const a = accFromCell(r[cNr]); if (!a) return;
       const navn = cNavn >= 0 && cNavn !== cNr ? String(r[cNavn]).trim() : a.rest;
+      if (SUMRE.test(navn)) return;
+      a.nr = resolveAcc(a.nr, navn, cAvd >= 0 ? r[cAvd] : "");
       const ib = cIb >= 0 ? num(r[cIb]) : 0, ub = cUb >= 0 ? num(r[cUb]) : ib + (cEnd >= 0 ? num(r[cEnd]) : 0);
       const m1 = cM1 >= 0 ? num(r[cM1]) : 0, m2 = cM2 >= 0 ? num(r[cM2]) : 0;
-      sb.push(parseInt(a.nr, 10) >= 3000 ? {nr: a.nr, navn: navn || kontoNavn(a.nr), ib: 0, ub, m1, m2}
+      if (seen[a.nr]) { const o = seen[a.nr]; o.ib += parseInt(a.nr, 10) >= 3000 ? 0 : ib; o.ub += ub; o.m1 = (o.m1 || 0) + m1; o.m2 = (o.m2 || 0) + m2; return; }
+      sb.push(seen[a.nr] = parseInt(a.nr, 10) >= 3000 ? {nr: a.nr, navn: navn || kontoNavn(a.nr), ib: 0, ub, m1, m2}
         : {nr: a.nr, navn: navn || kontoNavn(a.nr), ib, ub, m1ib: cM1ib >= 0 ? num(r[cM1ib]) : 0, m1ub: cM1ub >= 0 ? num(r[cM1ub]) : m1, m1: 0, m2: 0});
     });
     if (!sb.length) { alert(T("Fant ingen kontoer i fila.")); return; }
@@ -1027,37 +1054,63 @@ function hbCard() {
       <div class="tile"><div class="k">${T("Avstemming mot saldobalanse")}</div><div class="v">${!S.sb.length ? "–" : diff.length ? `<span class="pill bad">${diff.length} ${T("avvik")}</span>` : `<span class="pill good">${T("Stemmer")}</span>`}</div>
         <div class="s">${diff.length ? `<button class="linkbtn" id="hbDiff">${T(S.hbShowDiff ? "Skjul avvik" : "Vis avvik")}</button>` : "&nbsp;"}</div></div>
     </div>
+    ${S.hb.skipped ? `<div class="muted sm" style="margin-bottom:6px">${S.hb.skipped} ${T("saldo- og sumlinjer er holdt utenfor")}</div>` : ""}
+    <details class="grp" ${S.hb.qty ? "" : "open"}><summary>${T("Kolonner i fila")}</summary><div class="inner">
+      ${HBRAW && HBRAW.file === S.hb.file ? `<div class="fields">${HB_FIELDS.map(([k, l]) => `<label class="field">${T(l)}<select class="sel" data-hbcol="${k}"><option value="-1">–</option>
+        ${HBRAW.H.map((h, i) => `<option value="${i}" ${HBRAW.map[k] === i ? "selected" : ""}>${esc(h || "(" + (i + 1) + ")")}</option>`).join("")}</select></label>`).join("")}</div>`
+      : `<div class="muted sm">${T("Last opp fila på nytt for å endre kolonnene.")}</div>`}</div></details>
     <label class="row sm"><input type="checkbox" id="hbQty" ${S.hbQty !== false ? "checked" : ""} ${S.hb.qty ? "" : "disabled"}> ${T(S.hb.qty ? "Bruk mengder og månedstall fra hovedboken" : "Fila har ingen mengdekolonner")}</label>
     ${S.hbShowDiff && diff.length ? `<table class="t" style="margin-top:12px"><thead><tr><th>${T("Konto")}</th><th class="n">${T("Saldobalanse")}</th><th class="n">${T("Hovedbok")}</th><th class="n">${T("Differanse")}</th></tr></thead><tbody>
       ${diff.map(d => `<tr>${td(T("Konto"), esc(d.nr) + " " + esc(d.navn), "wide")}${td(T("Saldobalanse"), kr(d.sb), "n")}${td(T("Hovedbok"), kr(d.hb), "n")}${td(T("Differanse"), kr(d.hb - d.sb), "n")}</tr>`).join("")}</tbody></table>` : ""}</div>`;
 }
+const HB_FIELDS = [["konto", "Konto"], ["kontonavn", "Kontonavn"], ["dato", "Dato"], ["bilag", "Bilag"], ["tekst", "Tekst"], ["belop", "Beløp"],
+  ["debet", "Debet"], ["kredit", "Kredit"], ["m1", "Mengde 1"], ["m2", "Mengde 2"], ["avd", "Avdeling"]];
+let HBRAW = null; // rådata frå siste opplasting (berre i minnet)
+function hbGuess(rows) {
+  const {hi, H, col} = headerCols(rows, /beløp|belop|debet|kredit|amount/i);
+  const g = {
+    konto: col(/^konto(nr|nummer)?$|kontonummer/, /^konto/, /konto/), kontonavn: col(/kontonavn|kontobeskrivelse|account name/),
+    dato: col(/^dato$|bilagsdato|date/, /dato/), bilag: col(/bilagsnummer|bilagsnr|^bilag|voucher/), tekst: col(/^beskrivelse|^tekst|description/, /beskrivelse|tekst/),
+    belop: col(/^beløp$|^belop$|^beløp \(nok\)|^amount$/, /^beløp(?!.*valuta)|^belop(?!.*valuta)/, /beløp(?!.*valuta)/),
+    debet: col(/debet/), kredit: col(/kredit/),
+    m1: col(/mengde ?1|^antall|^mengde$|^kvantum|quantity|^volum/, /antall|mengde(?! ?2)/), m2: col(/mengde ?2|^kg$|vekt/), avd: col(/avdeling|department/),
+  };
+  if (g.kontonavn === g.konto) g.kontonavn = -1;
+  if (g.belop >= 0 && (g.debet >= 0 || g.kredit >= 0) && g.belop !== g.debet) { /* beløp finst – bruk det */ g.debet = g.kredit = -1; }
+  return {hi, H, map: g};
+}
+function hbParse(raw) {
+  const {rows, hi, map: g} = raw, out = []; let skipped = 0;
+  rows.slice(hi + 1).forEach(r => {
+    const a = accFromCell(r[g.konto]); if (!a) return;
+    const navn = g.kontonavn >= 0 ? String(r[g.kontonavn]).trim() : a.rest, tekst = g.tekst >= 0 ? String(r[g.tekst]).trim() : "";
+    const bilag = g.bilag >= 0 ? String(r[g.bilag]).trim() : "";
+    if (SUMRE.test(tekst) || SUMRE.test(bilag) || SUMRE.test(a.rest) || (g.kontonavn >= 0 && SUMRE.test(navn)) || (g.bilag >= 0 && !bilag)) { skipped++; return; }
+    const bel = g.belop >= 0 ? num(r[g.belop]) : (g.debet >= 0 ? num(r[g.debet]) : 0) - (g.kredit >= 0 ? Math.abs(num(r[g.kredit])) : 0);
+    const nr = resolveAcc(a.nr, navn, g.avd >= 0 ? r[g.avd] : "");
+    out.push([parseDate(g.dato >= 0 ? r[g.dato] : ""), bilag, nr, tekst.slice(0, 80), bel, g.m1 >= 0 ? num(r[g.m1]) : 0, g.m2 >= 0 ? num(r[g.m2]) : 0, g.avd >= 0 ? String(r[g.avd]).trim() : ""]);
+  });
+  return {out, skipped};
+}
+function hbApply(raw) {
+  const {out, skipped} = hbParse(raw);
+  if (!out.length) { alert(T("Fant ingen posteringer i fila.")); return false; }
+  S.hb = {file: raw.file, rows: out, qty: raw.map.m1 >= 0 || raw.map.m2 >= 0, skipped, map: raw.map, H: raw.H};
+  if (S.hbQty == null) S.hbQty = true;
+  if (!S.sb.length || S.source === S.hbSource) { // ingen saldobalanse: bygg resultatkontoar frå hovudboka
+    const sum = {}; out.forEach(t => { sum[t[2]] = (sum[t[2]] || 0) + t[4]; });
+    S.sb = Object.entries(sum).map(([nr, v]) => parseAcc(nr).base >= 3000 ? {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1: 0, m2: 0}
+      : {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1ib: 0, m1ub: 0, m1: 0, m2: 0}).sort((a, b) => byNr(a.nr, b.nr));
+    S.source = S.hbSource = raw.file;
+    const yr = out.map(t => t[0].slice(0, 4)).filter(Boolean).sort()[0]; if (yr) S.aar = +yr;
+  }
+  HBC = null; save(); render(); return true;
+}
 function importHovedbok(file) {
   if (!file) return;
   if (typeof XLSX === "undefined") { alert(T("Kunne ikke lese fila.")); return; }
-  readRows(file).then(rows => {
-    const {hi, col} = headerCols(rows, /beløp|belop|debet|kredit|amount/i);
-    const cNr = col(/^konto(nr|nummer)?$|kontonummer/, /^konto/, /konto/), cDato = col(/dato|date/), cBil = col(/bilag|voucher/);
-    const cTxt = col(/beskrivelse|tekst|description/), cBel = col(/^beløp$|^belop$|^beløp \(nok\)|^amount$/, /beløp(?!.*valuta)|belop(?!.*valuta)/);
-    const cDeb = col(/debet/), cKre = col(/kredit/), cM1 = col(/mengde ?1|^antall|^mengde$|quantity/), cM2 = col(/mengde ?2/), cAvd = col(/avdeling|department/);
-    const out = [];
-    rows.slice(hi + 1).forEach(r => {
-      const a = accFromCell(r[cNr]); if (!a) return;
-      const bel = cBel >= 0 ? num(r[cBel]) : (cDeb >= 0 ? num(r[cDeb]) : 0) - (cKre >= 0 ? num(r[cKre]) : 0);
-      out.push([parseDate(cDato >= 0 ? r[cDato] : ""), cBil >= 0 ? String(r[cBil]) : "", a.nr, cTxt >= 0 ? String(r[cTxt]).slice(0, 80) : "",
-        bel, cM1 >= 0 ? num(r[cM1]) : 0, cM2 >= 0 ? num(r[cM2]) : 0, cAvd >= 0 ? String(r[cAvd]).trim() : ""]);
-    });
-    if (!out.length) { alert(T("Fant ingen posteringer i fila.")); return; }
-    S.hb = {file: file.name, rows: out, qty: cM1 >= 0 || cM2 >= 0};
-    if (S.hbQty == null) S.hbQty = true;
-    if (!S.sb.length) { // ingen saldobalanse: bygg resultatkontoar frå hovudboka
-      const sum = {}; out.forEach(t => { const o = sum[t[2]] || (sum[t[2]] = 0); sum[t[2]] = o + t[4]; });
-      S.sb = Object.entries(sum).map(([nr, v]) => parseAcc(nr).base >= 3000 ? {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1: 0, m2: 0}
-        : {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1ib: 0, m1ub: 0, m1: 0, m2: 0}).sort((a, b) => byNr(a.nr, b.nr));
-      S.source = file.name;
-      const yr = out.map(t => t[0].slice(0, 4)).filter(Boolean).sort()[0]; if (yr) S.aar = +yr;
-    }
-    save(); render();
-  }).catch(e => { console.error(e); alert(T("Kunne ikke lese fila.")); });
+  readRows(file).then(rows => { const g = hbGuess(rows); HBRAW = {file: file.name, rows, hi: g.hi, H: g.H, map: g.map}; hbApply(HBRAW); })
+    .catch(e => { console.error(e); alert(T("Kunne ikke lese fila.")); });
 }
 let HBC = null;
 function hbSums() {
