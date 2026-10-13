@@ -191,6 +191,7 @@ details.grp .inner{padding:0 14px 12px}
 .fprev{margin-top:12px;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13.5px}
 .fprev.bad{background:var(--bad-soft);color:var(--bad)}
 .bad{color:var(--bad)}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;text-decoration:underline;text-underline-offset:2px}
 .hidden{display:none!important}
 @media (max-width:760px){
   .wrap{padding:18px 16px 110px}
@@ -330,6 +331,27 @@ const NN = {
   "Avbryt": "Avbryt",
   "Lagre": "Lagre",
   "Formelen er for sammensatt for enkel redigering.": "Formelen er for samansett for enkel redigering.",
+  "Last opp saldobalanse": "Last opp saldobalanse",
+  "Last opp hovedbok": "Last opp hovudbok",
+  "Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.": "Gir mengder per konto og tal per månad. Kan brukast åleine eller saman med saldobalansen.",
+  "Hovedbok": "Hovudbok",
+  "Fjern hovedbok": "Fjern hovudbok",
+  "Posteringer": "Posteringar",
+  "posteringer": "posteringar",
+  "Kontoer med mengde": "Kontoar med mengd",
+  "kontoer": "kontoar",
+  "Avstemming mot saldobalanse": "Avstemming mot saldobalanse",
+  "avvik": "avvik",
+  "Vis avvik": "Vis avvik",
+  "Skjul avvik": "Skjul avvik",
+  "Bruk mengder og månedstall fra hovedboken": "Bruk mengder og månadstal frå hovudboka",
+  "Fila har ingen mengdekolonner": "Fila har ingen mengdkolonnar",
+  "Fant ingen posteringer i fila.": "Fann ingen posteringar i fila.",
+  "Vis posteringer": "Vis posteringar",
+  "Dato": "Dato",
+  "Bilag": "Bilag",
+  "Tekst": "Tekst",
+  "Årsoppgjør": "Årsoppgjer",
   /* rapport */
   "NØKKELTALLSANALYSE JORDBRUK": "NØKKELTALSANALYSE JORDBRUK", "Hovedtall": "Hovudtal",
   "Dekningsbidrag med tilskudd": "Dekningsbidrag med tilskot", "Driftsoverskudd jordbruk": "Driftsoverskot jordbruk", "Nettoinntekt": "Nettoinntekt",
@@ -560,6 +582,11 @@ const DERIVE = [
   ["kylling.kg_slakt", "3046", "564-565", "end", "m2"], ["kylling.tal_slakta", "3046", "564-565", "end", "m1"],
 ];
 
+/* utleiing frå hovudboka med månadsfilter (som Duett: Måned=5-12 osv.) */
+const DERIVE_MONTH = [
+  ["sau.selde_arslam", [3044, 3054], "543", 5, 12, "m1"], ["sau.kjopte_lam", [4640], "543", 5, 12, "m1"],
+  ["sau.selde_jul_des", [3044, 3054], "541-543", 7, 12, "m1"],
+];
 /* ================================================================ FIKTIV SALDOBALANSE (Joa Gaard) */
 const DEMO = {
   klient: "Joa Gaard", aar: 2025,
@@ -594,7 +621,7 @@ const DEMO = {
   ],
   prodInputs: {
     "mjolk.n": 25, "mjolk.kvote": 190000, "mjolk.distrikt_mjolk": 21000, "oksar.n": 13, "oksar.tal_livs": 0,
-    "sau.n": 70, "sau.kjopte_lam": 0, "sau.selde_arslam": 123, "sau.selde_jul_des": 135,
+    "sau.n": 70,
     "korn.n": 60, "korn.avling": 22000, "korn.sal_kg": 20000,
     "grovfor.overflate": 40, "grovfor.fulldyrka": 420, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
     "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
@@ -620,7 +647,7 @@ function demoSaldobalanse() {
 /* ================================================================ TILSTAND */
 const STORE = "jordbruksanalyse.prosjekt.v2", STORE_SET = "jordbruksanalyse.innstillinger.v1";
 function freshState() {
-  return {node: 0, maxNode: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [],
+  return {hb: null, hbQty: true, node: 0, maxNode: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [],
     overrides: {}, prodInputs: {}, active: {}, poolKey: null, maskinKey: null, innmekKey: null, texts: {}, kontrollProd: null, filter: ""};
 }
 let S = freshState(), SET = {map: {}, avd: {}, acc: {}, formulas: {}, lang: "nb", theme: null, tab: "kontoplan"};
@@ -654,6 +681,8 @@ function avskrRows() {
 function adjustedAccounts() {
   const A = {};
   S.sb.filter(sbIsResult).forEach(r => A[r.nr] = {nr: r.nr, navn: r.navn, orig: r.ub, amt: r.ub, m1: r.m1 || 0, m2: r.m2 || 0, notes: []});
+  const hq = S.hb && S.hb.qty && S.hbQty !== false ? hbSums() : null;
+  if (hq) Object.values(A).forEach(a => { const q = hq[a.nr]; if (q) { a.m1 = q.m1; a.m2 = q.m2; } });
   const ensure = nr => A[nr] || (A[nr] = {nr, navn: kontoNavn(nr), orig: 0, amt: 0, m1: 0, m2: 0, notes: []});
   lagerRows().forEach(l => { if (l.beh && Math.abs(l.korr) > 0.004) { const a = ensure(l.beh); a.amt += -l.korr; a.notes.push("lager"); } });
   avskrRows().forEach(x => { if (Math.abs(x.diff) > 0.004) { const a = ensure(x.r.nr); a.amt = x.drift; a.notes.push("avskr"); } });
@@ -685,6 +714,13 @@ function deriveInputs(A) {
       if (field === "kr") { const l = lag[r.nr]; sum += what === "ib" ? (l ? l.ibD : r.ib) : (l ? l.ubD : r.ub); }
       else sum += what === "ib" ? (r.m1ib || 0) : (r.m1ub || 0); });
     if (hit) D[full] = sum;
+  });
+  if (S.hb && S.hb.qty) DERIVE_MONTH.forEach(([full, bases, suf, m0, m1, field]) => {
+    let sum = 0, hit = false;
+    S.hb.rows.forEach(t => { const p = parseAcc(t[2]), mo = +t[0].slice(5, 7);
+      if (!bases.includes(p.base) || (suf && !(p.suf && inRule(+p.suf, suf))) || !mo || mo < m0 || mo > m1) return;
+      sum += t[field === "m1" ? 5 : 6]; hit = true; });
+    if (hit) D[full] = Math.abs(sum);
   });
   return D;
 }
@@ -873,8 +909,10 @@ function vImport(m) {
   m.innerHTML = head() + `
   <div class="choice" style="margin-bottom:16px">
     <div class="opt"><h3>${T("Importer fra Tripletex")}</h3><p>${T("Fiktive tall for Joa Gaard inntil Tripletex-koblingen er aktivert.")}</p><button class="btn pri" id="btnTx">${T("Importer fra Tripletex")}</button></div>
-    <div class="opt"><h3>${T("Last opp fil")}</h3><p>${T("Excel- eller CSV-eksport av saldobalansen.")}</p><button class="btn" id="btnFile">${T("Velg fil")}</button><input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
+    <div class="opt"><h3>${T("Last opp saldobalanse")}</h3><p>${T("Excel- eller CSV-eksport av saldobalansen.")}</p><button class="btn" id="btnFile">${T("Velg fil")}</button><input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
+    <div class="opt"><h3>${T("Last opp hovedbok")}</h3><p>${T("Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.")}</p><button class="btn" id="btnHb">${T("Velg fil")}</button><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
   </div>
+  ${S.hb ? hbCard() : ""}
   <div class="card"><div class="fields">
     <label class="field">${T("Klient")}<input id="inKlient" value="${esc(S.klient)}"></label>
     <label class="field">${T("Regnskapsår")}<input id="inAar" type="number" value="${esc(S.aar)}"></label>
@@ -892,8 +930,9 @@ function vImport(m) {
   ${rows.map(r => { const isRes = sbIsResult(r), b = parseAcc(r.nr).base, man = mapFor(r.nr);
     const sel = isRes && b <= 8999 ? `<select class="sel" data-nr="${esc(r.nr)}">${targetOptions(man ? man.t1 : "", M.resolve(r.nr))}</select>${man && man.t2 ? ` <span class="pill acc">${T("delt")} ${num(man.p2)} % ${esc(PN(man.t2))}</span>` : ""}`
       : `<span class="muted sm">${isRes ? "" : T("Balanse")}</span>`;
-    return `<tr>${td(cols[0], esc(r.nr), "acc")}${td(cols[1], esc(r.navn), "wide")}${td(cols[2], isRes ? "" : kr(r.ib), "n")}${td(cols[3], kr(r.ub), "n")}
-      ${td(cols[4], isRes ? fmt(r.m1 || r.m2, "n") : (r.m1ib || r.m1ub ? fmt(r.m1ib, "n") + " → " + fmt(r.m1ub, "n") : ""), "n")}${td(cols[5], sel, "wide")}</tr>`; }).join("")}
+    const hbn = S.hb && hbSums()[r.nr];
+    return `<tr>${td(cols[0], hbn ? `<button class="linkbtn" data-hb="${esc(r.nr)}" title="${T("Vis posteringer")}">${esc(r.nr)}</button>` : esc(r.nr), "acc")}${td(cols[1], esc(r.navn), "wide")}${td(cols[2], isRes ? "" : kr(r.ib), "n")}${td(cols[3], kr(r.ub), "n")}
+      ${td(cols[4], isRes ? qtyTxt(r.nr, M.A[r.nr] || r) : (r.m1ib || r.m1ub ? fmt(r.m1ib, "n") + " → " + fmt(r.m1ub, "n") : ""), "n")}${td(cols[5], sel, "wide")}</tr>`; }).join("")}
   </tbody></table></div>` : ""}`;
   $("#btnTx").onclick = () => {
     const keep = {klient: S.klient, utarbeidd: S.utarbeidd};
@@ -902,45 +941,162 @@ function vImport(m) {
     Object.entries(DEMO.map).forEach(([nr, v]) => { if (!SET.map[nr]) SET.map[nr] = Object.assign({}, v); }); saveSet();
     Object.entries(DEMO.lagerPris).forEach(([nr, p]) => { const r = S.sb.find(x => x.nr === nr); if (r) S.lager[nr] = {ibD: r.m1ib * p, ubD: r.m1ub * p}; });
     S.avskr = JSON.parse(JSON.stringify(DEMO.avskr)); S.moves = JSON.parse(JSON.stringify(DEMO.moves));
+    S.hb = demoHovedbok(S.sb); S.hbQty = true;
     save(); render();
   };
   $("#btnFile").onclick = () => $("#fileSb").click();
   $("#fileSb").onchange = e => importFile(e.target.files[0]);
+  $("#btnHb").onclick = () => $("#fileHb").click();
+  $("#fileHb").onchange = e => importHovedbok(e.target.files[0]);
+  const hq = $("#hbQty"); if (hq) hq.onchange = e => { S.hbQty = e.target.checked; save(); rerender(); };
+  const hr = $("#hbRemove"); if (hr) hr.onclick = () => { S.hb = null; save(); rerender(); };
+  const hd = $("#hbDiff"); if (hd) hd.onclick = () => { S.hbShowDiff = !S.hbShowDiff; rerender(); };
+  $$("[data-hb]", m).forEach(b => b.onclick = () => hbModal(b.dataset.hb));
   $("#inKlient").onchange = e => { S.klient = e.target.value; save(); renderChrome(); };
   $("#inAar").onchange = e => { S.aar = +e.target.value || S.aar; save(); renderChrome(); };
   $("#inUtarb").onchange = e => { S.utarbeidd = e.target.value; save(); };
   const flt = $("#flt"); if (flt) flt.oninput = e => { S.filter = e.target.value; const pos = e.target.selectionStart; vImport(m); const n = $("#flt"); n.focus(); n.setSelectionRange(pos, pos); };
   $$("select[data-nr]", m).forEach(s => s.onchange = e => { setMap(e.target.dataset.nr, "t1", e.target.value); rerender(); });
 }
+function readRows(file) {
+  return file.arrayBuffer().then(buf => {
+    const isText = /\.(csv|txt)$/i.test(file.name);
+    const wb = XLSX.read(buf, {type: "array", raw: isText});
+    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: "", raw: true});
+  });
+}
+function headerCols(rows, need) {
+  let hi = rows.findIndex(r => r.some(c => /konto/i.test(String(c))) && r.some(c => need.test(String(c))));
+  if (hi < 0) hi = 0;
+  const H = rows[hi].map(c => String(c).toLowerCase().trim());
+  const col = (...res) => { for (const re of res) { const i = H.findIndex(h => re.test(h)); if (i >= 0) return i; } return -1; };
+  return {hi, H, col};
+}
+function accFromCell(v) {
+  const raw = String(v ?? "").trim(); let m = raw.match(/^\d{4}(\.\d+){0,2}/); if (!m) return null;
+  let nr = m[0]; if (typeof v === "number" && /^\d{4}\.\d$/.test(nr)) nr += "0";
+  return {nr, rest: raw.slice(m[0].length).replace(/^[\s\-–:]+/, "").trim()};
+}
+function parseDate(v) {
+  if (v == null || v === "") return "";
+  if (typeof v === "number" && v > 20000 && v < 80000) { const d = new Date(Math.round((v - 25569) * 86400000)); return d.toISOString().slice(0, 10); }
+  const s2 = String(v).trim(); let m;
+  if ((m = s2.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  if ((m = s2.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})/))) return `${m[3].length === 2 ? "20" + m[3] : m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return "";
+}
 function importFile(file) {
   if (!file) return;
   if (typeof XLSX === "undefined") { alert(T("Kunne ikke lese fila.")); return; }
-  file.arrayBuffer().then(buf => {
-    const isText = /\.(csv|txt)$/i.test(file.name);
-    const wb = XLSX.read(buf, {type: "array", raw: isText});
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: "", raw: true});
-    let hi = rows.findIndex(r => r.some(c => /konto/i.test(String(c))) && r.some(c => /saldo|ub|utg|beløp|belop/i.test(String(c))));
-    if (hi < 0) hi = 0;
-    const H = rows[hi].map(c => String(c).toLowerCase());
-    const col = (...res) => { for (const re of res) { const i = H.findIndex(h => re.test(h)); if (i >= 0) return i; } return -1; };
+  readRows(file).then(rows => {
+    const {hi, col} = headerCols(rows, /saldo|ub|utg|beløp|belop/i);
     const cNr = col(/^konto(nr|nummer)?$|kontonummer|^nr$/, /konto/);
-    const cNavn = col(/navn|namn|beskrivelse|tekst/), cIb = col(/inng|^ib$|opening/), cUb = col(/utg/, /^ub$|closing/, /^saldo$/);
-    const cEnd = col(/endring|bevegelse|periode/, /beløp|belop/), cM1 = col(/mengde ?1|antall|mengde$/), cM2 = col(/mengde ?2/);
+    const cNavn = col(/navn|namn|beskrivelse|tekst/), cIb = col(/^inng(?!.*mengde)|^ib$|opening/, /inng/), cUb = col(/^utg(?!.*mengde)/, /^ub$|closing/, /^saldo$/, /utg(?!.*mengde)/);
+    const cEnd = col(/endring|bevegelse|periode/, /beløp|belop/);
+    const cM1ib = col(/mengde.*(inng|ib)|(inng|ib).*mengde/), cM1ub = col(/mengde.*(utg|ub)|(utg|ub).*mengde/);
+    const cM1 = col(/mengde ?1(?!.*(inng|utg|ib|ub))|^antall$|^mengde$/), cM2 = col(/mengde ?2/);
     const sb = [];
     rows.slice(hi + 1).forEach(r => {
-      const raw = String(r[cNr] ?? "").trim(); if (!raw) return;
-      let nr = raw.match(/^\d{4}(\.\d+){0,2}/); if (!nr) return; nr = nr[0];
-      if (typeof r[cNr] === "number" && /^\d{4}\.\d$/.test(nr)) nr += "0";
-      const navn = cNavn >= 0 ? String(r[cNavn]).trim() : raw.replace(nr, "").trim();
-      const ib = cIb >= 0 ? num(r[cIb]) : 0;
-      const ub = cUb >= 0 ? num(r[cUb]) : ib + (cEnd >= 0 ? num(r[cEnd]) : 0);
+      const a = accFromCell(r[cNr]); if (!a) return;
+      const navn = cNavn >= 0 && cNavn !== cNr ? String(r[cNavn]).trim() : a.rest;
+      const ib = cIb >= 0 ? num(r[cIb]) : 0, ub = cUb >= 0 ? num(r[cUb]) : ib + (cEnd >= 0 ? num(r[cEnd]) : 0);
       const m1 = cM1 >= 0 ? num(r[cM1]) : 0, m2 = cM2 >= 0 ? num(r[cM2]) : 0;
-      sb.push(parseInt(nr, 10) >= 3000 ? {nr, navn: navn || kontoNavn(nr), ib: 0, ub, m1, m2} : {nr, navn: navn || kontoNavn(nr), ib, ub, m1ib: 0, m1ub: m1, m1: 0, m2: 0});
+      sb.push(parseInt(a.nr, 10) >= 3000 ? {nr: a.nr, navn: navn || kontoNavn(a.nr), ib: 0, ub, m1, m2}
+        : {nr: a.nr, navn: navn || kontoNavn(a.nr), ib, ub, m1ib: cM1ib >= 0 ? num(r[cM1ib]) : 0, m1ub: cM1ub >= 0 ? num(r[cM1ub]) : m1, m1: 0, m2: 0});
     });
     if (!sb.length) { alert(T("Fant ingen kontoer i fila.")); return; }
-    const keep = {klient: S.klient, utarbeidd: S.utarbeidd, aar: S.aar};
+    const keep = {klient: S.klient, utarbeidd: S.utarbeidd, aar: S.aar, hb: S.hb, hbQty: S.hbQty};
     S = freshState(); Object.assign(S, keep); S.sb = sb.sort((a, b) => byNr(a.nr, b.nr)); S.source = file.name; save(); render();
   }).catch(() => alert(T("Kunne ikke lese fila.")));
+}
+/* ---------- hovudbok ---------- */
+function qtyTxt(nr, a) {
+  const k = KP[nr] || KP[parseAcc(nr).base + ".20"] || {}, u1 = k.m1 || (a.m2 ? "stk" : ""), u2 = k.m2 || "kg", out = [];
+  if (a.m1) out.push(fmt(Math.abs(a.m1), "n") + (u1 ? " " + u1 : ""));
+  if (a.m2) out.push(fmt(Math.abs(a.m2), "n") + " " + u2);
+  return out.join(" · ") || "–";
+}
+function hbCard() {
+  const rows = S.hb.rows, dates = rows.map(t => t[0]).filter(Boolean).sort(), diff = S.sb.length ? hbAvstem() : [], sums = hbSums();
+  const nAcc = Object.keys(sums).length, nQty = Object.values(sums).filter(q => q.m1 || q.m2).length;
+  return `<div class="card"><div class="card-head"><h2>${T("Hovedbok")}</h2><span class="muted sm">${esc(S.hb.file)}</span><span class="grow"></span>
+    <button class="btn sm ghost" id="hbRemove">${T("Fjern hovedbok")}</button></div>
+    <div class="tiles" style="margin-bottom:10px">
+      <div class="tile"><div class="k">${T("Posteringer")}</div><div class="v">${NF0.format(rows.length)}</div><div class="s">${dates.length ? esc(dates[0]) + " – " + esc(dates[dates.length - 1]) : ""}</div></div>
+      <div class="tile"><div class="k">${T("Kontoer med mengde")}</div><div class="v">${nQty}</div><div class="s">${T("av")} ${nAcc} ${T("kontoer")}</div></div>
+      <div class="tile"><div class="k">${T("Avstemming mot saldobalanse")}</div><div class="v">${!S.sb.length ? "–" : diff.length ? `<span class="pill bad">${diff.length} ${T("avvik")}</span>` : `<span class="pill good">${T("Stemmer")}</span>`}</div>
+        <div class="s">${diff.length ? `<button class="linkbtn" id="hbDiff">${T(S.hbShowDiff ? "Skjul avvik" : "Vis avvik")}</button>` : "&nbsp;"}</div></div>
+    </div>
+    <label class="row sm"><input type="checkbox" id="hbQty" ${S.hbQty !== false ? "checked" : ""} ${S.hb.qty ? "" : "disabled"}> ${T(S.hb.qty ? "Bruk mengder og månedstall fra hovedboken" : "Fila har ingen mengdekolonner")}</label>
+    ${S.hbShowDiff && diff.length ? `<table class="t" style="margin-top:12px"><thead><tr><th>${T("Konto")}</th><th class="n">${T("Saldobalanse")}</th><th class="n">${T("Hovedbok")}</th><th class="n">${T("Differanse")}</th></tr></thead><tbody>
+      ${diff.map(d => `<tr>${td(T("Konto"), esc(d.nr) + " " + esc(d.navn), "wide")}${td(T("Saldobalanse"), kr(d.sb), "n")}${td(T("Hovedbok"), kr(d.hb), "n")}${td(T("Differanse"), kr(d.hb - d.sb), "n")}</tr>`).join("")}</tbody></table>` : ""}</div>`;
+}
+function importHovedbok(file) {
+  if (!file) return;
+  if (typeof XLSX === "undefined") { alert(T("Kunne ikke lese fila.")); return; }
+  readRows(file).then(rows => {
+    const {hi, col} = headerCols(rows, /beløp|belop|debet|kredit|amount/i);
+    const cNr = col(/^konto(nr|nummer)?$|kontonummer/, /^konto/, /konto/), cDato = col(/dato|date/), cBil = col(/bilag|voucher/);
+    const cTxt = col(/beskrivelse|tekst|description/), cBel = col(/^beløp$|^belop$|^beløp \(nok\)|^amount$/, /beløp(?!.*valuta)|belop(?!.*valuta)/);
+    const cDeb = col(/debet/), cKre = col(/kredit/), cM1 = col(/mengde ?1|^antall|^mengde$|quantity/), cM2 = col(/mengde ?2/), cAvd = col(/avdeling|department/);
+    const out = [];
+    rows.slice(hi + 1).forEach(r => {
+      const a = accFromCell(r[cNr]); if (!a) return;
+      const bel = cBel >= 0 ? num(r[cBel]) : (cDeb >= 0 ? num(r[cDeb]) : 0) - (cKre >= 0 ? num(r[cKre]) : 0);
+      out.push([parseDate(cDato >= 0 ? r[cDato] : ""), cBil >= 0 ? String(r[cBil]) : "", a.nr, cTxt >= 0 ? String(r[cTxt]).slice(0, 80) : "",
+        bel, cM1 >= 0 ? num(r[cM1]) : 0, cM2 >= 0 ? num(r[cM2]) : 0, cAvd >= 0 ? String(r[cAvd]).trim() : ""]);
+    });
+    if (!out.length) { alert(T("Fant ingen posteringer i fila.")); return; }
+    S.hb = {file: file.name, rows: out, qty: cM1 >= 0 || cM2 >= 0};
+    if (S.hbQty == null) S.hbQty = true;
+    if (!S.sb.length) { // ingen saldobalanse: bygg resultatkontoar frå hovudboka
+      const sum = {}; out.forEach(t => { const o = sum[t[2]] || (sum[t[2]] = 0); sum[t[2]] = o + t[4]; });
+      S.sb = Object.entries(sum).map(([nr, v]) => parseAcc(nr).base >= 3000 ? {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1: 0, m2: 0}
+        : {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1ib: 0, m1ub: 0, m1: 0, m2: 0}).sort((a, b) => byNr(a.nr, b.nr));
+      S.source = file.name;
+      const yr = out.map(t => t[0].slice(0, 4)).filter(Boolean).sort()[0]; if (yr) S.aar = +yr;
+    }
+    save(); render();
+  }).catch(e => { console.error(e); alert(T("Kunne ikke lese fila.")); });
+}
+let HBC = null;
+function hbSums() {
+  if (!S.hb) return null;
+  if (HBC && HBC.ref === S.hb) return HBC.sums;
+  const sums = {};
+  S.hb.rows.forEach(t => { const o = sums[t[2]] || (sums[t[2]] = {amt: 0, m1: 0, m2: 0, n: 0}); o.amt += t[4]; o.m1 += t[5]; o.m2 += t[6]; o.n++; });
+  HBC = {ref: S.hb, sums}; return sums;
+}
+function hbAvstem() {
+  const sums = hbSums(); if (!sums) return [];
+  const diff = [];
+  const hasBal = Object.keys(sums).some(nr => parseAcc(nr).base < 3000);
+  S.sb.forEach(r => { const isRes = sbIsResult(r); if (!isRes && !hasBal) return; const want = isRes ? r.ub : r.ub - r.ib, got = sums[r.nr] ? sums[r.nr].amt : 0;
+    if (Math.abs(want - got) > 0.5) diff.push({nr: r.nr, navn: r.navn, sb: want, hb: got}); });
+  Object.keys(sums).forEach(nr => { if (!S.sb.some(r => r.nr === nr) && Math.abs(sums[nr].amt) > 0.5) diff.push({nr, navn: kontoNavn(nr), sb: 0, hb: sums[nr].amt}); });
+  return diff.sort((a, b) => byNr(a.nr, b.nr));
+}
+function hbModal(nr) {
+  const rows = (S.hb ? S.hb.rows : []).filter(t => t[2] === nr).sort((a, b) => (a[0] > b[0] ? 1 : -1));
+  const sum = rows.reduce((x, t) => [x[0] + t[4], x[1] + t[5], x[2] + t[6]], [0, 0, 0]);
+  const cols = [T("Dato"), T("Bilag"), T("Tekst"), T("Beløp"), T("Mengde") + " 1", T("Mengde") + " 2"];
+  modal("", el => {
+    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Hovedbok")}</div><h2>${esc(nr)} ${esc(kontoNavn(nr))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 2 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+      ${rows.map(t => `<tr>${td(cols[0], esc(t[0]))}${td(cols[1], esc(t[1]))}${td(cols[2], esc(t[3]), "wide")}${td(cols[3], kr(t[4]), "n")}${td(cols[4], fmt(t[5], "n"), "n")}${td(cols[5], fmt(t[6], "n"), "n")}</tr>`).join("")}
+      <tr class="sum"><td colspan="3">${T("Sum")} · ${rows.length} ${T("posteringer")}</td><td class="n">${kr(sum[0])}</td><td class="n">${fmt(sum[1], "n")}</td><td class="n">${fmt(sum[2], "n")}</td></tr></tbody></table>`;
+    $("#mClose", el).onclick = closeModal;
+  });
+}
+function demoHovedbok(sb) {
+  const out = []; let bilag = 1000;
+  const months = nr => { const p = parseAcc(nr); if (p.base === 3044 || p.base === 3054) return [8, 9, 10, 11]; if (p.base === 4640) return [10]; if (p.base === 4610) return [3, 4]; return [2, 5, 8, 11]; };
+  sb.filter(sbIsResult).forEach(r => { const ms = months(r.nr), k = ms.length;
+    ms.forEach((mo, i) => { const share = i === k - 1 ? 1 - (k - 1) / k : 1 / k, round = v => Math.round(v * share);
+      out.push([`${DEMO.aar}-${String(mo).padStart(2, "0")}-15`, String(bilag++), r.nr, r.navn, round(r.ub), i === k - 1 ? r.m1 - Math.round(r.m1 / k) * (k - 1) : Math.round(r.m1 / k), i === k - 1 ? r.m2 - Math.round(r.m2 / k) * (k - 1) : Math.round(r.m2 / k), "20"]); });
+    const s2 = out.filter(t => t[2] === r.nr).reduce((x, t) => x + t[4], 0); out[out.length - 1][4] += r.ub - s2; });
+  sb.filter(r => !sbIsResult(r) && r.ub !== r.ib).forEach(r => out.push([`${DEMO.aar}-12-31`, String(bilag++), r.nr, T("Årsoppgjør"), r.ub - r.ib, 0, 0, "20"]));
+  return {file: "Tripletex hovedbok (fiktiv)", rows: out, qty: true};
 }
 
 /* ================================================================ STEG 2: VARELAGER */
