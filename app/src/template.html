@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="nn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nøkkeltalsanalyse jordbruk</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#f4f5f2; --surface:#ffffff; --surface-2:#f8f9f7; --line:#dfe3dc; --line-2:#eceee9;
+  --ink:#1b211c; --ink-2:#4d564f; --ink-3:#7a837c;
+  --accent:#2e5e45; --accent-2:#3d7a5a; --accent-soft:#e3efe7; --accent-ink:#ffffff;
+  --input-bg:#fffbe6; --input-line:#e8d27a;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fde8e6; --good:#1d6b3a; --good-soft:#e2f3e8;
+  --series-1:#2a78d6; --series-2:#eb6834;
+  --radius:10px; --shadow:0 1px 2px rgba(20,30,20,.06),0 4px 14px rgba(20,30,20,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app-head{background:var(--accent);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.app-head h1{font-size:18px;margin:0;font-weight:650;letter-spacing:.1px}
+.app-head .meta{opacity:.85;font-size:13px}
+.app-head .spacer{flex:1}
+.app-head .hbtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.app-head .hbtn:hover{background:rgba(255,255,255,.22)}
+.stepper{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--line);padding:0 16px;overflow-x:auto}
+.step{display:flex;align-items:center;gap:10px;padding:14px 18px;border:0;background:none;cursor:pointer;color:var(--ink-3);white-space:nowrap;border-bottom:3px solid transparent}
+.step .num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--line-2);color:var(--ink-2);font-weight:650;font-size:13px}
+.step.done .num{background:var(--accent-soft);color:var(--accent)}
+.step.active{color:var(--ink);border-bottom-color:var(--accent)}
+.step.active .num{background:var(--accent);color:#fff}
+.step .lbl{font-weight:560}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 24px 90px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:18px}
+.card h3{margin:18px 0 8px;font-size:15px}
+.lead{color:var(--ink-2);margin:0 0 14px;max-width:880px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:560}
+.btn:hover{border-color:var(--accent-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2)}
+.btn.small{padding:4px 10px;font-size:12.5px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.big-import{display:flex;gap:16px;flex-wrap:wrap}
+.import-tile{flex:1 1 300px;border:1px dashed var(--line);border-radius:var(--radius);padding:18px;background:var(--surface-2)}
+.import-tile h3{margin:0 0 6px}
+.import-tile p{margin:0 0 12px;color:var(--ink-2);font-size:13px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--ink-2)}
+.field input,.field select{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#fff;min-width:160px;color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+.tile{background:var(--surface-2);border:1px solid var(--line-2);border-radius:9px;padding:12px 14px}
+.tile .k{font-size:12px;color:var(--ink-3)}
+.tile .v{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .s{font-size:12px;color:var(--ink-2)}
+.tblwrap{overflow:auto;border:1px solid var(--line);border-radius:9px;max-height:560px}
+table.t{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+table.t th{position:sticky;top:0;background:#eef1ec;text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);z-index:1;white-space:nowrap;color:var(--ink-2);font-size:12px}
+table.t td{padding:6px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+table.t tr:hover td{background:#fafbf8}
+table.t td.n,table.t th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr.sum td{font-weight:650;background:#f3f6f2}
+table.t tr.grp td{background:var(--accent-soft);font-weight:650;color:var(--accent)}
+table.t input.num,table.t input.txt,table.t select{border:1px solid var(--input-line);background:var(--input-bg);border-radius:6px;padding:4px 7px;width:120px;text-align:right;font-variant-numeric:tabular-nums}
+table.t input.txt{text-align:left;width:220px}
+table.t select{text-align:left;width:auto;max-width:230px;background:#fff;border-color:var(--line)}
+table.t input.pct{width:72px}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--line-2);color:var(--ink-2)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.notice{border-radius:9px;padding:10px 14px;margin:10px 0;font-size:13px}
+.notice.warn{background:var(--warn-soft);color:#5d3a00}
+.notice.ok{background:var(--good-soft);color:#174d2b}
+.notice.info{background:#eaf2fb;color:#1b4470}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 16px;flex-wrap:wrap}
+.tab{border:0;background:none;padding:9px 14px;cursor:pointer;color:var(--ink-2);border-bottom:2px solid transparent;font-weight:560}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.search{border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:260px}
+.footer-nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 24px;display:flex;gap:12px;align-items:center;z-index:5}
+.footer-nav .spacer{flex:1}
+.prodgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.prodcard{border:1px solid var(--line);border-radius:9px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;background:var(--surface-2)}
+.prodcard.on{border-color:var(--accent-2);background:var(--accent-soft)}
+.prodcard .nm{font-weight:620}
+.prodcard .sub{font-size:12px;color:var(--ink-3)}
+details.prod{border:1px solid var(--line);border-radius:9px;margin:10px 0;background:#fff}
+details.prod>summary{cursor:pointer;padding:10px 14px;font-weight:620;display:flex;gap:10px;align-items:center}
+details.prod>summary::-webkit-details-marker{display:none}
+details.prod>summary:before{content:"▸";color:var(--ink-3)}
+details.prod[open]>summary:before{content:"▾"}
+details.prod .inner{padding:0 14px 14px}
+.formula{font-size:11.5px;color:var(--ink-3);max-width:520px}
+.ovr{color:var(--warn);font-weight:650}
+.hidden{display:none!important}
+.preview-shell{background:#6b716c;border-radius:var(--radius);padding:22px;overflow:auto;max-height:78vh}
+.preview-shell .page{margin:0 auto 22px;box-shadow:0 4px 24px rgba(0,0,0,.35)}
+/* ---------- rapport (A4) ---------- */
+.page{width:210mm;height:296.6mm;background:#fff;color:#1b211c;position:relative;overflow:hidden;padding:15mm 15mm 14mm;font:9.5pt/1.4 Arial,Helvetica,sans-serif;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.page .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #2e5e45;padding-bottom:5px;margin-bottom:10px}
+.page .ph .t{font-size:15pt;font-weight:700;color:#2e5e45}
+.page .ph .m{font-size:8pt;color:#6b746d;text-align:right}
+.page .pf{position:absolute;left:15mm;right:15mm;bottom:8mm;font-size:7.5pt;color:#8a928b;display:flex;justify-content:space-between;border-top:1px solid #e3e6e1;padding-top:4px}
+.page h4{font-size:10.5pt;margin:12px 0 5px;color:#2e5e45}
+.page p{margin:0 0 6px}
+.page .ptiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:6px 0 8px}
+.page .ptile{border:1px solid #dfe3dc;border-radius:6px;padding:7px 9px;background:#f8f9f7}
+.page .ptile .k{font-size:7.5pt;color:#6b746d;line-height:1.25}
+.page .ptile .v{font-size:13pt;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.page .ptile .s{font-size:7.5pt;color:#4d564f}
+.page table.r{width:100%;border-collapse:collapse;font-size:8.3pt}
+.page table.r th{text-align:left;font-weight:700;border-bottom:1.2px solid #2e5e45;padding:3px 4px;color:#2e5e45;font-size:7.8pt}
+.page table.r td{padding:2.4px 4px;border-bottom:1px solid #eceee9}
+.page table.r td.n,.page table.r th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.page table.r tr.s td{font-weight:700;background:#f3f6f2;border-bottom:1px solid #cfd6cd}
+.page table.r tr.h td{font-weight:700;color:#2e5e45;padding-top:6px;border-bottom:none}
+.page .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.page .box{border-left:3px solid #2e5e45;background:#f4f7f3;padding:7px 10px;border-radius:0 6px 6px 0;margin:8px 0}
+.page .cover-band{background:#2e5e45;color:#fff;margin:-15mm -15mm 0;padding:24mm 15mm 12mm}
+.page .cover-band .over{font-size:9pt;letter-spacing:1.5px;text-transform:uppercase;opacity:.8}
+.page .cover-band h1{font-size:26pt;margin:4px 0 2px}
+.page .cover-band .who{font-size:13pt;opacity:.95}
+.page .legend{display:flex;gap:14px;font-size:7.8pt;color:#4d564f;margin:2px 0 4px}
+.page .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.page .muted{color:#7a837c}
+@media print{
+  body{background:#fff}
+  .app-head,.stepper,.footer-nav,.no-print{display:none!important}
+  .wrap{padding:0;max-width:none}
+  .card{border:0;box-shadow:none;padding:0;margin:0}
+  .preview-shell{background:none;padding:0;max-height:none;overflow:visible}
+  .preview-shell .page{box-shadow:none;margin:0}
+  @page{size:A4;margin:0}
+}
+@media (max-width:700px){
+  .wrap{padding:16px 16px 90px}
+  .app-head{padding:12px 16px}
+  .card{padding:16px}
+  .search{min-width:0;width:100%}
+}
+</style>
+</head>
+<body>
+<header class="app-head">
+  <h1>Nøkkeltalsanalyse jordbruk</h1>
+  <span class="meta" id="hdrMeta">Ingen saldobalanse importert</span>
+  <span class="spacer"></span>
+  <button class="hbtn" id="btnSave" title="Lagre arbeidet som fil">Lagre prosjekt</button>
+  <button class="hbtn" id="btnOpen" title="Opne eit lagra prosjekt">Opne prosjekt</button>
+  <button class="hbtn" id="btnReset" title="Start på nytt">Nullstill</button>
+  <input type="file" id="fileProject" accept=".json" class="hidden">
+</header>
+<nav class="stepper" id="stepper"></nav>
+<main class="wrap" id="main"></main>
+<div class="footer-nav no-print">
+  <button class="btn" id="btnPrev">← Tilbake</button>
+  <span class="muted small" id="footInfo"></span>
+  <span class="spacer"></span>
+  <button class="btn primary" id="btnNext">Neste →</button>
+</div>
+
+<script>
+"use strict";
+/* ============================================================ DATA (generert av tools/build_html.py) */
+const SPEC = /*__SPEC__*/null;
+const KONTOPLAN = /*__KONTOPLAN__*/null;
+
+/* ============================================================ HJELPARAR */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const NF0 = new Intl.NumberFormat("nb-NO", {maximumFractionDigits: 0});
+const NF1 = new Intl.NumberFormat("nb-NO", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const NF2 = new Intl.NumberFormat("nb-NO", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function fmt(v, f) {
+  if (typeof v === "string") return esc(v);
+  if (v == null || !isFinite(v)) return "–";
+  if (Math.abs(v) < 1e-9) return "–";
+  switch (f) {
+    case "pct": return NF1.format(v * 100) + " %";
+    case "kr2": case "n2": return NF2.format(v);
+    case "n1": return NF1.format(v);
+    default: return NF0.format(v);
+  }
+}
+const kr = v => fmt(v, "kr");
+function num(s) {
+  if (typeof s === "number") return s;
+  if (s == null) return 0;
+  s = String(s).trim().replace(/\s| /g, "").replace(/kr$/i, "");
+  if (/^-?[\d.]+,\d+$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+  else s = s.replace(",", ".");
+  const v = parseFloat(s);
+  return isFinite(v) ? v : 0;
+}
+function parseAcc(nr) {
+  const p = String(nr).trim().split(".");
+  return {nr: String(nr).trim(), base: parseInt(p[0], 10), avd: p[1] || "", suf: p[2] || ""};
+}
+const ruleCache = {};
+function rules(str) {
+  if (ruleCache[str]) return ruleCache[str];
+  const inc = [], exc = [];
+  String(str || "").split(",").map(x => x.trim()).filter(Boolean).forEach(tok => {
+    const neg = tok.startsWith("!"); if (neg) tok = tok.slice(1);
+    const m = tok.match(/^(\d+)(?:-(\d+))?/); if (!m) return;
+    const r = [parseInt(m[1], 10), parseInt(m[2] || m[1], 10)];
+    (neg ? exc : inc).push(r);
+  });
+  return (ruleCache[str] = {inc, exc});
+}
+function inRule(n, str) {
+  const r = rules(str);
+  return r.inc.some(([a, b]) => n >= a && n <= b) && !r.exc.some(([a, b]) => n >= a && n <= b);
+}
+const KP = {}; KONTOPLAN.forEach(([nr, navn, type, m1, m2]) => KP[nr] = {nr, navn, type, m1, m2});
+function kontoNavn(nr) {
+  if (KP[nr]) return KP[nr].navn;
+  const a = parseAcc(nr);
+  return (KP[a.base + "." + a.avd] || KP[String(a.base)] || {navn: "Konto " + nr}).navn;
+}
+
+const ALLSHEETS = [...SPEC.common, ...SPEC.prods];
+const SHEET = {}; ALLSHEETS.forEach(s => SHEET[s.key] = s);
+const ROW = {};
+ALLSHEETS.forEach(s => s.rows.forEach(r => { if (r.id) ROW[s.key + "." + r.id] = Object.assign({sheet: s.key}, r); }));
+const PNAME = {}; SPEC.prods.forEach(p => PNAME[p.key] = p.sheet);
+const SPECIAL = {POOL: "Fellespott (nøkkel)", FASTE: "Faste kostnader", INNMEK: "Innandørsmek. (nøkkel)", TOTAL: "Totaløkonomi (ikkje fordelt)", NONE: "Ikkje med i analysen"};
+const FUNCS = {
+  DIV: (a, b) => (b ? a / b : 0), IF: (c, a, b) => (c ? a : b), MAX: Math.max, MIN: Math.min, ABS: Math.abs,
+  ROUND: (x, n) => { const f = Math.pow(10, n || 0); return Math.round(x * f) / f; }, SUM: (...a) => a.reduce((x, y) => x + y, 0)
+};
+const COMPILED = {};
+for (const [k, r] of Object.entries(ROW)) if (r.t === "calc")
+  COMPILED[k] = new Function("V", "DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "SUM", "ACTIVE", "return (" + r.js + ");");
+
+/* lager -> beholdningsendringskonto */
+const LAGER_BEH = [["1400-1402", 4090], ["1403", 4091], ["1405-1406", 4092], ["1407", 4094], ["1410-1412", 4197], ["1413-1414", 4095],
+  ["1415", 4191], ["1416", 4098], ["1420", 4190], ["1430-1433", 4194], ["1440", 4290], ["1441", 4291], ["1442", 4292], ["1443", 4293],
+  ["1444", 4294], ["1445", 4295], ["1446", 4296], ["1447", 4297], ["1448", 4298], ["1451", 4691], ["1452", 4692], ["1453", 4693],
+  ["1454", 4694], ["1455", 4695], ["1456", 4696], ["1457", 4697], ["1458", 4698], ["1460-1461", 4390]];
+function behKonto(nr) {
+  const a = parseAcc(nr);
+  const hit = LAGER_BEH.find(([r]) => inRule(a.base, r));
+  if (!hit) return null;
+  return hit[1] + (a.avd ? "." + a.avd : "") + (a.suf ? "." + a.suf : "");
+}
+const BEH_RULE = "4090-4099, 4190-4199, 4290-4299, 4690-4699";
+
+/* Utleiing av produksjonsdata frå mengder i saldobalansen */
+const DERIVE = [
+  ["mjolk.liter", "3071", "", "end", "m1"], ["mjolk.kg_kjott", "3041", "511-512", "end", "m2"],
+  ["mjolk.kyr_ib", "1451", "511-512", "ib", "m1"], ["mjolk.kyr_ub", "1451", "511-512", "ub", "m1"],
+  ["mjolk.ung_o_ib", "1451", "514", "ib", "m1"], ["mjolk.ung_o_ub", "1451", "514", "ub", "m1"],
+  ["mjolk.ung_u_ib", "1451", "515", "ib", "m1"], ["mjolk.ung_u_ub", "1451", "515", "ub", "m1"],
+  ["oksar.kg_slakt", "3041", "516-518", "end", "m2"], ["oksar.tal_slakta", "3041", "516-518", "end", "m1"],
+  ["oksar.tal_kjopt", "4610", "516-518", "end", "m1"],
+  ["oksar.o12_ib", "1451", "516", "ib", "m1"], ["oksar.o12_ub", "1451", "516", "ub", "m1"],
+  ["oksar.u12_ib", "1451", "517-518", "ib", "m1"], ["oksar.u12_ub", "1451", "517-518", "ub", "m1"],
+  ["ammekyr.kyr_ib", "1452", "521-522", "ib", "m1"], ["ammekyr.kyr_ub", "1452", "521-522", "ub", "m1"],
+  ["ammekyr.okse_ib", "1452", "526", "ib", "m1"], ["ammekyr.okse_ub", "1452", "526", "ub", "m1"],
+  ["sau.kg_slakt", "3044", "541-543", "end", "m2"],
+  ["sau.s1_ib", "1454", "541", "ib", "m1"], ["sau.s2_ib", "1454", "542", "ib", "m1"], ["sau.s3_ib", "1454", "543", "ib", "m1"],
+  ["sau.s1_ub", "1454", "541", "ub", "m1"], ["sau.s2_ub", "1454", "542", "ub", "m1"], ["sau.s3_ub", "1454", "543", "ub", "m1"],
+  ["sau.s1_ib_kr", "1454", "541", "ib", "kr"], ["sau.s2_ib_kr", "1454", "542", "ib", "kr"], ["sau.s3_ib_kr", "1454", "543", "ib", "kr"],
+  ["sau.s1_ub_kr", "1454", "541", "ub", "kr"], ["sau.s2_ub_kr", "1454", "542", "ub", "kr"], ["sau.s3_ub_kr", "1454", "543", "ub", "kr"],
+  ["geit.liter", "3075", "", "end", "m1"],
+  ["geit.g1_ib", "1455", "551", "ib", "m1"], ["geit.g2_ib", "1455", "552", "ib", "m1"],
+  ["geit.g1_ub", "1455", "551", "ub", "m1"], ["geit.g2_ub", "1455", "552", "ub", "m1"],
+  ["egg.kg_egg", "3076", "", "end", "m1"],
+  ["slaktegris.gris_ib", "1453", "", "ib", "m1"], ["slaktegris.gris_ub", "1453", "", "ub", "m1"],
+  ["kylling.ib", "1456", "564-565", "ib", "m1"], ["kylling.ub", "1456", "564-565", "ub", "m1"],
+  ["kylling.kg_slakt", "3046", "564-565", "end", "m2"], ["kylling.tal_slakta", "3046", "564-565", "end", "m1"],
+];
+
+/* ============================================================ FIKTIV SALDOBALANSE (Joa Gaard) */
+const DEMO = {
+  klient: "Joa Gaard", aar: 2025,
+  // [konto, beløp (debet +, kredit -), mengde1, mengde2]
+  result: [
+    ["3002.20", -48000, 0, 13300], ["3003.20", -24000, 0, 6700], ["3096.20", -6000],
+    ["3071.20", -1240000, 175000], ["3072.20", -60000], ["3073.20", -35000],
+    ["3041.20.511", -95000, 6, 1700], ["3041.20.516", -310000, 13, 4290], ["3051.20.514", -36000, 2],
+    ["3044.20.541", -28000, 12, 380], ["3044.20.543", -165000, 115, 2300], ["3054.20.543", -12000, 8],
+    ["3074.20", -9500], ["3162.20.511", -8000],
+    ["3410.20", -30000], ["3450.20", -210000], ["3451.20", -90000], ["3454.20", -160000], ["3455.20", -150000],
+    ["3413.20", -95000], ["3430.20", -120000], ["3457.20", -45000], ["3460.20", -25000], ["3499.20", 8000],
+    ["3440.20", -95000], ["3442.20", -18000], ["3606.20", -12000], ["3092.20", -25000],
+    ["4000.20", 14000], ["4001.20", 16000], ["4021.20", 365000], ["4024.20", 52000], ["4030.20", 18000],
+    ["4050.20", 165000], ["4057.20", 22000], ["4080.20", 19000], ["4110.20", 21000], ["4140.20", 46000],
+    ["4120.20", 9000], ["4521.20", 48000], ["4522.20", 14000], ["4524.20", 11000], ["4531.20", 12000],
+    ["4534.20", 9000], ["4533.20", 6000], ["4610.20.517", 42000, 12], ["4640.20.542", 6000, 1],
+    ["4131.20", 28000], ["4134.20", 7000], ["4551.20", 55000], ["4552.20", 18000],
+    ["6000.20", 120000], ["6010.20", 185000], ["6011.20", 15000], ["6030.20", 35000], ["6200.20", 78000],
+    ["6250.20", 62000], ["6621.20", 45000], ["6629.20", 28000], ["6601.20", 38000], ["6640.20", 22000],
+    ["6400.20", 12000], ["7503.20", 24000], ["7501.20", 31000], ["7502.20", 9000], ["6705.20", 32000],
+    ["6900.20", 8000], ["7401.20", 6500], ["7770.20", 2500], ["6471.20", 40000], ["4570.20", 150000],
+    ["5000.20", 60000], ["5400.20", 8500], ["7001.20", 12000],
+    ["8050.20", -1500], ["8150.10", 145000], ["8180.20", 36000],
+  ],
+  // [konto, IB, UB, mengde IB, mengde UB]
+  balance: [
+    ["1113.20", 1450000, 1330000], ["1181.20", 280000, 245000], ["1201.20", 520000, 416000],
+    ["1209.20", 405000, 324000], ["1241.20", 90000, 75000],
+    ["1405.20", 6000, 7500, 1500, 1900], ["1441.20.412", 8000, 4000, 2500, 1200], ["1447.20.472", 40000, 52000, 80000, 104000],
+    ["1451.20.511", 117000, 112500, 26, 25], ["1451.20.514", 35000, 38500, 10, 11], ["1451.20.515", 21600, 21600, 12, 12],
+    ["1451.20.516", 24000, 28000, 6, 7], ["1451.20.517", 14000, 12000, 7, 6],
+    ["1454.20.541", 55000, 52000, 55, 52], ["1454.20.542", 15400, 19800, 14, 18], ["1454.20.543", 16200, 18000, 18, 20],
+  ],
+  prodInputs: {
+    "mjolk.n": 25, "mjolk.kvote": 190000, "mjolk.distrikt_mjolk": 21000,
+    "oksar.n": 13, "oksar.tal_livs": 0,
+    "sau.n": 70, "sau.kjopte_lam": 0, "sau.selde_arslam": 123, "sau.selde_jul_des": 135,
+    "korn.n": 60, "korn.avling": 22000, "korn.sal_kg": 20000,
+    "grovfor.overflate": 40, "grovfor.fulldyrka": 420, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
+    "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
+  },
+  assign: {
+    "4021.20": {t1: "mjolk", t2: "oksar", p2: 15}, "4521.20": {t1: "mjolk", t2: "oksar", p2: 10},
+    "4050.20": {t1: "POOL", t2: "korn", p2: 12}, "4110.20": {t1: "POOL", t2: "korn", p2: 45},
+  },
+  lagerPris: {"1451.20.511": 18000, "1451.20.514": 14000, "1451.20.515": 7000, "1451.20.516": 16000, "1451.20.517": 7500,
+    "1454.20.541": 2200, "1454.20.542": 2400, "1454.20.543": 1900},
+  avskr: {"6000.20": {verdi: 2850000, levetid: 30}, "6010.20": {verdi: 2200000, levetid: 12}, "6030.20": {verdi: 450000, levetid: 15}},
+  moves: [{fra: "6200.20", til: "6250.20", belop: 8000, tekst: "Diesel til tørke ført på straum – flytta til drivstoff"}],
+};
+
+function demoSaldobalanse() {
+  const sb = [];
+  DEMO.balance.forEach(([nr, ib, ub, mib, mub]) => sb.push({nr, navn: kontoNavn(nr), ib, ub, m1ib: mib || 0, m1ub: mub || 0, m1: 0, m2: 0}));
+  const res = {};
+  DEMO.result.forEach(([nr, a, m1, m2]) => res[nr] = {nr, navn: kontoNavn(nr), ib: 0, ub: a, m1: m1 || 0, m2: m2 || 0});
+  // beholdningsendring for lagerkontoar
+  DEMO.balance.forEach(([nr, ib, ub]) => {
+    const b = behKonto(nr); if (!b) return;
+    const cur = res[b] || (res[b] = {nr: b, navn: kontoNavn(b), ib: 0, ub: 0, m1: 0, m2: 0});
+    cur.ub += -(ub - ib);
+  });
+  Object.values(res).forEach(r => sb.push(r));
+  sb.sort((a, b) => a.nr.localeCompare(b.nr, "nb", {numeric: true}));
+  return sb;
+}
+
+/* ============================================================ TILSTAND */
+const STORE = "jordbruksanalyse.v1";
+function freshState() {
+  return {step: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [], overrides: {},
+    assign: {}, prodInputs: {}, active: {}, poolKey: null, maskinKey: null, innmekKey: null, tab: "prod", filter: "", maxStep: 0};
+}
+let S = freshState();
+try { const raw = localStorage.getItem(STORE); if (raw) S = Object.assign(freshState(), JSON.parse(raw)); } catch (e) { /* ingen lagring */ }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* ignorer */ } }
+
+/* ============================================================ MOTOR */
+function sbIsResult(r) { return parseAcc(r.nr).base >= 3000; }
+
+/** Steg 2: driftsmessige lagerverdiar */
+function lagerRows() {
+  return S.sb.filter(r => { const b = parseAcc(r.nr).base; return b >= 1400 && b <= 1499; }).map(r => {
+    const L = S.lager[r.nr] || {};
+    const ibD = L.ibD ?? r.ib, ubD = L.ubD ?? r.ub;
+    const endS = r.ub - r.ib, endD = ubD - ibD;
+    return {r, ibD, ubD, endS, endD, korr: endD - endS, beh: behKonto(r.nr)};
+  });
+}
+/** Steg 3: driftsmessige avskrivingar */
+function avskrRows() {
+  return S.sb.filter(r => { const b = parseAcc(r.nr).base; return b >= 6000 && b <= 6099; }).map(r => {
+    const A = S.avskr[r.nr] || {};
+    let drift = r.ub;
+    if (A.verdi > 0 && A.levetid > 0) drift = A.verdi / A.levetid;
+    if (A.drift != null && A.drift !== "") drift = num(A.drift);
+    return {r, skatt: r.ub, drift, verdi: A.verdi, levetid: A.levetid, manual: A.drift != null && A.drift !== "", diff: drift - r.ub};
+  });
+}
+/** Resultatkontoar etter alle korrigeringar: {nr: {orig, amt, navn, m1, m2}} */
+function adjustedAccounts() {
+  const A = {};
+  S.sb.filter(sbIsResult).forEach(r => A[r.nr] = {nr: r.nr, navn: r.navn, orig: r.ub, amt: r.ub, m1: r.m1 || 0, m2: r.m2 || 0, notes: []});
+  const ensure = nr => A[nr] || (A[nr] = {nr, navn: kontoNavn(nr), orig: 0, amt: 0, m1: 0, m2: 0, notes: []});
+  lagerRows().forEach(l => { if (l.beh && Math.abs(l.korr) > 0.004) { const a = ensure(l.beh); a.amt += -l.korr; a.notes.push("Driftsmessig lagerverdi"); } });
+  avskrRows().forEach(x => { if (Math.abs(x.diff) > 0.004) { const a = ensure(x.r.nr); a.amt = x.drift; a.notes.push("Driftsmessig avskriving"); } });
+  S.moves.forEach(m => {
+    const v = num(m.belop); if (!m.fra || !m.til || !v) return;
+    const f = ensure(m.fra), t = ensure(m.til);
+    const sg = f.amt < 0 ? -1 : 1;
+    f.amt -= sg * v; t.amt += sg * v;
+    f.notes.push("Flytta til " + m.til); t.notes.push("Flytta frå " + m.fra);
+  });
+  return A;
+}
+
+function candidates(nr) {
+  const a = parseAcc(nr);
+  if (a.suf) { const s = SPEC.suffixProd.find(([r]) => inRule(parseInt(a.suf, 10), r)); if (s) return s[1]; }
+  const h = SPEC.accountProd.find(([r]) => inRule(a.base, r));
+  if (h) return h[1];
+  if (a.base >= 3000 && a.base <= 7999) return ["FASTE"];
+  return ["NONE"];
+}
+
+function prodInputVal(full, derived) {
+  if (S.prodInputs[full] != null && S.prodInputs[full] !== "") return num(S.prodInputs[full]);
+  if (derived[full] != null) return derived[full];
+  return 0;
+}
+
+function deriveInputs(A) {
+  const D = {};
+  const lag = {}; lagerRows().forEach(l => lag[l.r.nr] = l);
+  DERIVE.forEach(([full, base, suf, what, field]) => {
+    let sum = 0, hit = false;
+    if (what === "end") {
+      Object.values(A).forEach(a => { const p = parseAcc(a.nr); if (String(p.base) === base && (!suf || (p.suf && inRule(+p.suf, suf)))) { sum += Math.abs(a[field] || 0); hit = true; } });
+    } else {
+      S.sb.forEach(r => { const p = parseAcc(r.nr); if (String(p.base) === base && (!suf || (p.suf && inRule(+p.suf, suf)))) {
+        hit = true;
+        if (field === "kr") { const l = lag[r.nr]; sum += what === "ib" ? (l ? l.ibD : r.ib) : (l ? l.ubD : r.ub); }
+        else sum += what === "ib" ? (r.m1ib || 0) : (r.m1ub || 0);
+      } });
+    }
+    if (hit) D[full] = sum;
+  });
+  return D;
+}
+
+/** Bygg ein evaluator over eit sett input-verdiar */
+function engine(INP, active, FORCE = {}) {
+  const memo = {};
+  const ACTIVE = k => (active.has(k) ? 1 : 0);
+  function V(full) {
+    if (full in memo) return memo[full];
+    memo[full] = 0; // vern mot sirkel
+    let v;
+    if (S.overrides[full] != null && S.overrides[full] !== "") v = num(S.overrides[full]);
+    else if (full in FORCE) v = FORCE[full];
+    else { const r = ROW[full]; if (!r) v = 0; else if (r.t === "input") v = INP[full] ?? 0;
+      else { try { v = COMPILED[full](V, FUNCS.DIV, FUNCS.IF, FUNCS.MAX, FUNCS.MIN, FUNCS.ABS, FUNCS.ROUND, FUNCS.SUM, ACTIVE); } catch (e) { v = 0; } } }
+    if (typeof v === "number" && !isFinite(v)) v = 0;
+    return (memo[full] = v);
+  }
+  return V;
+}
+
+function normKey(obj, keys) {
+  const out = {}; let s = 0;
+  keys.forEach(k => { out[k] = Math.max(0, obj[k] || 0); s += out[k]; });
+  keys.forEach(k => out[k] = s ? out[k] / s * 100 : (keys.length ? 100 / keys.length : 0));
+  return out;
+}
+
+let MODEL = null;
+function compute() {
+  const A = adjustedAccounts();
+  const derived = deriveInputs(A);
+  // 1. produksjonsinput
+  const INP = {};
+  for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info")) INP[full] = prodInputVal(full, derived);
+  ["total.do_andre"].forEach(f => INP[f] = prodInputVal(f, derived));
+  // 2. aktive produksjonar
+  const nAny = SPEC.prodKeys.some(k => INP[k + ".n"] > 0);
+  const firstAmt = {};
+  Object.values(A).forEach(a => { if (!a.amt) return; const c = candidates(a.nr).find(x => PNAME[x]); if (c) firstAmt[c] = (firstAmt[c] || 0) + Math.abs(a.amt); });
+  const active = new Set(SPEC.prodKeys.filter(k => S.active[k] != null ? S.active[k] : (nAny ? INP[k + ".n"] > 0 : (firstAmt[k] || 0) > 0)));
+  // 3. førebels motor for kueiningar / areal (fordelingsnøklar)
+  const V0 = engine(INP, active);
+  const autoPool = {}, autoMaskin = {}, autoInnmek = {};
+  const act = [...active];
+  act.forEach(k => {
+    const g = SHEET[k].group;
+    autoPool[k] = g === "grovfor" ? V0(k + ".kueiningar") : 0;
+    autoInnmek[k] = g === "grovfor" ? V0(k + ".kueiningar") : (g === "kraftfor" ? 5 : 0);
+    autoMaskin[k] = g === "grovfor" ? V0(k + ".kueiningar") * 4 : (g === "plante" ? (k === "agurk" || k === "tomat" ? V0(k + ".n") / 2000 : V0(k + ".n") * 0.5) : 2);
+  });
+  const poolKeys = act, innmekKeys = act.filter(k => SHEET[k].group !== "plante");
+  const autoP = normKey(autoPool, poolKeys), autoI = normKey(autoInnmek, innmekKeys), autoM = normKey(autoMaskin, act);
+  Object.keys(autoM).forEach(k => autoM[k] *= 0.95);
+  const pick = (store, auto, keys) => { const o = {}; keys.forEach(k => o[k] = store && store[k] != null && store[k] !== "" ? num(store[k]) : auto[k]); return o; };
+  const poolKey = pick(S.poolKey, autoP, poolKeys), innmekKey = pick(S.innmekKey, autoI, innmekKeys), maskinKey = pick(S.maskinKey, autoM, act);
+  // 4. fordel kontoar
+  const contrib = {}; // full -> [{nr, amt}]
+  const add = (full, nr, v) => { INP[full] = (INP[full] || 0) + v; (contrib[full] = contrib[full] || []).push({nr, v}); };
+  const krRows = {};
+  SPEC.prods.forEach(p => krRows[p.key] = p.rows.filter(r => r.t === "input" && ["tilskot", "inn", "kost", "gf"].includes(r.kind)));
+  const fasteRows = SHEET.faste.rows.filter(r => r.t === "input" && r.acc);
+  function toProd(k, nr, amt) {
+    const base = parseAcc(nr).base;
+    let row = krRows[k].find(r => r.acc && inRule(base, r.acc));
+    if (!row) row = krRows[k].find(r => r.id === (base < 4000 ? "andre_inn" : "andre_kost"));
+    add(k + "." + row.id, nr, row.sign * amt);
+  }
+  function toFaste(nr, amt) {
+    const base = parseAcc(nr).base;
+    const row = fasteRows.find(r => inRule(base, r.acc)) || fasteRows.find(r => r.id === "a_admin");
+    add("faste." + row.id, nr, row.sign * amt);
+  }
+  function toTotal(nr, amt) {
+    const b = parseAcc(nr).base;
+    if (b >= 8000 && b <= 8099) add("total.renteinn", nr, -amt);
+    else if (b >= 8100) add("total.renteut", nr, amt);
+    else if (b >= 3400 && b <= 3499) add("total.tilskot_ufordelt", nr, -amt);
+    else if (b < 4000) add("total.andre_inn", nr, -amt);
+    else add("total.andre_var", nr, amt);
+  }
+  const alloc = {}; // nr -> [{t, share}]
+  let innmekTotal = 0, ikkjeMed = 0;
+  const poolSum = {}; let poolTotal = 0;
+  const resolve = nr => {
+    const c = candidates(nr);
+    const prodC = c.filter(x => PNAME[x]);
+    const hit = prodC.find(x => active.has(x));
+    if (hit) return hit;
+    const sp = c.find(x => SPECIAL[x]);
+    if (sp) return sp;
+    return prodC.length ? (active.size ? "POOL" : prodC[0]) : "NONE";
+  };
+  Object.values(A).forEach(a => {
+    if (!a.amt) return;
+    const b = parseAcc(a.nr).base;
+    if (b < 3000 || b > 8999) return;
+    const man = S.assign[a.nr];
+    let parts;
+    if (man && man.t1) { const p2 = man.t2 ? Math.min(100, Math.max(0, num(man.p2))) : 0; parts = [{t: man.t1, s: 1 - p2 / 100}]; if (p2) parts.push({t: man.t2, s: p2 / 100}); }
+    else parts = [{t: resolve(a.nr), s: 1}];
+    alloc[a.nr] = parts;
+    parts.forEach(({t, s}) => {
+      const v = a.amt * s; if (!v) return;
+      if (PNAME[t]) { if (active.has(t)) toProd(t, a.nr, v); else ikkjeMed += v; }
+      else if (t === "POOL") { poolTotal += v; poolKeys.forEach(k => { const sh = (poolKey[k] || 0) / 100; if (sh) { toProd(k, a.nr, v * sh); poolSum[k] = (poolSum[k] || 0) + v * sh; } }); }
+      else if (t === "FASTE") toFaste(a.nr, v);
+      else if (t === "INNMEK") innmekTotal += v;
+      else if (t === "TOTAL") toTotal(a.nr, v);
+      else if (b <= 7999) ikkjeMed += v;
+    });
+  });
+  innmekKeys.forEach(k => add("faste.innmek_" + k, "INNMEK", innmekTotal * (innmekKey[k] || 0) / 100));
+  act.forEach(k => INP["faste.pct_" + k] = (maskinKey[k] || 0) / 100);
+  // 5. skattemessige kontrolltal
+  let doSkatt = 0, avskrS = 0, avskrD = 0, behS = 0, behD = 0;
+  Object.values(A).forEach(a => {
+    const b = parseAcc(a.nr).base;
+    if (b >= 3000 && b <= 7999) doSkatt += -a.orig;
+    if (b >= 6000 && b <= 6099) { avskrS += a.orig; avskrD += a.amt; }
+    if (inRule(b, BEH_RULE)) { behS += -a.orig; behD += -a.amt; }
+  });
+  INP["total.avskr_skatt"] = avskrS; INP["total.beh_skatt"] = behS; INP["total.beh_drift"] = behD; INP["total.do_skatt_rekneskap"] = doSkatt;
+  const FORCE = {"total.avskr_drift": avskrD};
+  const V = engine(INP, active, FORCE);
+  const poolKeySum = poolKeys.reduce((s, k) => s + (poolKey[k] || 0), 0);
+  const innmekKeySum = innmekKeys.reduce((s, k) => s + (innmekKey[k] || 0), 0);
+  MODEL = {A, INP, V, active, contrib, alloc, poolKey, maskinKey, innmekKey, poolKeys, innmekKeys, autoP, autoM, autoI,
+    poolTotal, innmekTotal, ikkjeMed, derived, poolKeySum, innmekKeySum, resolve};
+  return MODEL;
+}
+
+/* ============================================================ UI-RAMME */
+const STEPS = [
+  {t: "Import saldobalanse", d: "Hent saldobalansen frå Tripletex"},
+  {t: "Varelager", d: "Driftsmessige verdiar på varelager og buskap"},
+  {t: "Avskrivingar", d: "Driftsmessige avskrivingar"},
+  {t: "Korrigeringar", d: "Juster tal, koplingar og fordelingar"},
+  {t: "Rapport", d: "Førehandsvis og last ned PDF"},
+];
+function renderStepper() {
+  $("#stepper").innerHTML = STEPS.map((s, i) =>
+    `<button class="step ${i === S.step ? "active" : ""} ${i < S.step || i <= S.maxStep && i !== S.step ? "done" : ""}" data-step="${i}" ${!S.sb.length && i > 0 ? "disabled" : ""}>
+      <span class="num">${i < S.step ? "✓" : i + 1}</span><span class="lbl">${s.t}</span></button>`).join("");
+  $("#stepper").querySelectorAll(".step").forEach(b => b.onclick = () => { if (!S.sb.length && +b.dataset.step > 0) return; go(+b.dataset.step); });
+  $("#hdrMeta").textContent = S.sb.length ? `${S.klient || "Klient"} · rekneskapsår ${S.aar} · ${S.sb.length} kontoar (${S.source})` : "Ingen saldobalanse importert";
+  $("#btnPrev").disabled = S.step === 0;
+  $("#btnNext").textContent = S.step === STEPS.length - 1 ? "Last ned PDF" : "Neste →";
+  $("#btnNext").disabled = !S.sb.length;
+  $("#footInfo").textContent = `Steg ${S.step + 1} av ${STEPS.length}: ${STEPS[S.step].d}`;
+}
+function go(i) { S.step = Math.max(0, Math.min(STEPS.length - 1, i)); S.maxStep = Math.max(S.maxStep, S.step); save(); render(); window.scrollTo(0, 0); }
+function render() {
+  renderStepper();
+  const m = $("#main");
+  if (S.sb.length) compute();
+  [renderImport, renderLager, renderAvskr, renderKorr, renderRapport][S.step](m);
+}
+$("#btnPrev").onclick = () => go(S.step - 1);
+$("#btnNext").onclick = () => { if (S.step === STEPS.length - 1) downloadPdf(); else go(S.step + 1); };
+$("#btnReset").onclick = () => { if (confirm("Vil du slette alt arbeid og starte på nytt?")) { S = freshState(); save(); render(); } };
+$("#btnSave").onclick = () => {
+  const blob = new Blob([JSON.stringify(S, null, 1)], {type: "application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `analyse_${(S.klient || "klient").replace(/\W+/g, "_")}_${S.aar}.json`; a.click();
+};
+$("#btnOpen").onclick = () => $("#fileProject").click();
+$("#fileProject").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { try { S = Object.assign(freshState(), JSON.parse(t)); save(); render(); } catch (err) { alert("Kunne ikkje lese prosjektfila."); } });
+};
+
+/* ============================================================ STEG 1: IMPORT */
+function renderImport(m) {
+  const res = S.sb.filter(sbIsResult);
+  const inn = res.filter(r => { const b = parseAcc(r.nr).base; return b < 4000; }).reduce((s, r) => s - r.ub, 0);
+  const kost = res.filter(r => { const b = parseAcc(r.nr).base; return b >= 4000 && b <= 7999; }).reduce((s, r) => s + r.ub, 0);
+  const f = (S.filter || "").toLowerCase();
+  const rows = S.sb.filter(r => !f || r.nr.includes(f) || r.navn.toLowerCase().includes(f));
+  m.innerHTML = `
+  <section class="card">
+    <h2>1. Importer saldobalanse</h2>
+    <p class="lead">Hent saldobalansen for rekneskapsåret. Kontoane blir kopla automatisk til produksjonar og postar etter kontoplanen (jordbruk, avdeling 20). Mengder (stk, kg, liter) på kontoane blir brukte som produksjonsdata der det går.</p>
+    <div class="big-import">
+      <div class="import-tile">
+        <h3>Importer frå Tripletex</h3>
+        <p>Hentar saldobalansen direkte frå Tripletex. <b>Førebels fiktive tal</b> for «Joa Gaard» (mjølk, oksar, sau og korn) – Tripletex-koplinga er ikkje aktivert enno.</p>
+        <button class="btn primary" id="btnTx">Importer frå Tripletex</button>
+      </div>
+      <div class="import-tile">
+        <h3>Last opp eksportfil</h3>
+        <p>Saldobalanse eksportert frå Tripletex som Excel eller CSV (kolonnar for konto, namn, inngåande og utgåande saldo, ev. mengd).</p>
+        <button class="btn" id="btnFile">Vel fil …</button>
+        <input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden">
+      </div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <label class="field">Klient<input id="inKlient" value="${esc(S.klient)}" placeholder="Namn på klient"></label>
+      <label class="field">Rekneskapsår<input id="inAar" type="number" value="${esc(S.aar)}" style="min-width:100px"></label>
+      <label class="field">Utarbeidd av<input id="inUtarb" value="${esc(S.utarbeidd)}" placeholder="Rådgjevar / rekneskapsførar"></label>
+    </div>
+  </section>
+  ${S.sb.length ? `
+  <section class="card">
+    <h2>Importert saldobalanse</h2>
+    <div class="tiles">
+      <div class="tile"><div class="k">Kontoar</div><div class="v">${S.sb.length}</div><div class="s">${res.length} resultatkontoar</div></div>
+      <div class="tile"><div class="k">Driftsinntekter (3xxx)</div><div class="v">${kr(inn)}</div><div class="s">kr</div></div>
+      <div class="tile"><div class="k">Driftskostnader (4xxx–7xxx)</div><div class="v">${kr(kost)}</div><div class="s">kr</div></div>
+      <div class="tile"><div class="k">Driftsresultat (skattemessig)</div><div class="v">${kr(inn - kost)}</div><div class="s">kr, før korrigeringar</div></div>
+    </div>
+    <div class="row" style="margin-bottom:10px"><input class="search" id="flt" placeholder="Søk på konto eller namn …" value="${esc(S.filter)}"><span class="muted small">Kredit (inntekt) vist med minus, slik som i Tripletex.</span></div>
+    <div class="tblwrap"><table class="t"><thead><tr><th>Konto</th><th>Namn</th><th class="n">Inngåande</th><th class="n">Endring</th><th class="n">Utgåande</th><th class="n">Mengd 1</th><th class="n">Mengd 2</th><th>Kopla til</th></tr></thead><tbody>
+    ${rows.map(r => { const a = MODEL.alloc[r.nr]; const isRes = sbIsResult(r);
+      return `<tr><td>${esc(r.nr)}</td><td>${esc(r.navn)}</td><td class="n">${isRes ? "" : kr(r.ib)}</td><td class="n">${kr(r.ub - (isRes ? 0 : r.ib))}</td><td class="n">${kr(r.ub)}</td>
+      <td class="n">${isRes ? fmt(r.m1, "n") : (r.m1ib || r.m1ub ? fmt(r.m1ib, "n") + " → " + fmt(r.m1ub, "n") : "")}</td><td class="n">${fmt(r.m2, "n")}</td>
+      <td>${a ? a.map(p => `<span class="pill ${PNAME[p.t] ? "acc" : ""}">${esc(PNAME[p.t] || SPECIAL[p.t])}${p.s < 1 ? " " + Math.round(p.s * 100) + "%" : ""}</span>`).join(" ") : `<span class="muted small">${isRes ? "" : "Balanse"}</span>`}</td></tr>`; }).join("")}
+    </tbody></table></div>
+  </section>` : `<div class="notice info">Start med å importere saldobalansen.</div>`}`;
+  $("#btnTx").onclick = () => {
+    const keep = {klient: S.klient, utarbeidd: S.utarbeidd};
+    S = freshState();
+    S.sb = demoSaldobalanse(); S.source = "Tripletex (fiktiv)"; S.klient = keep.klient || DEMO.klient; S.aar = DEMO.aar; S.utarbeidd = keep.utarbeidd;
+    S.prodInputs = Object.assign({}, DEMO.prodInputs); S.assign = JSON.parse(JSON.stringify(DEMO.assign));
+    S.lager = {}; Object.entries(DEMO.lagerPris).forEach(([nr, p]) => { const r = S.sb.find(x => x.nr === nr); if (r) S.lager[nr] = {ibD: r.m1ib * p, ubD: r.m1ub * p}; });
+    S.avskr = JSON.parse(JSON.stringify(DEMO.avskr)); S.moves = JSON.parse(JSON.stringify(DEMO.moves));
+    save(); render();
+  };
+  $("#btnFile").onclick = () => $("#fileSb").click();
+  $("#fileSb").onchange = e => importFile(e.target.files[0]);
+  $("#inKlient").onchange = e => { S.klient = e.target.value; save(); renderStepper(); };
+  $("#inAar").onchange = e => { S.aar = +e.target.value || S.aar; save(); renderStepper(); };
+  $("#inUtarb").onchange = e => { S.utarbeidd = e.target.value; save(); };
+  const flt = $("#flt"); if (flt) flt.oninput = e => { S.filter = e.target.value; const pos = e.target.selectionStart; renderImport(m); const n = $("#flt"); n.focus(); n.setSelectionRange(pos, pos); };
+}
+
+function importFile(file) {
+  if (!file) return;
+  if (typeof XLSX === "undefined") { alert("Fillesaren (SheetJS) er ikkje lasta – sjekk internettilgang."); return; }
+  file.arrayBuffer().then(buf => {
+    const isText = /\.(csv|txt)$/i.test(file.name);
+    const wb = XLSX.read(buf, {type: "array", raw: isText});
+    const sh = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sh, {header: 1, defval: "", raw: true});
+    let hi = rows.findIndex(r => r.some(c => /konto/i.test(String(c))) && r.some(c => /saldo|ub|utg|beløp|belop/i.test(String(c))));
+    if (hi < 0) hi = 0;
+    const H = rows[hi].map(c => String(c).toLowerCase());
+    const col = (...res) => { for (const re of res) { const i = H.findIndex(h => re.test(h)); if (i >= 0) return i; } return -1; };
+    let cNr = col(/^konto(nr|nummer)?$|kontonummer|^nr|^konto$/); if (cNr < 0) cNr = col(/konto/);
+    let cNavn = col(/navn|namn|beskrivelse|tekst/);
+    const cIb = col(/inng|^ib$|opening/), cUb = col(/utg/, /^ub$|closing/, /^saldo$/), cEnd = col(/endring|bevegelse|periode/, /beløp|belop/);
+    const cM1 = col(/mengde ?1|antall|mengde$/), cM2 = col(/mengde ?2/);
+    const sb = [];
+    rows.slice(hi + 1).forEach(r => {
+      let raw = String(r[cNr] ?? "").trim(); if (!raw) return;
+      let nr = raw.match(/^\d{4}(\.\d+){0,2}/); if (!nr) return; nr = nr[0];
+      if (typeof r[cNr] === "number" && /^\d{4}\.\d$/.test(nr)) nr += "0"; // 3454.2 -> 3454.20
+      let navn = cNavn >= 0 ? String(r[cNavn]).trim() : raw.replace(nr, "").trim();
+      const ib = cIb >= 0 ? num(r[cIb]) : 0; let ub = cUb >= 0 ? num(r[cUb]) : NaN;
+      if (!isFinite(ub)) ub = ib + (cEnd >= 0 ? num(r[cEnd]) : 0);
+      const base = parseInt(nr, 10);
+      const m1 = cM1 >= 0 ? num(r[cM1]) : 0, m2 = cM2 >= 0 ? num(r[cM2]) : 0;
+      sb.push(base >= 3000 ? {nr, navn: navn || kontoNavn(nr), ib: 0, ub, m1, m2}
+                           : {nr, navn: navn || kontoNavn(nr), ib, ub, m1ib: 0, m1ub: m1, m1: 0, m2: 0});
+    });
+    if (!sb.length) { alert("Fann ingen kontoar i fila. Sjekk at fila har kolonnar for konto og saldo."); return; }
+    const keep = {klient: S.klient, utarbeidd: S.utarbeidd, aar: S.aar};
+    S = freshState(); Object.assign(S, keep);
+    S.sb = sb; S.source = file.name; save(); render();
+  }).catch(() => alert("Kunne ikkje lese fila."));
+}
+
+/* ============================================================ STEG 2: VARELAGER */
+function renderLager(m) {
+  const L = lagerRows();
+  const sum = L.reduce((s, l) => s + l.korr, 0);
+  m.innerHTML = `
+  <section class="card">
+    <h2>2. Driftsmessige verdiar på varelager og buskap</h2>
+    <p class="lead">Saldobalansen har skattemessige verdiar (t.d. normalverdi på buskap). Legg inn driftsmessige verdiar (marknadsverdi) pr 1.1. og 31.12. Skilnaden i endring blir ført som korrigering på beholdningsendringskontoen, og påverkar dekningsbidraget i produksjonen kontoen høyrer til.</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">Lagerkontoar</div><div class="v">${L.length}</div></div>
+      <div class="tile"><div class="k">Korrigering beholdningsendring</div><div class="v">${kr(sum)}</div><div class="s">${sum >= 0 ? "aukar" : "reduserer"} driftsmessig resultat</div></div>
+    </div>
+    ${L.length ? `<div class="tblwrap"><table class="t"><thead><tr>
+      <th>Konto</th><th>Namn</th><th class="n">Stk 1.1.</th><th class="n">Stk 31.12.</th><th class="n">Skatt 1.1.</th><th class="n">Skatt 31.12.</th>
+      <th class="n">Kr pr stk (drift)</th><th class="n">Drift 1.1.</th><th class="n">Drift 31.12.</th><th class="n">Endring skatt</th><th class="n">Endring drift</th><th class="n">Korrigering</th><th>Førast på</th></tr></thead><tbody>
+      ${L.map(l => { const r = l.r; const b = parseAcc(r.nr).base; const stk = b >= 1450 && b <= 1458 && (r.m1ub || r.m1ib);
+        return `<tr data-nr="${esc(r.nr)}"><td>${esc(r.nr)}</td><td style="min-width:230px">${esc(r.navn)}</td><td class="n">${fmt(r.m1ib, "n")}</td><td class="n">${fmt(r.m1ub, "n")}</td>
+        <td class="n">${kr(r.ib)}</td><td class="n">${kr(r.ub)}</td>
+        <td class="n">${stk ? `<input class="num pct" data-f="pris" value="${l.ubD && r.m1ub ? Math.round(l.ubD / r.m1ub) : ""}" title="Fyller ut driftsverdi = stk × pris">` : ""}</td>
+        <td class="n"><input class="num" style="width:100px" data-f="ibD" value="${Math.round(l.ibD)}"></td><td class="n"><input class="num" style="width:100px" data-f="ubD" value="${Math.round(l.ubD)}"></td>
+        <td class="n">${kr(l.endS)}</td><td class="n">${kr(l.endD)}</td><td class="n"><b>${kr(l.korr)}</b></td><td class="small">${esc(l.beh || "–")}</td></tr>`; }).join("")}
+      <tr class="sum"><td colspan="11">Sum korrigering beholdningsendring (+ = høgare driftsmessig resultat)</td><td class="n">${kr(sum)}</td><td></td></tr>
+    </tbody></table></div>
+    <div class="row" style="margin-top:10px"><button class="btn small" id="btnLagerReset">Set driftsverdi lik skattemessig verdi</button></div>` : `<div class="notice info">Saldobalansen har ingen lagerkontoar (1400–1499).</div>`}
+  </section>`;
+  m.querySelectorAll("tr[data-nr] input").forEach(inp => inp.onchange = e => {
+    const nr = e.target.closest("tr").dataset.nr, f = e.target.dataset.f, r = S.sb.find(x => x.nr === nr);
+    const cur = S.lager[nr] || (S.lager[nr] = {});
+    if (f === "pris") { const p = num(e.target.value); cur.ibD = r.m1ib * p; cur.ubD = r.m1ub * p; }
+    else cur[f] = num(e.target.value);
+    save(); render();
+  });
+  const rb = $("#btnLagerReset"); if (rb) rb.onclick = () => { S.lager = {}; save(); render(); };
+}
+
+/* ============================================================ STEG 3: AVSKRIVINGAR */
+function renderAvskr(m) {
+  const R = avskrRows();
+  const sS = R.reduce((s, x) => s + x.skatt, 0), sD = R.reduce((s, x) => s + x.drift, 0);
+  const anlegg = S.sb.filter(r => { const b = parseAcc(r.nr).base; return b >= 1000 && b < 1300; });
+  m.innerHTML = `
+  <section class="card">
+    <h2>3. Driftsmessige avskrivingar</h2>
+    <p class="lead">Skattemessige avskrivingar (saldoavskriving) blir erstatta med driftsmessige avskrivingar basert på gjenanskaffingsverdi og forventa levetid. Legg inn verdi og levetid, eller skriv inn driftsmessig avskriving direkte.</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">Skattemessige avskrivingar</div><div class="v">${kr(sS)}</div></div>
+      <div class="tile"><div class="k">Driftsmessige avskrivingar</div><div class="v">${kr(sD)}</div></div>
+      <div class="tile"><div class="k">Korrigering resultat</div><div class="v">${kr(sS - sD)}</div><div class="s">${sS - sD >= 0 ? "aukar" : "reduserer"} driftsmessig resultat</div></div>
+    </div>
+    ${R.length ? `<div class="tblwrap"><table class="t"><thead><tr><th>Konto</th><th>Namn</th><th class="n">Skattemessig</th><th class="n">Gjenanskaffingsverdi</th><th class="n">Levetid (år)</th><th class="n">Driftsmessig</th><th class="n">Differanse</th></tr></thead><tbody>
+      ${R.map(x => `<tr data-nr="${esc(x.r.nr)}"><td>${esc(x.r.nr)}</td><td>${esc(x.r.navn)}</td><td class="n">${kr(x.skatt)}</td>
+        <td class="n"><input class="num" data-f="verdi" value="${x.verdi ?? ""}" placeholder="kr"></td><td class="n"><input class="num pct" data-f="levetid" value="${x.levetid ?? ""}" placeholder="år"></td>
+        <td class="n"><input class="num" data-f="drift" value="${Math.round(x.drift)}" ${x.manual ? 'style="font-weight:700"' : ""}></td><td class="n">${kr(x.diff)}</td></tr>`).join("")}
+      <tr class="sum"><td colspan="2">Sum</td><td class="n">${kr(sS)}</td><td></td><td></td><td class="n">${kr(sD)}</td><td class="n">${kr(sD - sS)}</td></tr>
+    </tbody></table></div>` : `<div class="notice info">Ingen avskrivingskontoar (6000–6099) i saldobalansen.</div>`}
+    ${anlegg.length ? `<h3>Anleggsmiddel i balansen (til hjelp)</h3><div class="tblwrap" style="max-height:260px"><table class="t"><thead><tr><th>Konto</th><th>Namn</th><th class="n">Skattemessig verdi 1.1.</th><th class="n">31.12.</th><th class="n">Endring</th></tr></thead><tbody>
+      ${anlegg.map(r => `<tr><td>${esc(r.nr)}</td><td>${esc(r.navn)}</td><td class="n">${kr(r.ib)}</td><td class="n">${kr(r.ub)}</td><td class="n">${kr(r.ub - r.ib)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+  </section>`;
+  m.querySelectorAll("tr[data-nr] input").forEach(inp => inp.onchange = e => {
+    const nr = e.target.closest("tr").dataset.nr, f = e.target.dataset.f;
+    const cur = S.avskr[nr] || (S.avskr[nr] = {});
+    if (f === "drift") cur.drift = e.target.value === "" ? null : num(e.target.value);
+    else { cur[f] = e.target.value === "" ? null : num(e.target.value); cur.drift = null; }
+    save(); render();
+  });
+}
+
+/* ============================================================ STEG 4: KORRIGERINGAR */
+const TABS = [["prod", "Produksjonar og produksjonsdata"], ["kopling", "Kopling konto → produksjon"], ["nokkel", "Fordelingsnøklar"], ["flytt", "Flytt beløp mellom kontoar"], ["tal", "Analysetal (overstyr)"]];
+function targetOptions(sel) {
+  const opts = [...SPEC.prodKeys.map(k => [k, PNAME[k] + (MODEL.active.has(k) ? "" : " (ikkje aktiv)")]), ...Object.entries(SPECIAL)];
+  return opts.map(([v, l]) => `<option value="${v}" ${v === sel ? "selected" : ""}>${esc(l)}</option>`).join("");
+}
+function renderKorr(m) {
+  const M = MODEL;
+  const V = M.V;
+  const avvik = V("total.avvik");
+  m.innerHTML = `
+  <section class="card">
+    <h2>4. Korrigeringar</h2>
+    <p class="lead">Kontroller kva produksjonar som er med, legg inn produksjonsdata (tal dyr, dekar, mengder), juster koplingar og fordelingsnøklar, flytt beløp mellom kontoar og overstyr enkelttal i analysen.</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">Aktive produksjonar</div><div class="v">${M.active.size}</div><div class="s">${[...M.active].map(k => PNAME[k]).join(", ") || "–"}</div></div>
+      <div class="tile"><div class="k">Sum DB m/tilskot</div><div class="v">${kr(V("total.sum_db_m"))}</div></div>
+      <div class="tile"><div class="k">Driftsoverskot (driftsmessig)</div><div class="v">${kr(V("total.do_drift"))}</div></div>
+      <div class="tile"><div class="k">Avstemming mot rekneskap</div><div class="v">${Math.abs(avvik) < 1 ? '<span class="pill good">Stemmer</span>' : kr(avvik)}</div><div class="s">${Math.abs(avvik) < 1 ? "alle kontoar er fordelte" : "avvik – sjå merknad"}</div></div>
+    </div>
+    ${Math.abs(avvik) >= 1 ? `<div class="notice warn">Analysen stemmer ikkje heilt med rekneskapen (avvik ${kr(avvik)} kr). Vanlege årsaker: kontoar kopla til «Ikkje med» eller til ein produksjon som ikkje er aktiv (${kr(M.ikkjeMed)} kr), eller fordelingsnøklar som ikkje summerer til 100 %.</div>` : ""}
+    <div class="tabs">${TABS.map(([k, l]) => `<button class="tab ${S.tab === k ? "active" : ""}" data-tab="${k}">${l}</button>`).join("")}</div>
+    <div id="tabBody"></div>
+  </section>`;
+  m.querySelectorAll(".tab").forEach(b => b.onclick = () => { S.tab = b.dataset.tab; save(); renderKorr(m); });
+  ({prod: tabProd, kopling: tabKopling, nokkel: tabNokkel, flytt: tabFlytt, tal: tabTal})[S.tab]($("#tabBody"));
+}
+function inputRowHtml(full, r, val, derivedVal) {
+  const has = S.prodInputs[full] != null && S.prodInputs[full] !== "";
+  return `<tr><td>${esc(r.label)}</td><td class="n"><input class="num" data-full="${full}" value="${has ? S.prodInputs[full] : ""}" placeholder="${derivedVal != null ? fmt(derivedVal, r.fmt) : "0"}"></td>
+    <td class="small muted">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</td><td class="small muted">${derivedVal != null && !has ? "Henta frå saldobalansen" : esc(r.src || "")}</td></tr>`;
+}
+function tabProd(el) {
+  const M = MODEL;
+  const commonInputs = sk => SHEET[sk].rows.filter(r => r.t === "input" && r.kind === "prod");
+  el.innerHTML = `
+    <h3>Kva produksjonar skal vere med?</h3>
+    <p class="muted small">Automatisk: produksjonar med tal einingar &gt; 0. Klikk for å slå av/på manuelt.</p>
+    <div class="prodgrid">${SPEC.prods.map(p => { const on = M.active.has(p.key); const man = S.active[p.key] != null;
+      return `<label class="prodcard ${on ? "on" : ""}"><input type="checkbox" data-k="${p.key}" ${on ? "checked" : ""}>
+      <div><div class="nm">${esc(p.sheet)}</div><div class="sub">${esc(p.title)} · ${on ? fmt(M.V(p.key + ".n"), "n") + " " + esc(p.unit_label) : "ikkje med"}${man ? " · manuelt" : ""}</div></div></label>`; }).join("")}</div>
+    <div class="row" style="margin-top:8px"><button class="btn small ghost" id="btnAuto">Tilbakestill til automatisk val</button></div>
+    <h3>Produksjonsdata</h3>
+    <p class="muted small">Gule felt kan fyllast inn. Grå tekst i feltet er verdi henta automatisk frå mengder i saldobalansen – skriv inn ein verdi for å overstyre.</p>
+    ${[...SPEC.prods.filter(p => M.active.has(p.key)).map(p => [p.key, p.sheet + " – " + p.title]), ["grovfor", "Grovfôr og areal"], ["total", "Andre opplysningar"]]
+      .map(([k, t]) => { const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info") && (k !== "total" || r.id === "do_andre"));
+        if (!rows.length) return "";
+        if (k === "grovfor" && !SPEC.grovforKeys.some(g => M.active.has(g)) && !M.active.has("silofor") && !M.active.has("hoy")) return "";
+        return `<details class="prod" ${k === S.openProd ? "open" : ""} data-k="${k}"><summary>${esc(t)}</summary><div class="inner"><table class="t"><tbody>
+        ${rows.map(r => inputRowHtml(k + "." + r.id, r, null, M.derived[k + "." + r.id])).join("")}</tbody></table></div></details>`; }).join("")}`;
+  el.querySelectorAll(".prodcard input").forEach(c => c.onchange = e => { S.active[e.target.dataset.k] = e.target.checked; save(); render(); });
+  $("#btnAuto").onclick = () => { S.active = {}; save(); render(); };
+  el.querySelectorAll("details.prod").forEach(d => d.ontoggle = () => { if (d.open) S.openProd = d.dataset.k; });
+  el.querySelectorAll("input[data-full]").forEach(i => i.onchange = e => {
+    const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.full]; else S.prodInputs[e.target.dataset.full] = num(v);
+    save(); render();
+  });
+}
+function tabKopling(el) {
+  const M = MODEL;
+  const accs = Object.values(M.A).filter(a => a.amt && parseAcc(a.nr).base >= 3000 && parseAcc(a.nr).base <= 8999)
+    .sort((a, b) => a.nr.localeCompare(b.nr, "nb", {numeric: true}));
+  const f = (S.kfilter || "").toLowerCase();
+  const shown = accs.filter(a => !f || a.nr.includes(f) || a.navn.toLowerCase().includes(f) || (M.alloc[a.nr] || []).some(p => (PNAME[p.t] || SPECIAL[p.t] || "").toLowerCase().includes(f)));
+  el.innerHTML = `
+    <p class="muted small">Kvar konto blir automatisk kopla til ein produksjon (via kontonummer og produktkode, t.d. 3044.20.<b>543</b> = lam → Sau). Endre koplinga eller del kontoen på to mottakarar. «Fellespott» blir fordelt med nøkkelen under «Fordelingsnøklar».</p>
+    <div class="row" style="margin-bottom:10px"><input class="search" id="kflt" placeholder="Søk konto, namn eller produksjon …" value="${esc(S.kfilter || "")}"></div>
+    <div class="tblwrap"><table class="t"><thead><tr><th>Konto</th><th>Namn</th><th class="n">Beløp (etter korr.)</th><th>Kopla til</th><th>Del til</th><th class="n">Del %</th><th></th></tr></thead><tbody>
+    ${shown.map(a => { const man = S.assign[a.nr] || {}; const auto = M.resolve(a.nr); const t1 = man.t1 || auto;
+      return `<tr data-nr="${esc(a.nr)}"><td>${esc(a.nr)}</td><td>${esc(a.navn)}${a.notes.length ? ` <span class="pill warn" title="${esc(a.notes.join("; "))}">korrigert</span>` : ""}</td><td class="n">${kr(a.amt)}</td>
+        <td><select data-f="t1">${targetOptions(t1)}</select>${man.t1 ? ' <span class="pill acc">manuell</span>' : ""}</td>
+        <td><select data-f="t2"><option value="">–</option>${targetOptions(man.t2 || "")}</select></td>
+        <td class="n"><input class="num pct" data-f="p2" value="${man.p2 ?? ""}" placeholder="%"></td>
+        <td>${man.t1 || man.t2 ? '<button class="btn small ghost" data-f="reset">Auto</button>' : ""}</td></tr>`; }).join("")}
+    </tbody></table></div>`;
+  const k = $("#kflt"); k.oninput = e => { S.kfilter = e.target.value; const pos = e.target.selectionStart; tabKopling(el); const n = $("#kflt"); n.focus(); n.setSelectionRange(pos, pos); };
+  el.querySelectorAll("tr[data-nr] select, tr[data-nr] input").forEach(x => x.onchange = e => {
+    const nr = e.target.closest("tr").dataset.nr; const cur = S.assign[nr] || (S.assign[nr] = {t1: MODEL.resolve(nr)});
+    const fld = e.target.dataset.f; cur[fld] = fld === "p2" ? num(e.target.value) : e.target.value;
+    if (cur.t2 && !cur.p2) cur.p2 = 50;
+    save(); render();
+  });
+  el.querySelectorAll("button[data-f=reset]").forEach(b => b.onclick = e => { delete S.assign[e.target.closest("tr").dataset.nr]; save(); render(); });
+}
+function keyTable(title, desc, keys, cur, auto, storeName, total) {
+  const sum = keys.reduce((s, k) => s + (cur[k] || 0), 0);
+  return `<h3>${title}</h3><p class="muted small">${desc}</p>
+  <table class="t" style="max-width:720px"><thead><tr><th>Produksjon</th><th class="n">Automatisk</th><th class="n">Brukt %</th>${total != null ? '<th class="n">Kr</th>' : ""}</tr></thead><tbody>
+  ${keys.map(k => `<tr><td>${esc(PNAME[k])}</td><td class="n muted">${fmt(auto[k] / 100, "pct")}</td>
+    <td class="n"><input class="num pct" data-store="${storeName}" data-k="${k}" value="${S[storeName] && S[storeName][k] != null ? S[storeName][k] : ""}" placeholder="${NF1.format(auto[k] || 0)}"></td>
+    ${total != null ? `<td class="n">${kr(total * (cur[k] || 0) / 100)}</td>` : ""}</tr>`).join("")}
+  <tr class="sum"><td>Sum</td><td></td><td class="n">${NF1.format(sum)} %</td>${total != null ? `<td class="n">${kr(total * sum / 100)}</td>` : ""}</tr></tbody></table>
+  <div class="row" style="margin:6px 0 4px"><button class="btn small ghost" data-resetkey="${storeName}">Bruk automatisk nøkkel</button>${Math.abs(sum - (storeName === "maskinKey" ? sum : 100)) > 0.05 ? '<span class="pill bad">Summerer ikkje til 100 %</span>' : ""}</div>`;
+}
+function tabNokkel(el) {
+  const M = MODEL, V = M.V;
+  if (!M.active.size) { el.innerHTML = `<div class="notice warn">Ingen aktive produksjonar. Vel produksjonar under «Produksjonar og produksjonsdata».</div>`; return; }
+  const maskinSum = V("faste.maskin_sum");
+  el.innerHTML =
+    keyTable("Fellespott (grovfôr, areal-tilskot o.l.)", "Felleskostnader som gjødsel, kalk, plast, grasfrø, areal- og kulturlandskapstilskot. Automatisk nøkkel: «kueiningar» i grovfôrproduksjonane.", M.poolKeys, M.poolKey, M.autoP, "poolKey", M.poolTotal) +
+    keyTable("Maskinkostnader", "Del av sum maskinkostnader (" + kr(maskinSum) + " kr) til kvar produksjon. Resten blir «anna bruk». Automatisk: grovfôr etter kueiningar, planteproduksjon etter dekar.", [...M.active], M.maskinKey, M.autoM, "maskinKey", maskinSum) +
+    (M.innmekKeys.length ? keyTable("Innandørsmekanisering", "Kontoane " + esc("6030, 6541, 6563, 6640") + " (fast teknisk installasjon, inventar, rekvisita husdyr) blir fordelt på husdyrproduksjonane.", M.innmekKeys, M.innmekKey, M.autoI, "innmekKey", M.innmekTotal) : "") +
+    `<p class="small muted">Maskinkostnad anna bruk: ${fmt(V("faste.pct_anna"), "pct")} = ${kr(V("faste.maskin_anna"))} kr.</p>`;
+  el.querySelectorAll("input[data-store]").forEach(i => i.onchange = e => {
+    const st = e.target.dataset.store; S[st] = S[st] || {};
+    if (e.target.value.trim() === "") delete S[st][e.target.dataset.k]; else S[st][e.target.dataset.k] = num(e.target.value);
+    save(); render();
+  });
+  el.querySelectorAll("button[data-resetkey]").forEach(b => b.onclick = () => { S[b.dataset.resetkey] = null; save(); render(); });
+}
+function accountOptions(sel) {
+  const list = Object.values(MODEL.A).map(a => a.nr);
+  KONTOPLAN.forEach(([nr]) => { if (parseAcc(nr).base >= 3000 && parseAcc(nr).base <= 8999 && !list.includes(nr)) list.push(nr); });
+  return `<datalist id="dlAcc">${list.sort((a, b) => a.localeCompare(b, "nb", {numeric: true})).map(nr => `<option value="${esc(nr)}">${esc(kontoNavn(nr))}</option>`).join("")}</datalist>`;
+}
+function tabFlytt(el) {
+  el.innerHTML = `
+    <p class="muted small">Flytt eit beløp frå ein konto til ein annan før analysen blir rekna, t.d. når noko er ført på feil konto. Beløpet er positivt; det blir trekt frå kontoen det kjem frå (i kontoen si retning) og lagt til mottakarkontoen.</p>
+    ${accountOptions()}
+    <table class="t"><thead><tr><th>Frå konto</th><th>Til konto</th><th class="n">Beløp (kr)</th><th>Forklaring</th><th></th></tr></thead><tbody>
+    ${S.moves.map((mv, i) => `<tr data-i="${i}"><td><input class="txt" list="dlAcc" data-f="fra" value="${esc(mv.fra)}" style="width:130px"><div class="small muted">${esc(mv.fra ? kontoNavn(mv.fra) : "")}</div></td>
+      <td><input class="txt" list="dlAcc" data-f="til" value="${esc(mv.til)}" style="width:130px"><div class="small muted">${esc(mv.til ? kontoNavn(mv.til) : "")}</div></td>
+      <td class="n"><input class="num" data-f="belop" value="${esc(mv.belop)}"></td><td><input class="txt" data-f="tekst" value="${esc(mv.tekst || "")}" style="width:340px"></td>
+      <td><button class="btn small ghost" data-del="${i}">Slett</button></td></tr>`).join("") || `<tr><td colspan="5" class="muted">Ingen flyttingar.</td></tr>`}
+    </tbody></table>
+    <div class="row" style="margin-top:10px"><button class="btn" id="btnAddMove">+ Ny flytting</button></div>`;
+  $("#btnAddMove").onclick = () => { S.moves.push({fra: "", til: "", belop: "", tekst: ""}); save(); tabFlytt(el); };
+  el.querySelectorAll("tr[data-i] input").forEach(i => i.onchange = e => { const mv = S.moves[+e.target.closest("tr").dataset.i]; mv[e.target.dataset.f] = e.target.dataset.f === "belop" ? num(e.target.value) : e.target.value.trim(); save(); render(); });
+  el.querySelectorAll("button[data-del]").forEach(b => b.onclick = () => { S.moves.splice(+b.dataset.del, 1); save(); render(); });
+}
+function tabTal(el) {
+  const M = MODEL, V = M.V;
+  const prods = SPEC.prods.filter(p => M.active.has(p.key));
+  if (!prods.length) { el.innerHTML = `<div class="notice warn">Ingen aktive produksjonar.</div>`; return; }
+  const sel = prods.find(p => p.key === S.talProd) ? S.talProd : prods[0].key;
+  const p = SHEET[sel];
+  let html = `<div class="row" style="margin-bottom:10px"><label class="field">Produksjon<select id="talSel">${prods.map(x => `<option value="${x.key}" ${x.key === sel ? "selected" : ""}>${esc(x.sheet)}</option>`).join("")}</select></label>
+    <span class="muted small">Tala er rekna frå saldobalansen etter korrigeringar. Skriv eit tal i «Overstyr» for å bruke det i staden. Kalkulerte rader viser formelen.</span></div>
+    <div class="tblwrap" style="max-height:640px"><table class="t"><thead><tr><th>Post</th><th class="n">Utrekna</th><th class="n">Overstyr</th><th>Kjelde / formel</th></tr></thead><tbody>`;
+  let section = "";
+  p.rows.forEach(r => {
+    if (r.t === "head") { section = r.label; if (/^5\./.test(section)) html += ""; html += `<tr class="grp"><td colspan="4">${esc(r.label)}</td></tr>`; return; }
+    if (/^5\./.test(section)) return; // per-eining-tabellen blir vist i rapporten
+    const full = sel + "." + r.id; const ov = S.overrides[full] != null && S.overrides[full] !== "";
+    const c = M.contrib[full];
+    const src = r.t === "calc" ? `<div class="formula">= ${esc(r.txt)}</div>` :
+      (c && c.length ? `<div class="formula">${c.slice(0, 6).map(x => esc(x.nr) + ": " + kr(x.v)).join(" · ")}${c.length > 6 ? " …" : ""}</div>` : `<div class="formula">${esc(r.src || "")}</div>`);
+    const ovOk = r.t === "input" || r.kpi || true;
+    html += `<tr><td>${r.kpi ? "<b>" + esc(r.label) + "</b>" : esc(r.label)}</td><td class="n ${ov ? "ovr" : ""}">${fmt(V(full), r.fmt)}</td>
+      <td class="n">${ovOk && r.fmt !== "txt" ? `<input class="num" data-full="${full}" value="${ov ? S.overrides[full] : ""}">` : ""}</td><td>${src}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+  el.innerHTML = html;
+  $("#talSel").onchange = e => { S.talProd = e.target.value; save(); tabTal(el); };
+  el.querySelectorAll("input[data-full]").forEach(i => i.onchange = e => {
+    const v = e.target.value.trim(); if (v === "") delete S.overrides[e.target.dataset.full]; else S.overrides[e.target.dataset.full] = num(v);
+    save(); render();
+  });
+}
+
+/* ============================================================ STEG 5: RAPPORT */
+function hbar(items, opt = {}) {
+  // items: [{label, values:[v1,v2?]}]; series: [{name,color}]
+  const series = opt.series || [{name: "", color: "var(--series-1)"}];
+  const W = opt.width || 640, labW = opt.labelWidth || 170, rowH = series.length > 1 ? 30 : 20, pad = 6, valW = 74;
+  const H = items.length * rowH + 24;
+  const all = items.flatMap(i => i.values);
+  const rawMax = Math.max(0, ...all), rawMin = Math.min(0, ...all);
+  const step = niceStep((rawMax - rawMin) / 4 || 1);
+  const max = Math.ceil(rawMax / step) * step, min = Math.floor(rawMin / step) * step;
+  const span = (max - min) || 1, plotW = W - labW - valW;
+  const x = v => labW + (v - min) / span * plotW;
+  const x0 = x(0);
+  const colors = {"var(--series-1)": "#2a78d6", "var(--series-2)": "#eb6834"};
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial, sans-serif" font-size="10">`;
+  // rutenett
+  for (let v = min; v <= max + step / 2; v += step) { const xx = x(v);
+    svg += `<line x1="${xx}" x2="${xx}" y1="2" y2="${H - 18}" stroke="#eceee9"/><text x="${xx}" y="${H - 5}" text-anchor="middle" fill="#7a837c" font-size="8.5">${NF0.format(Math.round(v))}</text>`; }
+  items.forEach((it, i) => {
+    const y = i * rowH + pad;
+    const lab = it.label.length > labW / 5.6 ? it.label.slice(0, Math.floor(labW / 5.6) - 1) + "…" : it.label;
+    svg += `<text x="${labW - 8}" y="${y + rowH / 2 + 1}" text-anchor="end" fill="#1b211c" dominant-baseline="middle"><title>${esc(it.label)}</title>${esc(lab)}</text>`;
+    const bh = series.length > 1 ? (rowH - 10) / 2 - 1 : rowH - 8;
+    it.values.forEach((v, s) => {
+      const yy = y + 1 + s * (bh + 2);
+      const xa = Math.min(x(v), x0), w = Math.max(1, Math.abs(x(v) - x0));
+      svg += `<rect x="${xa}" y="${yy}" width="${w}" height="${bh}" rx="2" fill="${colors[series[s].color] || series[s].color}"><title>${esc(it.label)}${series[s].name ? " – " + esc(series[s].name) : ""}: ${NF0.format(Math.round(v))}</title></rect>`;
+      const roomLeft = xa - labW > 34;
+      const lx = v >= 0 ? x(v) + 4 : (roomLeft ? xa - 4 : x0 + 4), anchor = v >= 0 || !roomLeft ? "start" : "end";
+      if (s === series.length - 1 || opt.labelAll) svg += `<text x="${lx}" y="${yy + bh / 2 + 1}" text-anchor="${anchor}" dominant-baseline="middle" fill="#4d564f" font-size="9">${NF0.format(Math.round(v))}</text>`;
+    });
+  });
+  svg += `<line x1="${x0}" x2="${x0}" y1="2" y2="${H - 18}" stroke="#7a837c" stroke-width="1"/></svg>`;
+  const legend = series.length > 1 ? `<div class="legend">${series.map(s => `<span><i style="background:${colors[s.color] || s.color}"></i>${esc(s.name)}</span>`).join("")}</div>` : "";
+  return legend + svg;
+}
+
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1))), f = raw / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+}
+function rowsTable(sheetKey, fromHead, toHeadRe, opts = {}) {
+  const V = MODEL.V, sh = SHEET[sheetKey];
+  let on = false, html = `<table class="r"><tbody>`;
+  sh.rows.forEach(r => {
+    if (r.t === "head") { if (on && toHeadRe.test(r.label)) on = false; else if (r.label.startsWith(fromHead)) { on = true; return; } else if (on && opts.subheads !== false) html += `<tr class="h"><td colspan="2">${esc(r.label)}</td></tr>`; return; }
+    if (!on) return;
+    const v = V(sheetKey + "." + r.id);
+    if (opts.skipZero && (typeof v !== "string") && Math.abs(v) < 0.005) return;
+    const isSum = /i alt|^Sum|^DB |^Dekningsbidrag|med tilskot$|utan tilskot$/.test(r.label);
+    html += `<tr class="${isSum ? "s" : ""}"><td>${esc(r.label)}</td><td class="n">${fmt(v, r.fmt)}</td></tr>`;
+  });
+  return html + `</tbody></table>`;
+}
+function kpiList(p) {
+  const rows = []; let on = false;
+  p.rows.forEach(r => { if (r.t === "head") { on = r.label.startsWith("6."); return; } if (on) rows.push(r); });
+  return rows;
+}
+function unitRows(p) {
+  const rows = []; let on = false, sec = "";
+  p.rows.forEach(r => { if (r.t === "head") { if (r.label.startsWith("5.")) { on = true; return; } if (r.label.startsWith("6.")) on = false; else if (on) sec = r.label; return; } if (on) rows.push(Object.assign({sec}, r)); });
+  return rows;
+}
+function prodComment(p) {
+  const V = MODEL.V, k = p.key, n = V(k + ".n");
+  const dbu = V(k + ".db_u"), dbm = V(k + ".db_m"), til = V(k + ".tilskot"), inn = V(k + ".inn_total"), kost = V(k + ".kost_total");
+  const pe = v => kr(n ? v / n : 0);
+  const t = [];
+  if (!n) t.push(`<b>Merk:</b> Tal ${esc(p.unit_label)} er ikkje lagt inn, så tal pr eining kan ikkje reknast. Fyll inn produksjonsdata under steg 4.`);
+  t.push(`Produksjonen hadde produksjonsinntekter på ${kr(inn)} kr og variable kostnader på ${kr(kost)} kr. Det gir eit dekningsbidrag utan tilskot på <b>${kr(dbu)} kr</b>${n ? ` (${pe(dbu)} kr ${esc(p.per_label)})` : ""}.`);
+  t.push(`Med ${kr(til)} kr i tilskot blir dekningsbidraget <b>${kr(dbm)} kr</b>${n ? ` (${pe(dbm)} kr ${esc(p.per_label)})` : ""}. ${dbm > 0 && til > 0 ? `Tilskota utgjer ${fmt(til / dbm, "pct")} av dekningsbidraget.` : ""}`);
+  const costs = p.rows.filter(r => r.t === "input" && (r.kind === "kost" || r.kind === "gf")).map(r => ({l: r.label, v: V(k + "." + r.id)})).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+  if (costs.length && kost > 0) t.push(`Største variable kostnad er ${esc(costs[0].l.toLowerCase())} med ${fmt(costs[0].v / kost, "pct")} av dei variable kostnadene${costs[1] ? `, deretter ${esc(costs[1].l.toLowerCase())} (${fmt(costs[1].v / kost, "pct")})` : ""}.`);
+  const etter = V(k + ".db_etter");
+  t.push(`Etter fordelte maskinkostnader${p.group !== "plante" ? " og innandørsmekanisering" : ""} står det att ${kr(etter)} kr til å dekkje bygningar, arbeid og kapital.`);
+  const grp = p.rows.find(r => r.id === "k_gruppe"); if (grp) t.push(`Analysegruppe: <b>${esc(V(k + ".k_gruppe"))}</b>.`);
+  if (k === "sau") { const pe2 = V("sau.k_prisendring"); if (pe2) t.push(pe2 < 0 ? `Kr ${kr(-pe2)} av DB pr vf. sau skuldast at verdien pr dyr i buskapen har falle.` : `Kr ${kr(pe2)} av DB pr vf. sau skuldast at verdien pr dyr i buskapen har auka.`); }
+  return t.map(x => `<p>${x}</p>`).join("");
+}
+function buildReport() {
+  const M = MODEL, V = M.V;
+  const prods = SPEC.prods.filter(p => M.active.has(p.key));
+  const hasGF = SPEC.grovforKeys.some(k => M.active.has(k));
+  const pages = [];
+  // --- side 1: forside og samandrag
+  const dbItems = prods.map(p => ({label: p.sheet, values: [V(p.key + ".db_u"), V(p.key + ".db_m")]}));
+  const best = [...prods].sort((a, b) => V(b.key + ".db_m") - V(a.key + ".db_m"))[0];
+  const doD = V("total.do_drift"), doS = V("total.do_skatt_rekneskap");
+  pages.push(body => `<div class="page"><div class="cover-band"><div class="over">Nøkkeltalsanalyse jordbruk</div><h1>${esc(S.klient || "Klient")}</h1>
+    <div class="who">Rekneskapsår ${esc(S.aar)}${S.utarbeidd ? " · Utarbeidd av " + esc(S.utarbeidd) : ""}</div></div>
+    <h4 style="margin-top:16px">Samandrag</h4>
+    <div class="ptiles">
+      <div class="ptile"><div class="k">Sum dekningsbidrag m/tilskot</div><div class="v">${kr(V("total.sum_db_m"))}</div><div class="s">kr</div></div>
+      <div class="ptile"><div class="k">Faste kostnader</div><div class="v">${kr(V("total.faste"))}</div><div class="s">kr</div></div>
+      <div class="ptile"><div class="k">Driftsoverskot jordbruk (driftsmessig)</div><div class="v">${kr(doD)}</div><div class="s">skattemessig ${kr(doS)} kr</div></div>
+      <div class="ptile"><div class="k">Nettoinntekt næring</div><div class="v">${kr(V("total.netto"))}</div><div class="s">etter renter</div></div>
+    </div>
+    <div class="box"><p>Analysen omfattar ${prods.length} produksjon${prods.length === 1 ? "" : "ar"}: ${prods.map(p => esc(p.sheet.toLowerCase())).join(", ")}.
+      ${best ? `Høgast dekningsbidrag med tilskot har ${esc(best.sheet.toLowerCase())} med ${kr(V(best.key + ".db_m"))} kr.` : ""}
+      Samla dekningsbidrag med tilskot er ${kr(V("total.sum_db_m"))} kr, der tilskot utgjer ${fmt(V("total.k_tilskot_del"), "pct")}.
+      Faste kostnader tek ${fmt(V("total.k_faste_del"), "pct")} av dekningsbidraget, og driftsoverskotet blir ${kr(doD)} kr driftsmessig.</p>
+      <p>Skattemessig resultat er korrigert til driftsmessige tal: avskrivingar ${kr(V("total.korr_avskr"))} kr og beholdningsendringar ${kr(V("total.korr_beh"))} kr.${S.moves.length ? ` I tillegg er ${S.moves.length} postering${S.moves.length > 1 ? "ar" : ""} flytta mellom kontoar.` : ""}</p></div>
+    <h4>Dekningsbidrag per produksjon (kr)</h4>
+    ${hbar(dbItems, {series: [{name: "DB utan tilskot", color: "var(--series-1)"}, {name: "DB med tilskot", color: "var(--series-2)"}], width: 640, labelWidth: 120})}
+    <h4>Oversikt</h4>
+    <table class="r"><thead><tr><th>Produksjon</th><th class="n">Tal einingar</th><th class="n">DB u/tilskot</th><th class="n">Tilskot</th><th class="n">DB m/tilskot</th><th class="n">DB m/tilskot pr eining</th></tr></thead><tbody>
+    ${prods.map(p => { const n = V(p.key + ".n"); return `<tr><td>${esc(p.sheet)}</td><td class="n">${fmt(n, "n")} ${esc(p.unit_label)}</td><td class="n">${kr(V(p.key + ".db_u"))}</td><td class="n">${kr(V(p.key + ".tilskot"))}</td><td class="n">${kr(V(p.key + ".db_m"))}</td><td class="n">${n ? kr(V(p.key + ".db_m") / n) : "–"}</td></tr>`; }).join("")}
+    <tr class="s"><td>Sum</td><td></td><td class="n">${kr(V("total.sum_db_u"))}</td><td class="n">${kr(V("total.sum_tilskot"))}</td><td class="n">${kr(V("total.sum_db_m"))}</td><td></td></tr></tbody></table>
+    ${body}</div>`);
+  // --- side 2: totaløkonomi
+  const fItems = [["Maskinkostnader", "faste.maskin_sum"], ["Bygningskostnader", "faste.bygg_sum"], ["Innandørsmekanisering", "faste.innmek_sum"], ["Andre faste kostnader", "faste.andre_sum"]]
+    .map(([l, f]) => ({label: l, values: [V(f)]}));
+  pages.push(body => `<div class="page"><div class="ph"><div class="t">Totaløkonomi</div><div class="m">${esc(S.klient)}<br>Rekneskapsår ${esc(S.aar)}</div></div>
+    <div class="cols"><div>
+      <h4>Frå dekningsbidrag til nettoinntekt</h4>
+      <table class="r"><tbody>
+        <tr><td>Produksjonsinntekter</td><td class="n">${kr(V("total.sum_inn"))}</td></tr>
+        <tr><td>Variable kostnader</td><td class="n">${kr(-V("total.sum_var"))}</td></tr>
+        <tr class="s"><td>Dekningsbidrag utan tilskot</td><td class="n">${kr(V("total.sum_db_u"))}</td></tr>
+        <tr><td>Tilskot fordelt på produksjonane</td><td class="n">${kr(V("total.sum_tilskot"))}</td></tr>
+        <tr class="s"><td>Dekningsbidrag med tilskot</td><td class="n">${kr(V("total.sum_db_m"))}</td></tr>
+        <tr><td>Andre driftsinntekter, ikkje fordelt</td><td class="n">${kr(V("total.andre_inn"))}</td></tr>
+        <tr><td>Tilskot ikkje fordelt</td><td class="n">${kr(V("total.tilskot_ufordelt"))}</td></tr>
+        <tr><td>Variable kostnader ikkje fordelt</td><td class="n">${kr(-V("total.andre_var"))}</td></tr>
+        <tr><td>Faste kostnader</td><td class="n">${kr(-V("total.faste"))}</td></tr>
+        <tr class="s"><td>Driftsoverskot jordbruk (driftsmessig)</td><td class="n">${kr(doD)}</td></tr>
+        <tr><td>Driftsoverskot andre næringar</td><td class="n">${kr(V("total.do_andre"))}</td></tr>
+        <tr><td>Renteinntekter</td><td class="n">${kr(V("total.renteinn"))}</td></tr>
+        <tr><td>Renteutgifter</td><td class="n">${kr(-V("total.renteut"))}</td></tr>
+        <tr class="s"><td>Nettoinntekt næring</td><td class="n">${kr(V("total.netto"))}</td></tr>
+      </tbody></table>
+      <h4>Frå skattemessig til driftsmessig resultat</h4>
+      <table class="r"><tbody>
+        <tr><td>Driftsoverskot jordbruk, skattemessig</td><td class="n">${kr(doS)}</td></tr>
+        <tr><td>+ skattemessige avskrivingar</td><td class="n">${kr(V("total.avskr_skatt"))}</td></tr>
+        <tr><td>− driftsmessige avskrivingar</td><td class="n">${kr(-V("total.avskr_drift"))}</td></tr>
+        <tr><td>+ korrigering beholdningsendring (drift − skatt)</td><td class="n">${kr(V("total.korr_beh"))}</td></tr>
+        <tr class="s"><td>Driftsoverskot jordbruk, driftsmessig</td><td class="n">${kr(doS + V("total.korr_avskr") + V("total.korr_beh"))}</td></tr>
+        ${Math.abs(V("total.avvik")) >= 1 ? `<tr><td class="muted">Avvik mot analysen (ikkje fordelte postar)</td><td class="n muted">${kr(V("total.avvik"))}</td></tr>` : ""}
+      </tbody></table>
+    </div><div>
+      <h4>Faste kostnader (kr)</h4>
+      ${hbar(fItems, {width: 330, labelWidth: 130})}
+      ${rowsTable("faste", "1.", /^2\./, {skipZero: true})}
+      ${rowsTable("faste", "4.", /^5\./, {skipZero: true})}
+      ${rowsTable("faste", "6.", /^7\./, {skipZero: true})}
+      <h4>Nøkkeltal</h4>
+      <table class="r"><tbody>
+        <tr><td>DB m/tilskot i % av inntekter og tilskot</td><td class="n">${fmt(V("total.k_db_grad"), "pct")}</td></tr>
+        <tr><td>Tilskot i % av DB m/tilskot</td><td class="n">${fmt(V("total.k_tilskot_del"), "pct")}</td></tr>
+        <tr><td>Faste kostnader i % av DB m/tilskot</td><td class="n">${fmt(V("total.k_faste_del"), "pct")}</td></tr>
+        <tr><td>Renteutgifter i % av driftsoverskot</td><td class="n">${fmt(V("total.k_rente_del"), "pct")}</td></tr>
+        <tr><td>Maskinkostnader i % av faste kostnader</td><td class="n">${fmt(V("faste.k_maskin_del"), "pct")}</td></tr>
+      </tbody></table>
+    </div></div>${body}</div>`);
+  // --- side 3: grovfôr
+  if (hasGF) pages.push(body => `<div class="page"><div class="ph"><div class="t">Grovfôr og areal</div><div class="m">${esc(S.klient)}<br>Rekneskapsår ${esc(S.aar)}</div></div>
+    <p>Grovfôrarealet blir korrigert slik at overflatedyrka jord tel 1/1,25 og kulturbeite 1/2,5 av fulldyrka. «Kueiningar» vektar dyretalet slik at ulike husdyrslag kan samanliknast.</p>
+    <div class="ptiles">
+      <div class="ptile"><div class="k">Korrigert grovfôrareal</div><div class="v">${fmt(V("grovfor.da_vk"), "n1")}</div><div class="s">dekar</div></div>
+      <div class="ptile"><div class="k">Sum «kueiningar»</div><div class="v">${fmt(V("grovfor.sum_ku"), "n1")}</div><div class="s">${fmt(V("grovfor.korr_da_pr_ku"), "n2")} da pr kueining</div></div>
+      <div class="ptile"><div class="k">Variabel grovfôrkostnad</div><div class="v">${kr(V("grovfor.varkost_pr_da"))}</div><div class="s">kr pr korrigert dekar</div></div>
+      <div class="ptile"><div class="k">Maskinkostnad grovfôr</div><div class="v">${kr(V("grovfor.maskin_pr_da"))}</div><div class="s">kr pr dekar</div></div>
+    </div>
+    <div class="cols"><div><h4>Areal og utmark</h4>${rowsTable("grovfor", "1.", /^4\./, {skipZero: false})}</div>
+    <div><h4>Kueiningar og grovfôrkostnad</h4>${rowsTable("grovfor", "4.", /^5\./, {skipZero: true})}<h4>Nøkkeltal</h4>${rowsTable("grovfor", "5.", /^$/)}</div></div>${body}</div>`);
+  // --- produksjonssider
+  prods.forEach(p => {
+    const k = p.key, n = V(k + ".n");
+    const kp = kpiList(p).filter(r => r.fmt !== "txt");
+    const tiles = kp.slice(0, 4);
+    const ur = unitRows(p);
+    const costItems = ur.filter(r => /Variable kostnader/.test(r.sec) && !/^Sum/.test(r.label)).map(r => ({label: r.label, values: [V(k + "." + r.id)]})).filter(x => Math.abs(x.values[0]) > 0.005);
+    pages.push(body => `<div class="page"><div class="ph"><div class="t">${esc(p.title)}</div><div class="m">${esc(S.klient)} · driftsgrein ${esc(p.dg)}<br>${fmt(n, "n")} ${esc(p.unit_label)} · rekneskapsår ${esc(S.aar)}</div></div>
+      <div class="ptiles">${tiles.map(r => `<div class="ptile"><div class="k">${esc(r.label)}</div><div class="v">${fmt(V(k + "." + r.id), r.fmt)}</div><div class="s">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</div></div>`).join("")}</div>
+      <div class="cols"><div>
+        <h4>Resultat ${esc(p.per_label)} (kr)</h4>
+        <table class="r"><tbody>${ur.map(r => { const v = V(k + "." + r.id); if (Math.abs(v) < 0.005 && !/i alt|^Sum|^DB/.test(r.label)) return "";
+          const head = r.sec !== (r._prev); return `<tr class="${/i alt|^Sum|^DB /.test(r.label) ? "s" : ""}"><td>${esc(r.label)}</td><td class="n">${fmt(v, r.fmt)}</td></tr>`; }).join("")}</tbody></table>
+        <h4>Variable kostnader ${esc(p.per_label)} (kr)</h4>
+        ${costItems.length ? hbar(costItems, {width: 330, labelWidth: 150, compact: true}) : '<p class="muted">Ingen variable kostnader.</p>'}
+      </div><div>
+        <h4>Nøkkeltal</h4>
+        <table class="r"><tbody>${kpiList(p).map(r => `<tr><td>${esc(r.label)}</td><td class="n">${fmt(V(k + "." + r.id), r.fmt)}</td></tr>`).join("")}</tbody></table>
+        <h4>Totalt for produksjonen (kr)</h4>
+        <table class="r"><tbody>
+          <tr><td>Produksjonsinntekter i alt</td><td class="n">${kr(V(k + ".inn_total"))}</td></tr>
+          <tr><td>Variable kostnader i alt</td><td class="n">${kr(V(k + ".kost_total"))}</td></tr>
+          <tr class="s"><td>DB utan tilskot</td><td class="n">${kr(V(k + ".db_u"))}</td></tr>
+          <tr><td>Tilskot</td><td class="n">${kr(V(k + ".tilskot"))}</td></tr>
+          <tr class="s"><td>DB med tilskot</td><td class="n">${kr(V(k + ".db_m"))}</td></tr>
+          <tr><td>Maskinkostnader</td><td class="n">${kr(V(k + ".maskin"))}</td></tr>
+          ${p.group !== "plante" ? `<tr><td>Innandørsmekanisering</td><td class="n">${kr(V(k + ".innmek"))}</td></tr>` : ""}
+          <tr class="s"><td>Att etter maskin${p.group !== "plante" ? " og innandørsmek." : ""}</td><td class="n">${kr(V(k + ".db_etter"))}</td></tr>
+        </tbody></table>
+      </div></div>
+      <h4>Kommentar</h4><div class="box">${prodComment(p)}</div>${body}</div>`);
+  });
+  // --- korrigeringar
+  const L = lagerRows().filter(l => Math.abs(l.korr) > 0.5), AV = avskrRows().filter(x => Math.abs(x.diff) > 0.5);
+  const ov = Object.entries(S.overrides).filter(([, v]) => v != null && v !== "");
+  const man = Object.entries(S.assign).filter(([, v]) => v && v.t1);
+  pages.push(body => `<div class="page"><div class="ph"><div class="t">Korrigeringar og føresetnader</div><div class="m">${esc(S.klient)}<br>Rekneskapsår ${esc(S.aar)}</div></div>
+    <p>Analysen byggjer på saldobalansen frå ${esc(S.source)}. Tala er korrigerte til driftsmessige verdiar slik det går fram under.</p>
+    <h4>Driftsmessige verdiar på varelager og buskap</h4>
+    ${L.length ? `<table class="r"><thead><tr><th>Konto</th><th class="n">Skatt 1.1.</th><th class="n">Skatt 31.12.</th><th class="n">Drift 1.1.</th><th class="n">Drift 31.12.</th><th class="n">Korrigering</th></tr></thead><tbody>
+      ${L.map(l => `<tr><td>${esc(l.r.nr)} ${esc(l.r.navn)}</td><td class="n">${kr(l.r.ib)}</td><td class="n">${kr(l.r.ub)}</td><td class="n">${kr(l.ibD)}</td><td class="n">${kr(l.ubD)}</td><td class="n">${kr(l.korr)}</td></tr>`).join("")}
+      <tr class="s"><td>Sum</td><td></td><td></td><td></td><td></td><td class="n">${kr(L.reduce((s, l) => s + l.korr, 0))}</td></tr></tbody></table>` : '<p class="muted">Ingen.</p>'}
+    <h4>Driftsmessige avskrivingar</h4>
+    ${AV.length ? `<table class="r"><thead><tr><th>Konto</th><th class="n">Skattemessig</th><th class="n">Driftsmessig</th><th class="n">Grunnlag</th></tr></thead><tbody>
+      ${AV.map(x => `<tr><td>${esc(x.r.nr)} ${esc(x.r.navn)}</td><td class="n">${kr(x.skatt)}</td><td class="n">${kr(x.drift)}</td><td class="n">${x.verdi && x.levetid && !x.manual ? kr(x.verdi) + " / " + x.levetid + " år" : "manuelt"}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">Ingen.</p>'}
+    <h4>Flytta beløp</h4>
+    ${S.moves.filter(mv => mv.fra && mv.til && num(mv.belop)).length ? `<table class="r"><thead><tr><th>Frå</th><th>Til</th><th class="n">Beløp</th><th>Forklaring</th></tr></thead><tbody>
+      ${S.moves.filter(mv => mv.fra && mv.til && num(mv.belop)).map(mv => `<tr><td>${esc(mv.fra)} ${esc(kontoNavn(mv.fra))}</td><td>${esc(mv.til)} ${esc(kontoNavn(mv.til))}</td><td class="n">${kr(num(mv.belop))}</td><td>${esc(mv.tekst)}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">Ingen.</p>'}
+    <h4>Manuelle koplingar og overstyrte tal</h4>
+    ${man.length || ov.length ? `<table class="r"><tbody>
+      ${man.map(([nr, a]) => `<tr><td>${esc(nr)} ${esc(kontoNavn(nr))}</td><td>${esc(PNAME[a.t1] || SPECIAL[a.t1])}${a.t2 ? ` ${100 - num(a.p2)} % / ${esc(PNAME[a.t2] || SPECIAL[a.t2])} ${num(a.p2)} %` : ""}</td></tr>`).join("")}
+      ${ov.map(([f, v]) => `<tr><td>${esc(SHEET[f.split(".")[0]].sheet)}: ${esc(ROW[f] ? ROW[f].label : f)}</td><td>overstyrt til ${fmt(num(v), ROW[f] ? ROW[f].fmt : "n")}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">Ingen.</p>'}
+    <h4>Fordelingsnøklar</h4>
+    <table class="r"><thead><tr><th>Produksjon</th><th class="n">Fellespott</th><th class="n">Maskinkostnader</th><th class="n">Innandørsmek.</th></tr></thead><tbody>
+      ${prods.map(p => `<tr><td>${esc(p.sheet)}</td><td class="n">${fmt((M.poolKey[p.key] || 0) / 100, "pct")}</td><td class="n">${fmt((M.maskinKey[p.key] || 0) / 100, "pct")}</td><td class="n">${fmt((M.innmekKey[p.key] || 0) / 100, "pct")}</td></tr>`).join("")}</tbody></table>
+    <p class="muted" style="margin-top:8px">Metode: same oppsett som Duett-basert nøkkeltalsanalyse. Formlane for kvar produksjon er dokumenterte i Excel-arbeidsboka «Analyse_jordbruk_produksjonar.xlsx».</p>${body}</div>`);
+  const tot = pages.length;
+  return pages.map((fn, i) => fn(`<div class="pf"><span>Nøkkeltalsanalyse jordbruk · ${esc(S.klient)} · ${esc(S.aar)}</span><span>Side ${i + 1} av ${tot}</span></div>`)).join("");
+}
+function renderRapport(m) {
+  const M = MODEL;
+  m.innerHTML = `
+  <section class="card no-print">
+    <h2>5. Rapport</h2>
+    <p class="lead">Førehandsvisning av analyserapporten. Last ned som PDF eller skriv ut. Går du tilbake og endrar tal, blir rapporten oppdatert.</p>
+    <div class="row"><button class="btn primary" id="btnPdf">Last ned PDF</button><button class="btn" id="btnPrint">Skriv ut</button>
+    <span class="muted small" id="pdfStatus"></span></div>
+    ${!M.active.size ? `<div class="notice warn">Ingen aktive produksjonar – rapporten viser berre totaløkonomi.</div>` : ""}
+  </section>
+  <section class="card" style="padding:0;border:0;box-shadow:none;background:none"><div class="preview-shell" id="preview">${buildReport()}</div></section>`;
+  $("#btnPdf").onclick = downloadPdf;
+  $("#btnPrint").onclick = () => window.print();
+}
+function downloadPdf() {
+  const shell = $("#preview");
+  if (!shell) return;
+  if (typeof html2pdf === "undefined") { alert("PDF-biblioteket er ikkje lasta (krev internett). Bruk «Skriv ut» og vel «Lagre som PDF»."); return; }
+  const st = $("#pdfStatus"); if (st) st.textContent = "Lagar PDF …";
+  const pages = [...shell.querySelectorAll(".page")];
+  const oldMax = shell.style.maxHeight; shell.style.maxHeight = "none";
+  const file = `Nokkeltalsanalyse_${(S.klient || "klient").replace(/[^\wæøåÆØÅ]+/g, "_")}_${S.aar}.pdf`;
+  const opt = {margin: 0, filename: file, image: {type: "jpeg", quality: 0.95},
+    html2canvas: {scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0},
+    jsPDF: {unit: "mm", format: "a4", orientation: "portrait", compress: true}};
+  let w = html2pdf().set(opt).from(pages[0]).toPdf();
+  pages.slice(1).forEach(pg => { w = w.get("pdf").then(pdf => pdf.addPage()).from(pg).toContainer().toCanvas().toPdf(); });
+  const done = msg => { shell.style.maxHeight = oldMax; if (st) st.textContent = msg; };
+  return w.save().then(() => done("PDF lasta ned (" + pages.length + " sider)."), () => done("Klarte ikkje å lage PDF – bruk «Skriv ut»."));
+}
+
+render();
+</script>
+</body>
+</html>
