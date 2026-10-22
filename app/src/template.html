@@ -338,6 +338,13 @@ select.sel:hover,.field select:hover{border-color:var(--panel-border-hi)}
 .post .pn{font-size:14px;color:var(--ink);padding-top:6px}
 .post .pv{font:500 13px/1 var(--mono);color:var(--ink-2);padding-top:8px;text-align:right;font-variant-numeric:tabular-nums}
 .post .chips{margin-top:0}
+.fx.fxsub{border-radius:12px;background:var(--field);margin:4px 0 6px}
+.nest{padding:2px 0 10px 18px;border-left:2px solid color-mix(in srgb,var(--lime) 40%,transparent);margin:0 0 6px 6px}
+.opsym{font:500 16px/1 var(--sans);color:var(--ink-3);padding:0 2px}
+.fn{font:500 13px/1 var(--mono);color:var(--ink-3)}
+.numtok{font:500 13px/1 var(--mono);color:var(--ink);padding:6px 9px;border-radius:8px;border:1px solid var(--field-border)}
+.post.flash{background:color-mix(in srgb,var(--lime) 12%,transparent);transition:background .3s}
+.post>span:nth-child(2){display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .hint{font-size:13.5px;color:var(--ink-2);margin:0 0 16px;max-width:720px}
 @media (max-width:760px){.kprow{grid-template-columns:80px 1fr 20px}.kprow .am,.kprow .dest{grid-column:2/3}.post{grid-template-columns:1fr auto}.post .chips{grid-column:1/-1}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
@@ -456,6 +463,10 @@ const NN = {
   "Mangler parentes etter": "Manglar parentes etter",
   "Parentesene går ikke opp": "Parentesane går ikkje opp",
   "Ukjent ledd": "Ukjent ledd",
+  "1 når produksjonen er med, ellers 0": "1 når produksjonen er med, elles 0", "er med": "er med", "Fordelingsnøkkel": "Fordelingsnøkkel", "Endre nøkkel": "Endre nøkkel",
+  "Hentes automatisk fra saldobalansen": "Blir henta automatisk frå saldobalansen", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
+  "Skjul utregning": "Skjul utrekning", "Vis utregning": "Vis utrekning",
+  "Hver formel vises som et regnestykke med én rad per ledd. «Vis utregning» åpner leddet, helt ned til kontoene, fordelingsnøklene og produksjonsdataene som kan endres direkte.": "Kvar formel blir vist som eit reknestykke med éi rad per ledd. «Vis utrekning» opnar leddet, heilt ned til kontoane, fordelingsnøklane og produksjonsdataa som kan endrast direkte.",
   "Del andeler med": "Del delar med", "Legg til deling": "Legg til deling", "{a} går til {t}": "{a} går til {t}", "Delingene kan ikke overstige 100 %": "Delingane kan ikkje vere over 100 %",
   "Lukk": "Lukk", "Med i posten nå": "Med i posten no", "Legg til eller fjern": "Legg til eller fjern", "Klikk en konto for å ta den med eller fjerne den.": "Klikk ein konto for å ta han med eller fjerne han.",
   "Rediger uttrykk": "Rediger uttrykk", "Skriv uttrykk": "Skriv uttrykk", "Uttrykk": "Uttrykk", "Betyr": "Tyder", "Sett inn post": "Set inn post", "Legg til ledd i": "Legg til ledd i", "Søk post": "Søk post",
@@ -2188,6 +2199,27 @@ function chipTitle(t) {
   const x = t.replace("!", ""), m = x.match(/^(\d{4})(?:-(\d{4}))?$/); if (!m) return x;
   return m[2] ? `${kontoNavn(m[1] + ".20")} … ${kontoNavn(m[2] + ".20")}` : kontoNavn(m[1] + ".20");
 }
+const KOPEN = new Set();
+/* uttrykk som HTML: ledd som piller, operatorar og funksjonar som tekst */
+function fhtml(tokens, key) {
+  let out = "", i = 0;
+  while (i < tokens.length) {
+    const [k, v] = tokens[i];
+    if (k === "fn") { const [args, j] = fsplit(tokens, i);
+      if (v === "ACTIVE") { const pk = args[0] && args[0][0] ? args[0][0][1] : ""; out += `<span class="tok calc" data-tt="${esc(T("1 når produksjonen er med, ellers 0"))}">${esc(PN(pk))} ${T("er med")}</span>`; }
+      else if (v === "DIV") out += `<span class="fn">(</span>${fhtml(args[0], key)}<span class="fn">)</span><span class="opsym">÷</span><span class="fn">(</span>${fhtml(args[1], key)}<span class="fn">)</span>`;
+      else out += `<span class="fn">${{IF: T("HVIS"), MAX: "MAKS", MIN: "MIN", ABS: "ABS", ROUND: T("AVRUND"), SUM: "SUM"}[v]}(</span>${args.map(a => fhtml(a, key)).join('<span class="fn">;</span>')}<span class="fn">)</span>`;
+      i = j; continue; }
+    if (k === "id") { let f = null; try { f = fullId(v, key); } catch (e) { /* ukjent */ }
+      out += f ? `<span class="tok ${ROW[f].t === "calc" ? "calc" : ""}" data-ref="${f}">${esc(LBL(ROW[f]))}${f.split(".")[0] !== key ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : ""}</span>` : `<span class="bad">${esc(v)}</span>`; }
+    else if (k === "op") out += `<span class="opsym">${({"*": "×", "-": "−", "/": "÷", "=": "=", "<>": "≠", "<=": "≤", ">=": "≥"}[v] || v)}</span>`;
+    else if (k === "num") out += `<span class="numtok">${esc(v.replace(".", ","))}</span>`;
+    else out += `<span class="numtok">${esc(v)}</span>`;
+    i++;
+  }
+  return out;
+}
+const refsOf = (full) => { const key = ROW[full].sheet, seen = []; try { ftok(fexpr(full)).forEach(([k, v]) => { if (k !== "id") return; try { const f = fullId(v, key); if (!seen.includes(f)) seen.push(f); } catch (e) { /* ukjent */ } }); } catch (e) { /* ugyldig */ } return seen; };
 function renderKontering(el, m) {
   const keys = KSHEETS(), sel = keys.includes(SET.kSheet) ? SET.kSheet : (M && M.prods[0] ? M.prods[0].key : "mjolk"), sh = SHEET[sel];
   const secs = sectionOf(sh), V = S.sb.length && M ? M.V : null;
@@ -2196,32 +2228,47 @@ function renderKontering(el, m) {
   const vtxt = full => (V ? fmt(V(full), ROW[full].fmt) : "");
   const contribTip = full => { const c = (M && M.contrib[full]) || []; if (!c.length) return "";
     return `<b>${esc(LBL(ROW[full]))}</b>` + c.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, 8).map(x => `<div class="tr2"><span>${esc(x.nr)} ${esc(x.nr === "INNMEK" ? "" : kontoNavn(x.nr))}</span><span class="tv">${kr(x.v)}</span></div>`).join("") + (c.length > 8 ? `<div class="muted">+ ${c.length - 8} ${T("til")}</div>` : ""); };
-  const exprHtml = (full, editable) => { const expr = fexpr(full), terms = simpleTerms(expr);
-    if (!terms) return `<div class="ftxt">= ${esc(ftext(full))}</div>`;
-    return `<div class="expr" data-full="${full}"><span class="eq">=</span>${terms.map((t, i) => { let f; try { f = fullId(t.id, sel); } catch (e) { f = null; }
-      const rr = f && ROW[f], lab = rr ? LBL(rr) + (f.split(".")[0] !== sel ? " (" + SL(SHEET[f.split(".")[0]], "sheet") + ")" : "") : t.id;
-      return `${i || t.sign < 0 ? `<button class="op ${t.sign < 0 ? "minus" : ""}" data-op="${i}" ${editable ? "" : "disabled"} title="${T("Bytt fortegn")}">${t.sign < 0 ? "−" : "+"}</button>` : ""}
-        <span class="tok ${rr && rr.t === "calc" ? "calc" : ""}" ${rr && rr.t === "calc" && f.split(".")[0] === sel ? `data-go="${rr.id}"` : ""} data-tt="${esc(`<b>${esc(lab)}</b>${V && rr ? `<div class="tv">${vtxt(f)}</div>` : ""}`)}">${esc(lab)}${editable ? `<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button>` : ""}</span>`; }).join("")}
-      ${editable ? `<button class="tok add" data-addt="${full}">+ ${T("Ledd")}</button>` : ""}</div>`; };
-  const postsHtml = full => { const terms = simpleTerms(fexpr(full)); if (!terms) return "";
-    const rows = terms.map(t => { try { return fullId(t.id, sel); } catch (e) { return null; } }).filter(f => f && ROW[f] && ROW[f].t === "input" && f.split(".")[0] === sel);
-    if (!rows.length) return "";
-    return `<div class="posts">${rows.map(f => `<div class="post"><span class="pn">${esc(LBL(ROW[f]))}</span>${accChips(f)}<span class="pv" ${contribTip(f) ? `data-tt="${esc(contribTip(f))}"` : ""}>${vtxt(f)}</span></div>`).join("")}</div>`; };
-  const card = (r, detail) => { const full = sel + "." + r.id, ov = !!SET.formulas[full], simple = !!simpleTerms(fexpr(full));
-    return `<div class="fx ${ov ? "ovr" : ""}" id="fx-${r.id}"><div class="fx-h"><span class="nm">${esc(LBL(r))}</span>${ov ? `<span class="pill warn">${T("Endret")}</span>` : ""}
-      ${ov ? `<button class="btn sm ghost" data-fstd="${full}">${T("Standard")}</button>` : ""}<button class="btn sm ghost" data-edit="${full}">${T(simple ? "Skriv uttrykk" : "Rediger uttrykk")}</button><span class="val">${vtxt(full)}</span></div>
-      ${exprHtml(full, true)}${detail ? "" : postsHtml(full)}</div>`; };
+  const nodeIdx = id => NODES.findIndex(n => n.id === id);
+  /* kvar kjem eit inputtal frå, og korleis endrar ein det */
+  const source = f => { const r = ROW[f], k = f.split(".")[0];
+    if (["tilskot", "inn", "kost", "gf"].includes(r.kind) || (r.kind === "fast" && accFor(f)) || (r.kind === "info" && (r.acc || SET.acc[f] != null)) || /\.andre_(inn|kost)$/.test(f)) return accChips(f);
+    if (f.startsWith("faste.pct_")) return `<span class="dest"><span class="to">${T("Fordelingsnøkkel")}: ${T("Maskinkostnader")}</span></span> <button class="btn sm ghost" data-gonode="k_nokkel">${T("Endre nøkkel")}</button>`;
+    if (f.startsWith("faste.innmek_")) return `<span class="dest"><span class="to">${T("Fordelingsnøkkel")}: ${T("Innandørsmekanisering")}</span></span> <button class="btn sm ghost" data-gonode="k_nokkel">${T("Endre nøkkel")}</button>`;
+    if (["avskr_skatt", "beh_skatt", "beh_drift", "do_skatt_rekneskap"].includes(r.id) && k === "total") return `<span class="dest"><span class="to">${T("Hentes automatisk fra saldobalansen")}</span></span>`;
+    if (r.kind === "fast" && !accFor(f)) return `<span class="dest"><span class="to">${T("Sum av kontoer uten egen post")}</span></span>`;
+    const has = S.prodInputs[f] != null && S.prodInputs[f] !== "", d = M && M.derived[f] != null ? M.derived[f] : (r.kind === "norm" ? r.ex : null);
+    return `<span class="dest"><span class="to">${T(r.kind === "norm" ? "Fôrnorm" : "Produksjonsdata")}</span></span><input class="inp num" style="max-width:130px" data-pi="${f}" value="${has ? S.prodInputs[f] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" inputmode="decimal"><span class="muted sm">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</span>`; };
+  const pathId = s => s.replace(/[^a-z0-9_>.]/gi, "");
+  /* eitt kort for ein formel, med rad per ledd og opne underformlar */
+  const card = (full, depth, path) => { const r = ROW[full], key = full.split(".")[0], ov = !!SET.formulas[full], expr = fexpr(full), terms = simpleTerms(expr);
+    let exprH;
+    if (terms) exprH = `<div class="expr" data-full="${full}"><span class="eq">=</span>${terms.map((t, i) => { let f; try { f = fullId(t.id, key); } catch (e) { f = null; }
+        const rr = f && ROW[f], lab = rr ? LBL(rr) : t.id, other = f && f.split(".")[0] !== key;
+        return `${i || t.sign < 0 ? `<button class="op ${t.sign < 0 ? "minus" : ""}" data-op="${i}" title="${T("Bytt fortegn")}">${t.sign < 0 ? "−" : "+"}</button>` : ""}<span class="tok ${rr && rr.t === "calc" ? "calc" : ""}" ${f ? `data-ref="${f}"` : ""}>${esc(lab)}${other ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : ""}<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button></span>`; }).join("")}
+        <button class="tok add" data-addt="${full}">+ ${T("Ledd")}</button></div>`;
+    else { let h; try { h = fhtml(ftok(expr), key); } catch (e) { h = `<span class="bad">${esc(e.message)}</span>`; } exprH = `<div class="expr" data-full="${full}"><span class="eq">=</span>${h}</div>`; }
+    const refs = refsOf(full);
+    const rows = refs.map(f => { const rr = ROW[f], open = KOPEN.has(path + ">" + f), other = f.split(".")[0] !== key;
+      const name = `${esc(LBL(rr))}${other ? `<div class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</div>` : ""}`;
+      if (rr.t === "calc") return `<div class="post"><span class="pn">${name}</span><span><button class="btn sm ${open ? "pri" : ""}" data-open="${esc(path + ">" + f)}">${T(open ? "Skjul utregning" : "Vis utregning")} ${open ? "▴" : "▾"}</button></span><span class="pv">${vtxt(f)}</span></div>
+        ${open ? `<div class="nest">${card(f, depth + 1, path + ">" + f)}</div>` : ""}`;
+      return `<div class="post"><span class="pn">${name}</span><span>${source(f)}</span><span class="pv" ${contribTip(f) ? `data-tt="${esc(contribTip(f))}"` : ""}>${vtxt(f)}</span></div>`; }).join("");
+    return `<div class="fx ${ov ? "ovr" : ""} ${depth ? "fxsub" : ""}" id="fx-${pathId(path)}"><div class="fx-h"><span class="nm">${esc(LBL(r))}${key !== sel ? ` <span class="muted sm">${esc(SL(SHEET[key], "sheet"))}</span>` : ""}</span>
+      ${ov ? `<span class="pill warn">${T("Endret")}</span><button class="btn sm ghost" data-fstd="${full}">${T("Standard")}</button>` : ""}
+      <button class="btn sm ghost" data-edit="${full}">${T(terms ? "Skriv uttrykk" : "Rediger uttrykk")}</button><span class="val">${vtxt(full)}</span></div>
+      ${exprH}${rows ? `<div class="posts">${rows}</div>` : ""}</div>`; };
   el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel" style="min-width:240px">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
       <span class="grow"></span>${nOv ? `<span class="pill warn">${nOv} ${T("endringer")}</span>` : ""}<button class="btn sm" id="resetStd">${T("Tilbakestill standard")}</button></div></div>
-    <p class="hint">${T("Hver formel er et regnestykke: klikk + eller − for å bytte fortegn, × for å fjerne et ledd og + Ledd for å legge til. Under står kontoene som summeres i hver post.")}</p>
-    ${main.map(r => card(r, false)).join("")}
-    <details class="grp"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">${rest.map(r => card(r, true)).join("")}</div></details>`;
-  const redraw = () => { if (S.sb.length) compute(); renderKontering(el, m); };
+    <p class="hint">${T("Hver formel vises som et regnestykke med én rad per ledd. «Vis utregning» åpner leddet, helt ned til kontoene, fordelingsnøklene og produksjonsdataene som kan endres direkte.")}</p>
+    ${main.map(r => card(sel + "." + r.id, 0, sel + "." + r.id)).join("")}
+    <details class="grp" ${SET.kRestOpen ? "open" : ""} id="kRest"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">${rest.map(r => card(sel + "." + r.id, 0, sel + "." + r.id)).join("")}</div></details>`;
+  const redraw = () => { const y = window.scrollY; if (S.sb.length) compute(); renderKontering(el, m); window.scrollTo({top: y}); };
   const setTerms = (full, terms) => { const r = ROW[full], e2 = termsToExpr(terms);
     if (!terms.length) { alert(T("Formelen må ha minst ett ledd.")); return; }
     if (formulaCycle(full, e2)) { alert(T("Formelen viser tilbake til seg selv (sirkelreferanse)")); return; }
     if (e2 === r.expr) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); redraw(); };
-  $("#kSel").onchange = e => { SET.kSheet = e.target.value; saveSet(); renderKontering(el, m); };
+  $("#kSel").onchange = e => { SET.kSheet = e.target.value; KOPEN.clear(); saveSet(); renderKontering(el, m); };
+  $("#kRest").ontoggle = e => { SET.kRestOpen = e.target.open; saveSet(); };
   $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); redraw(); } };
   $$(".chip .x", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
     toks.splice(+b.dataset.i, 1); SET.acc[full] = toks.join(", "); saveSet(); redraw(); });
@@ -2232,7 +2279,11 @@ function renderKontering(el, m) {
   $$("[data-op]", el).forEach(b => b.onclick = () => { const full = b.closest(".expr").dataset.full, terms = simpleTerms(fexpr(full)); terms[+b.dataset.op].sign *= -1; setTerms(full, terms); });
   $$("[data-rm]", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".expr").dataset.full, terms = simpleTerms(fexpr(full)); terms.splice(+b.dataset.rm, 1); setTerms(full, terms); });
   $$("[data-addt]", el).forEach(b => b.onclick = () => { const full = b.dataset.addt; termPicker(full, (id, sign) => { const terms = simpleTerms(fexpr(full)) || []; terms.push({sign, id}); setTerms(full, terms); }); });
-  $$("[data-go]", el).forEach(t2 => t2.onclick = () => { const c = $("#fx-" + t2.dataset.go); if (!c) return; const d = c.closest("details"); if (d) d.open = true; c.scrollIntoView({behavior: "smooth", block: "start"}); });
+  $$("[data-open]", el).forEach(b => b.onclick = () => { const k = b.dataset.open; if (KOPEN.has(k)) [...KOPEN].forEach(x => { if (x === k || x.startsWith(k + ">")) KOPEN.delete(x); }); else KOPEN.add(k); redraw(); });
+  $$(".expr .tok[data-ref]", el).forEach(tk => tk.onclick = e => { if (e.target.closest(".x")) return; const card2 = tk.closest(".fx"), btn = card2 && $$(`[data-open]`, card2).find(b => b.dataset.open.endsWith(">" + tk.dataset.ref) && b.closest(".fx") === card2);
+    if (btn) btn.click(); else { const row = card2 && $$(".post", card2).find(p2 => p2.closest(".fx") === card2 && p2.querySelector(`[data-pi="${tk.dataset.ref}"], .chips[data-full="${tk.dataset.ref}"]`)); if (row) { row.classList.add("flash"); setTimeout(() => row.classList.remove("flash"), 900); } } });
+  $$("[data-pi]", el).forEach(i2 => i2.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.pi]; else S.prodInputs[e.target.dataset.pi] = num(v); save(); redraw(); });
+  $$("[data-gonode]", el).forEach(b => b.onclick = () => { VIEW = "wizard"; go(nodeIdx(b.dataset.gonode)); window.scrollTo({top: 0}); });
 }
 /* ---------- overlay ---------- */
 function modal(html, onMount) {
@@ -2284,7 +2335,8 @@ function formulaCycle(full, expr) {
 function formulaModal(full, done) {
   const r = ROW[full], key = r.sheet, sh = SHEET[key];
   const st = {expr: fexpr(full)};
-  const opts = sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc")).map(x => `<option value="${x.id}">${esc(LBL(x))}</option>`).join("");
+  const og = (k2, pre) => `<optgroup label="${esc(isProd(k2) ? SL(SHEET[k2], "sheet") : SL(SHEET[k2], "title"))}">${SHEET[k2].rows.filter(x => x.id && !(k2 === key && x.id === r.id) && (x.t === "input" || x.t === "calc")).map(x => `<option value="${pre}${x.id}">${esc(LBL(x))}</option>`).join("")}</optgroup>`;
+  const opts = og(key, "") + ["faste", "grovfor", "total"].filter(k2 => k2 !== key).map(k2 => og(k2, k2 + ".")).join("");
   const draw = el => {
     let err = "", txt = "", val = "";
     try { frender(ftok(st.expr), key, "js"); try { compileExpr(st.expr, key); } catch (e2) { throw new Error(T("Formelen er ufullstendig – sjekk parenteser og ledd")); }
