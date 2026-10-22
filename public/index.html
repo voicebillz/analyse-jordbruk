@@ -456,6 +456,7 @@ const NN = {
   "Mangler parentes etter": "Manglar parentes etter",
   "Parentesene går ikke opp": "Parentesane går ikkje opp",
   "Ukjent ledd": "Ukjent ledd",
+  "Del andeler med": "Del delar med", "Legg til deling": "Legg til deling", "{a} går til {t}": "{a} går til {t}", "Delingene kan ikke overstige 100 %": "Delingane kan ikkje vere over 100 %",
   "Lukk": "Lukk", "Med i posten nå": "Med i posten no", "Legg til eller fjern": "Legg til eller fjern", "Klikk en konto for å ta den med eller fjerne den.": "Klikk ein konto for å ta han med eller fjerne han.",
   "Rediger uttrykk": "Rediger uttrykk", "Skriv uttrykk": "Skriv uttrykk", "Uttrykk": "Uttrykk", "Betyr": "Tyder", "Sett inn post": "Set inn post", "Legg til ledd i": "Legg til ledd i", "Søk post": "Søk post",
   "Pluss": "Pluss", "Minus": "Minus", "Beregnet": "Rekna ut", "Beløp": "Beløp", "Ingen treff.": "Ingen treff.", "Bytt fortegn": "Byt forteikn", "Ledd": "Ledd", "til": "til",
@@ -861,7 +862,7 @@ const DEMO = {
     "grovfor.overflate": 40, "grovfor.fulldyrka": 260, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
     "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
   },
-  map: {"4021.20": {t1: "mjolk", t2: "oksar", p2: 15}, "4521.20": {t1: "mjolk", t2: "oksar", p2: 10},
+  map: {"4021.20": {t1: "mjolk", splits: [{t: "oksar", p: 15}]}, "4521.20": {t1: "mjolk", splits: [{t: "oksar", p: 10}]},
   },
   lagerPris: {"1451.20.511": 18000, "1451.20.514": 14000, "1451.20.515": 7000, "1451.20.516": 16000, "1451.20.517": 7500,
     "1454.20.541": 2200, "1454.20.542": 2400, "1454.20.543": 1900},
@@ -981,6 +982,9 @@ function normKey(obj, keys) {
   keys.forEach(k => out[k] = s ? out[k] / s * 100 : (keys.length ? 100 / keys.length : 0));
   return out;
 }
+/* delingar for ein konto: [{t, p}] (gamal form t2/p2 blir lesen som éi deling) */
+function splitsOf(x) { if (!x) return []; const s = Array.isArray(x.splits) ? x.splits : (x.t2 ? [{t: x.t2, p: num(x.p2)}] : []);
+  return s.filter(d => d && d.t).map(d => ({t: d.t, p: Math.max(0, num(d.p))})); }
 function mapFor(nr) { const m = SET.map[nr] || (S.map && S.map[nr]); return m && m.t1 ? m : null; }
 const avdDefault = nr => (KP[nr] ? KP[nr].avd : parseAcc(nr).avd) || "";
 const effAvd = nr => (SET.avd[nr] != null && SET.avd[nr] !== "" ? SET.avd[nr] : avdDefault(nr));
@@ -1026,7 +1030,8 @@ function compute() {
     if (!a.amt) return; const b = parseAcc(a.nr).base; if (b < 3000 || b > 8999) return;
     if (!isJord(a.nr)) { alloc[a.nr] = [{t: "ANDRE", s: 1}]; tadd("ANDRE", a.nr, a.amt); return; }
     const man = mapFor(a.nr); let parts;
-    if (man) { const p2 = man.t2 ? Math.min(100, Math.max(0, num(man.p2))) : 0; parts = [{t: man.t1, s: 1 - p2 / 100}]; if (p2) parts.push({t: man.t2, s: p2 / 100}); }
+    if (man) { let rest = 100; const sp = splitsOf(man).map(d => { const p = Math.min(rest, d.p); rest -= p; return {t: d.t, s: p / 100}; }).filter(d => d.s > 0);
+      parts = [{t: man.t1, s: rest / 100}].concat(sp).filter(d => d.s > 0); if (!parts.length) parts = [{t: man.t1, s: 1}]; }
     else parts = [{t: resolve(a.nr), s: 1}];
     alloc[a.nr] = parts;
     parts.forEach(({t, s}) => { const v = a.amt * s; if (!v) return;
@@ -1164,6 +1169,7 @@ function notIncluded(nr) { if (!M || !isJord(nr)) return false; const b = parseA
 function setMap(nr, field, val) {
   const cur = SET.map[nr] || JSON.parse(JSON.stringify((S.map && S.map[nr]) || {}));
   if (field === "t1") { if (!val) { delete SET.map[nr]; saveSet(); return; } cur.t1 = val; }
+  else if (field === "splits") { if (!cur.t1) cur.t1 = autoTarget(nr); cur.splits = val; delete cur.t2; delete cur.p2; }
   else if (field === "t2") { if (!cur.t1) cur.t1 = autoTarget(nr); cur.t2 = val || ""; if (val && !cur.p2) cur.p2 = 50; if (!val) cur.p2 = ""; }
   else if (field === "p2") { if (!cur.t1) cur.t1 = autoTarget(nr); cur.p2 = num(val); }
   SET.map[nr] = cur; saveSet();
@@ -1283,7 +1289,7 @@ function vImport(m) {
   <div class="card"><div class="card-head"><h2>${T("Saldobalanse")}</h2><span class="grow"></span><input class="search" id="flt" placeholder="${T("Søk konto eller navn")}" value="${esc(S.filter)}"></div>
   <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i >= 2 && i <= 4 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
   ${rows.map(r => { const isRes = sbIsResult(r), b = parseAcc(r.nr).base, man = mapFor(r.nr), out = isRes && notIncluded(r.nr), unk = isRes && !knownAcc(r.nr);
-    const sel = isRes && b <= 8999 ? `<select class="sel" data-nr="${esc(r.nr)}">${targetOptions(man ? man.t1 : "", autoShown(r.nr))}</select>${man && man.t2 ? ` <span class="pill acc">${T("delt")} ${num(man.p2)} % ${esc(PN(man.t2))}</span>` : ""}`
+    const sel = isRes && b <= 8999 ? `<select class="sel" data-nr="${esc(r.nr)}">${targetOptions(man ? man.t1 : "", autoShown(r.nr))}</select>${splitsOf(man).map(d => ` <span class="pill acc">${num(d.p)} % ${esc(PN(d.t))}</span>`).join("")}`
       : `<span class="muted sm">${isRes ? "" : T("Balanse")}</span>`;
     const hbn = S.hb && hbSums()[r.nr];
     return `<tr class="${out ? "warnrow" : ""}">${td(cols[0], hbn ? `<button class="linkbtn" data-hb="${esc(r.nr)}" title="${T("Vis posteringer")}">${esc(r.nr)}</button>` : esc(r.nr), "acc")}${td(cols[1], esc(r.navn), "wide")}${td(cols[2], isRes ? "" : kr(r.ib), "n")}${td(cols[3], kr(r.ub), "n")}
@@ -2028,7 +2034,7 @@ function buildDoc() {
   C.push(mv.length ? P.table([T("Fra"), T("Til"), T("Beløp"), T("Forklaring")], mv.map(x => ({cells: [x.fra + "  " + kontoNavn(x.fra), x.til + "  " + kontoNavn(x.til), kr(num(x.belop)), x.tekst || ""]})), ["*", "*", 50, "*"], {numFrom: 2}) : P.none());
   const man = Object.keys(M.A).filter(nr => mapFor(nr)).sort(byNr);
   C.push(P.h2(T("Manuelle koblinger")));
-  C.push(man.length ? P.table([T("Konto"), T("Kobling")], man.map(nr => { const x = mapFor(nr); return {cells: [nr + "  " + kontoNavn(nr), PN(x.t1) + (x.t2 ? ` ${100 - num(x.p2)} %  ·  ${PN(x.t2)} ${num(x.p2)} %` : "")]}; }), ["*", "*"], {numFrom: 9}) : P.none());
+  C.push(man.length ? P.table([T("Konto"), T("Kobling")], man.map(nr => { const x = mapFor(nr); return {cells: [nr + "  " + kontoNavn(nr), PN(x.t1) + (splitsOf(x).length ? ` ${Math.max(0, 100 - splitsOf(x).reduce((s, d) => s + d.p, 0))} %` + splitsOf(x).map(d => `  ·  ${PN(d.t)} ${d.p} %`).join("") : "")]}; }), ["*", "*"], {numFrom: 9}) : P.none());
   const ov = Object.entries(S.overrides).filter(([f, v]) => v != null && v !== "" && ROW[f]);
   if (ov.length) { C.push(P.h2(T("Overstyrte tall"))); C.push(P.table(null, ov.map(([f, v]) => ({cells: [SL(SHEET[f.split(".")[0]], "sheet") + ": " + clean(LBL(ROW[f])), fmt(num(v), ROW[f].fmt)]})), ["*", 80])); }
   if (prods.length) { const KG = KEYGROUPS.filter(g => g.id === "maskin" || (g.id === "innmek" ? M.innmekTotal : (M.gTot[g.id].cost || M.gTot[g.id].inn)));
@@ -2090,14 +2096,14 @@ function renderKontoplan(el, m) {
   const target = nr => (mapFor(nr) ? mapFor(nr).t1 : autoShown(nr));
   const isRes = nr => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; };
   const manual = nr => !!mapFor(nr) || (SET.avd[nr] != null && SET.avd[nr] !== "");
-  const amt = nr => { const a = M && M.A[nr]; return a ? -a.amt : null; };
+  const amt = nr => { const a = M && M.A[nr]; return a ? a.amt : null; };
   const shown = all.filter(nr => (view !== "sb" || inSb.has(nr)) && (view !== "man" || manual(nr)) && (avdF === "*" || effAvd(nr) === avdF || (avdF === "20" && effAvd(nr) === ""))
     && (!f || nr.includes(f) || kontoNavn(nr).toLowerCase().includes(f) || (isRes(nr) && PN(target(nr)).toLowerCase().includes(f))));
   const groups = {}; shown.forEach(nr => { const g = String(parseAcc(nr).base).slice(0, 2); (groups[g] = groups[g] || []).push(nr); });
   const nMan = all.filter(manual).length;
   const destHtml = nr => { if (!isRes(nr)) return `<span class="dest"><span class="to">${T("Balanse")}</span></span>`;
     const x = mapFor(nr), t1 = target(nr), off = t1 === "NONE";
-    return `<span class="dest"><span class="to ${x ? "man" : ""} ${off ? "off" : ""}">${x ? "" : T("Auto") + " · "}${esc(PN(t1))}</span>${x && x.t2 ? `<span class="to man">${num(x.p2)} % ${esc(PN(x.t2))}</span>` : ""}${SET.avd[nr] ? `<span class="to man">${T("Avd.")} ${esc(SET.avd[nr])}</span>` : ""}</span>`; };
+    return `<span class="dest"><span class="to ${x ? "man" : ""} ${off ? "off" : ""}">${x ? "" : T("Auto") + " · "}${esc(PN(t1))}</span>${splitsOf(x).map(d => `<span class="to man">${d.p} % ${esc(PN(d.t))}</span>`).join("")}${SET.avd[nr] ? `<span class="to man">${T("Avd.")} ${esc(SET.avd[nr])}</span>` : ""}</span>`; };
   el.innerHTML = `<div class="card"><div class="row">
       <input class="search" id="sflt" placeholder="${T("Søk konto, navn eller produksjon")}" value="${esc(SET.filter || "")}">
       <div class="seg" role="group">${[["sb", T("I saldobalansen")], ["all", T("Alle")], ["man", T("Endret") + (nMan ? " " + nMan : "")]].map(([k, l]) => `<button data-v="${k}" class="${view === k ? "on" : ""}" ${k === "sb" && !S.sb.length ? "disabled" : ""}>${l}</button>`).join("")}</div>
@@ -2119,25 +2125,38 @@ function renderKontoplan(el, m) {
 /* kopling for éin konto */
 function kpModal(nr, done) {
   const isRes = (() => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; })();
+  const destOpts = sel => PKEYS.concat(Object.keys(SPECIAL_LABEL).filter(k => k !== "POOL")).map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(PN(k))}</option>`).join("");
   const draw = el => { const x = mapFor(nr) || {}, auto = autoShown(nr), ad = avdDefault(nr), av = SET.avd[nr] || "", a = M && M.A[nr];
+    const spl = splitsOf(x), sumS = spl.reduce((s, d) => s + d.p, 0);
     const prodOpts = PKEYS.map(k => [k, PN(k), M && M.active.has(k)]), special = Object.keys(SPECIAL_LABEL).filter(k => k !== "POOL").map(k => [k, PN(k)]);
     const btn = (k, l, on, extra = "") => `<button class="opt2 ${on ? "on" : ""}" data-t1="${k}">${extra}${esc(l)}</button>`;
     el.innerHTML = `${dHead(esc(nr), esc(kontoNavn(nr)))}<div class="dbody">
-      ${a ? `<div class="tiles" style="grid-template-columns:repeat(2,1fr)"><div class="tile"><div class="k">${T("Beløp i saldobalansen")}</div><div class="v" style="font-size:22px">${kr(-a.amt)}</div></div>
-        <div class="tile"><div class="k">${T("Går nå til")}</div><div class="v" style="font-size:18px">${esc(PN(x.t1 || auto))}</div></div></div>` : ""}
+      ${a ? `<div class="tiles" style="grid-template-columns:repeat(2,1fr)"><div class="tile"><div class="k">${T("Beløp i saldobalansen")}</div><div class="v" style="font-size:22px">${kr(a.amt)}</div></div>
+        <div class="tile"><div class="k">${T("Går nå til")}</div><div class="v" style="font-size:16px;line-height:1.35">${(M.alloc[nr] || [{t: x.t1 || auto, s: 1}]).map(d => `${esc(PN(d.t))} <span class="muted">${pct(d.s)}</span>`).join("<br>")}</div></div></div>` : ""}
       ${isRes ? `<div class="dsec"><div class="lbl">${T("Går til")}</div><div class="opts">${btn("", T("Automatisk") + " · " + PN(auto), !x.t1)}</div></div>
       <div class="dsec"><div class="lbl">${T("Produksjon")}</div><div class="opts">${prodOpts.map(([k, l, act]) => btn(k, l, x.t1 === k, act ? '<span class="dot2"></span>' : "")).join("")}</div></div>
       <div class="dsec"><div class="lbl">${T("Fellespost eller annet")}</div><div class="opts">${special.map(([k, l]) => btn(k, l, x.t1 === k)).join("")}</div></div>
-      <div class="dsec"><div class="lbl">${T("Del en andel med")}</div><div class="row"><select class="sel" id="kT2" style="min-width:220px"><option value="">${T("Ingen deling")}</option>${PKEYS.concat(Object.keys(SPECIAL_LABEL).filter(k => k !== "POOL")).map(k => `<option value="${k}" ${k === x.t2 ? "selected" : ""}>${esc(PN(k))}</option>`).join("")}</select>
-        <input class="inp num" id="kP2" style="max-width:110px" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}><span class="muted sm">${T("prosent av beløpet")}</span></div></div>` : `<p class="hint">${T("Balansekonto: brukes til varelager og avskrivninger, ikke til fordeling.")}</p>`}
+      <div class="dsec"><div class="lbl">${T("Del andeler med")}</div>
+        ${spl.map((d, i) => `<div class="row" style="margin-bottom:8px" data-si="${i}"><select class="sel" data-sf="t" style="min-width:220px">${destOpts(d.t)}</select>
+          <input class="inp num" data-sf="p" style="max-width:110px" value="${d.p}" inputmode="decimal"><span class="muted sm">%</span>
+          <button class="xbtn" data-sdel="${i}" aria-label="${T("Fjern")}">✕</button></div>`).join("")}
+        <div class="row"><button class="btn sm" id="kAddS" ${sumS >= 100 ? "disabled" : ""}>+ ${T("Legg til deling")}</button>
+          <span class="sm ${sumS > 100 ? "bad" : "muted"}">${T("{a} går til {t}", {a: Math.max(0, 100 - sumS) + " %", t: PN(x.t1 || auto)})}${sumS > 100 ? " · " + T("Delingene kan ikke overstige 100 %") : ""}</span></div>
+        ${spl.length ? `<div class="share" style="margin-top:12px"><span class="c-hi" style="width:${Math.max(0, 100 - sumS)}%"></span>${spl.map((d, i) => `<span class="c-n" style="width:${Math.min(d.p, 100)}%;opacity:${Math.max(.35, .95 - i * .18)}"></span>`).join("")}</div>` : ""}</div>` : `<p class="hint">${T("Balansekonto: brukes til varelager og avskrivninger, ikke til fordeling.")}</p>`}
       <div class="dsec"><div class="lbl">${T("Avdeling")}</div><select class="sel" id="kAvd" style="min-width:260px">${avdOptions(av, ad)}</select>
         <div class="muted sm" style="margin-top:6px">${T("Kontoer utenfor avdeling 10/20 regnes som andre næringer.")}</div></div></div>
       <div class="dfoot"><button class="btn sm ghost" id="kAuto">${T("Bruk automatisk")}</button><span class="grow"></span><button class="btn pri" id="kOk">${T("Ferdig")}</button></div>`;
     const upd = () => { if (S.sb.length) compute(); draw(el); };
     $("#mClose", el).onclick = $("#kOk", el).onclick = () => { closeModal(); done(); };
     $$(".opt2[data-t1]", el).forEach(b => b.onclick = () => { setMap(nr, "t1", b.dataset.t1); upd(); });
-    const t2 = $("#kT2", el); if (t2) t2.onchange = e => { setMap(nr, "t2", e.target.value); upd(); };
-    const p2 = $("#kP2", el); if (p2) p2.onchange = e => { const v = Math.min(100, Math.max(0, num(e.target.value))); setMap(nr, "p2", v); upd(); };
+    const saveS = list => { setMap(nr, "splits", list); upd(); };
+    const ad2 = $("#kAddS", el); if (ad2) ad2.onclick = () => { const used = new Set([x.t1 || auto, ...spl.map(d => d.t)]);
+      const t0 = PKEYS.find(k => M && M.active.has(k) && !used.has(k)) || PKEYS.find(k => !used.has(k)); saveS(spl.concat([{t: t0, p: Math.min(50, Math.max(0, 100 - sumS))}])); };
+    $$("[data-si] [data-sf]", el).forEach(inp => inp.onchange = e => { const i = +e.target.closest("[data-si]").dataset.si, list = spl.map(d => Object.assign({}, d));
+      if (e.target.dataset.sf === "t") list[i].t = e.target.value;
+      else { const others = list.reduce((s, d, j) => s + (j === i ? 0 : d.p), 0); list[i].p = Math.min(Math.max(0, num(e.target.value)), 100 - others); }
+      saveS(list); });
+    $$("[data-sdel]", el).forEach(b => b.onclick = () => { const list = spl.filter((d, i) => i !== +b.dataset.sdel); saveS(list); });
     $("#kAvd", el).onchange = e => { if (e.target.value) SET.avd[nr] = e.target.value; else delete SET.avd[nr]; saveSet(); upd(); };
     $("#kAuto", el).onclick = () => { setMap(nr, "t1", ""); delete SET.avd[nr]; saveSet(); upd(); };
   };
