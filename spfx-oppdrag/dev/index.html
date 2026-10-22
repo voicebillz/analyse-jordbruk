@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bokføringsoppdrag – lokal test</title>
+<script type="importmap">{"imports":{"tslib":"../node_modules/tslib/tslib.es6.js","../lib/webparts/oppdrag/core/store":"../lib/webparts/oppdrag/core/store.js"}}</script>
+<style>html,body{margin:0;height:100%}</style>
+</head>
+<body>
+<div id="app" style="height:100%"></div>
+<script type="module">
+  // Kjør `npm run build` først, og server prosjektmappa (f.eks. `npx http-server .`), åpne /dev/
+  import { SharePointListStore } from '../lib/webparts/oppdrag/core/store.js';
+  import { mountOppdragApp } from '../lib/webparts/oppdrag/core/ui.js';
+  import { createMockSharePoint } from './mock-sp.js';
+  const qs = new URLSearchParams(location.search);
+  const sp = createMockSharePoint({ readOnly: qs.has('lesetilgang') });
+  const store = new SharePointListStore(sp, 'https://contoso.sharepoint.com/sites/regnskap');
+  window.__sp = sp; window.__store = store;
+  window.__app = mountOppdragApp(document.getElementById('app'), store, { dark: qs.has('mork') || matchMedia('(prefers-color-scheme: dark)').matches });
+</script>
+</body>
+</html>

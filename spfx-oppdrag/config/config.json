@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "oppdrag-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/oppdrag/OppdragWebPart.js",
+          "manifest": "./src/webparts/oppdrag/OppdragWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "OppdragWebPartStrings": "lib/webparts/oppdrag/loc/{locale}.js"
+  }
+}

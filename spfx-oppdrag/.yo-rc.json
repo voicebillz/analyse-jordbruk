@@ -1,0 +1,23 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "oppdrag",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "none",
+    "componentName": "Oppdrag",
+    "componentDescription": "Oversikt over bokføringsoppdrag",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.0",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "oppdrag",
+    "libraryId": "6d9c6f4b-9e75-420f-9503-aae05341892f",
+    "solutionShortDescription": "oppdrag description",
+    "isDomainIsolated": false
+  }
+}

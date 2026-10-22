@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "Bokføringsoppdrag",
+    "id": "6d9c6f4b-9e75-420f-9503-aae05341892f",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Analyse jordbruk",
+      "websiteUrl": "https://github.com/voicebillz/analyse-jordbruk",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Felles liste over bokføringsoppdrag"
+      },
+      "longDescription": {
+        "default": "Felles oversikt over bokføringsoppdrag (klient, oppgavetype og periode) som vises i Teams og SharePoint. Dataene lagres i en skjult SharePoint-liste og er felles for alle."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "Bokføringsoppdrag",
+        "description": "Aktiverer appen Bokføringsoppdrag.",
+        "id": "42cd7723-5d95-48c4-84a0-3477fe79d00a",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/oppdrag.sppkg"
+  }
+}

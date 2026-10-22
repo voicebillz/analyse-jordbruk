@@ -1,0 +1,1905 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nøkkeltallsanalyse jordbruk</title>
+<meta name="description" content="Nøkkeltallsanalyse for jordbruket: import fra Tripletex, driftsmessige korrigeringer og PDF-rapport per produksjon.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6f4e'/%3E%3Cpath d='M8 22c4-1 6-5 8-12 2 7 4 11 8 12' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f3f4f1; --surface:#ffffff; --surface-2:#f7f8f5; --surface-3:#eef1ec; --line:#e1e5de; --line-2:#eceee9;
+  --ink:#18201a; --ink-2:#4a544c; --ink-3:#7b857d;
+  --accent:#2e5e45; --accent-2:#3e7a59; --accent-ink:#ffffff; --accent-soft:#e4efe8; --accent-line:#b9d3c3;
+  --head-bg:#24493a; --head-ink:#ffffff; --head-btn:rgba(255,255,255,.12); --head-btn-line:rgba(255,255,255,.22);
+  --in-bg:#fffbea; --in-line:#e3cf72; --in-focus:#2e5e45;
+  --warn:#8a5300; --warn-soft:#fff2d9; --bad:#b3261e; --bad-soft:#fde8e6; --good:#1d6b3a; --good-soft:#e1f2e6;
+  --info-soft:#e9f1fb; --info:#1b4470;
+  --shadow:0 1px 2px rgba(16,24,18,.05),0 6px 20px rgba(16,24,18,.05);
+  --radius:12px;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101412; --surface:#181e1a; --surface-2:#1e2520; --surface-3:#242c26; --line:#2c3530; --line-2:#252d28;
+  --ink:#e8eee9; --ink-2:#b5c0b8; --ink-3:#86918a;
+  --accent:#7cc79c; --accent-2:#95d6b0; --accent-ink:#0d1a12; --accent-soft:#1d3428; --accent-line:#2f5a43;
+  --head-bg:#151b17; --head-ink:#e8eee9; --head-btn:rgba(255,255,255,.06); --head-btn-line:rgba(255,255,255,.14);
+  --in-bg:#24251a; --in-line:#5f5527; --in-focus:#7cc79c;
+  --warn:#f0b55a; --warn-soft:#33270f; --bad:#ff8a80; --bad-soft:#3a1a18; --good:#7cc79c; --good-soft:#173022;
+  --info-soft:#16243a; --info:#9cc3f0;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{letter-spacing:-.01em}
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;background:var(--head-bg);color:var(--head-ink);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;cursor:pointer}
+.brand .logo{width:28px;height:28px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:15px}
+:root:not([data-theme="dark"]) .brand .logo{background:rgba(255,255,255,.14);color:#fff}
+.meta{font-size:13px;opacity:.8}
+.grow{flex:1}
+.hbtn{display:inline-flex;align-items:center;gap:6px;background:var(--head-btn);border:1px solid var(--head-btn-line);color:var(--head-ink);border-radius:9px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:550}
+.hbtn:hover{filter:brightness(1.15)}
+.hbtn.on{background:var(--head-ink);color:var(--head-bg)}
+.seg{display:inline-flex;border:1px solid var(--head-btn-line);border-radius:9px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--head-ink);padding:6px 11px;font-size:13px;cursor:pointer;opacity:.75}
+.seg button.on{background:var(--head-btn);opacity:1;font-weight:650}
+.menu{position:relative}
+.menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);min-width:200px;padding:6px;display:none}
+.menu.open .menu-pop{display:block}
+.menu-pop button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:7px;cursor:pointer}
+.menu-pop button:hover{background:var(--surface-3)}
+/* ---------- stepper ---------- */
+.steps{background:var(--surface);border-bottom:1px solid var(--line)}
+.steps-in{max-width:1240px;margin:0 auto;padding:0 16px;display:flex;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:9px;padding:14px 12px;border:0;background:none;cursor:pointer;color:var(--ink-3);border-bottom:3px solid transparent;font-weight:550}
+.step:disabled{cursor:default;opacity:.55}
+.step .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-2);font-size:12px;font-weight:700;flex:none}
+.step.done .n{background:var(--accent-soft);color:var(--accent)}
+.step.cur{color:var(--ink);border-bottom-color:var(--accent)}
+.step.cur .n{background:var(--accent);color:var(--accent-ink)}
+.substeps{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
+.sub{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;color:var(--ink-2);display:inline-flex;gap:7px;align-items:center}
+.sub:disabled{opacity:.5;cursor:default}
+.sub.done{border-color:var(--accent-line);color:var(--accent)}
+.sub.cur{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:650}
+/* ---------- layout ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:26px 24px 110px}
+.pagehead{display:flex;align-items:flex-end;gap:16px;margin:0 0 18px;flex-wrap:wrap}
+.pagehead h1{font-size:24px;margin:0}
+.pagehead .k{font-size:12.5px;font-weight:650;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.card h3{font-size:14.5px;margin:18px 0 10px}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.card-head h2{margin:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 15px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--accent-2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{background:var(--accent-2)}
+.btn.sm{padding:5px 11px;font-size:13px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.tile .k{font-size:12.5px;color:var(--ink-3)}
+.tile .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .s{font-size:12.5px;color:var(--ink-2)}
+.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.choice .opt{border:1px solid var(--line);border-radius:var(--radius);padding:18px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.choice .opt h3{margin:0;font-size:15px}
+.choice .opt p{margin:0;color:var(--ink-2);font-size:13.5px}
+.field{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-2);font-weight:550}
+.field input,.field select,.inp,.sel{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);min-width:0}
+.inp.num{background:var(--in-bg);border-color:var(--in-line);text-align:right;font-variant-numeric:tabular-nums;width:100%;max-width:150px}
+.inp:focus,.sel:focus,.field input:focus{outline:2px solid var(--in-focus);outline-offset:0;border-color:transparent}
+.inp.num::placeholder{color:var(--ink-3)}
+.sel{background:var(--surface);padding:6px 8px;max-width:100%}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px 18px}
+.fields .field .unit{font-weight:400;color:var(--ink-3)}
+.fields .field .inp.num{max-width:none}
+/* ---------- tabeller ---------- */
+table.t{border-collapse:collapse;width:100%;font-size:13.5px}
+table.t th{text-align:left;font-weight:650;padding:9px 10px;border-bottom:1px solid var(--line);color:var(--ink-3);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+table.t td{padding:8px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr.sum td{font-weight:700;border-top:1px solid var(--line)}
+table.t tr.grp td{background:var(--surface-3);font-weight:650;color:var(--accent);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+table.t .inp.num{max-width:130px}
+table.t .acc,.acc{white-space:nowrap;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3)}
+.sm{font-size:12.5px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-3);color:var(--ink-2);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+tr.warnrow td{background:var(--bad-soft)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.notice{border-radius:10px;padding:11px 14px;margin:0 0 14px;font-size:13.5px}
+.notice.warn{background:var(--warn-soft);color:var(--warn)}
+.search{border:1px solid var(--line);border-radius:9px;padding:8px 12px;background:var(--surface);min-width:240px;flex:1;max-width:420px}
+.prodgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.prodcard{border:1px solid var(--line);border-radius:11px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start;background:var(--surface);cursor:pointer;transition:border-color .15s}
+.prodcard:hover{border-color:var(--accent-2)}
+.prodcard.on{border-color:var(--accent);background:var(--accent-soft)}
+.prodcard input{margin-top:3px;accent-color:var(--accent)}
+.prodcard .nm{font-weight:650}
+.prodcard .sub2{font-size:12.5px;color:var(--ink-3)}
+details.grp{border:1px solid var(--line);border-radius:11px;margin:8px 0;background:var(--surface)}
+details.grp>summary{cursor:pointer;padding:11px 14px;font-weight:650;display:flex;gap:10px;align-items:center;list-style:none}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary:before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);transition:transform .15s;margin-right:4px}
+details.grp[open]>summary:before{transform:rotate(45deg)}
+details.grp .inner{padding:0 14px 12px}
+.maprow{display:grid;grid-template-columns:110px minmax(150px,1fr) 170px minmax(170px,220px) minmax(140px,180px) 70px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+.maprow:last-child{border-bottom:0}
+.maprow.manual .nr{font-weight:700;color:var(--accent)}
+.maprow .inp.num{max-width:80px}
+.moves .mv{display:grid;grid-template-columns:1fr 1fr 140px 2fr auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line-2)}
+.moves .mv .btn{margin-top:22px}
+.textcard textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface-2);line-height:1.6;resize:none;overflow:hidden}
+.textcard textarea:focus{outline:2px solid var(--in-focus);border-color:transparent}
+.pdfwrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface-3);height:calc(100vh - 250px);min-height:520px}
+.pdfwrap iframe{width:100%;height:100%;border:0;display:block}
+.pdfwrap .ph{display:grid;place-items:center;height:100%;color:var(--ink-3)}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:15}
+.foot-in{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;gap:12px;align-items:center}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px}
+.tab{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--ink-3);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.maprow.mhead{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:650;border:0;padding:0 15px 4px}
+.sel.ovr{border-color:var(--in-line);background:var(--in-bg)}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.fcard.ovr,.frow.ovr{border-left:3px solid var(--warn)}
+.fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fval{margin-left:10px;font-variant-numeric:tabular-nums;color:var(--ink-3);font-weight:500;font-size:13px}
+.terms{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+.term{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line-2)}
+.term .sg{width:18px;text-align:center;font-weight:700;color:var(--ink-3);padding-top:2px}
+.term .tb{flex:1;min-width:0}
+.term .tl{font-size:13.5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 4px 2px 10px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.chip.muted{border-color:var(--line);background:var(--surface-3);color:var(--ink-3);padding-right:10px}
+.chip.neg{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.chip .x{border:0;background:none;color:inherit;cursor:pointer;width:18px;height:18px;border-radius:50%;line-height:1;font-size:14px;opacity:.7}
+.chip .x:hover{opacity:1;background:rgba(0,0,0,.08)}
+.chip.add{cursor:pointer;border-style:dashed;background:transparent;padding-right:10px}
+.chips.big .chip{font-size:13.5px;padding:4px 6px 4px 12px}
+.ftext{font-size:13px;color:var(--ink-2);margin-top:6px}
+.frow{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0 10px 8px;border-bottom:1px solid var(--line-2)}
+.overlay{position:fixed;inset:0;background:rgba(10,16,12,.45);z-index:50;display:grid;place-items:center;padding:20px}
+.dialog{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:20px 22px}
+.dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.dhead h2{margin:2px 0 0;font-size:18px}
+.dhead .k{font-size:12px;font-weight:650;color:var(--accent);text-transform:uppercase;letter-spacing:.07em}
+.dfoot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.alist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;max-height:320px;overflow:auto}
+.arow{display:flex;gap:12px;align-items:center;border:0;border-bottom:1px solid var(--line-2);background:var(--surface);padding:8px 12px;text-align:left;cursor:pointer;font-size:13.5px}
+.arow:hover{background:var(--surface-3)}
+.arow.on{background:var(--accent-soft)}
+.tedit{display:flex;flex-direction:column;gap:8px}
+.trow{display:flex;gap:8px;align-items:center}
+.trow .sel{flex:1}.trow .sg2{flex:none;width:58px}
+.fedit{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface-2);font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+.fprev{margin-top:12px;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.fprev.bad{background:var(--bad-soft);color:var(--bad)}
+.bad{color:var(--bad)}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;text-decoration:underline;text-underline-offset:2px}
+.hidden{display:none!important}
+@media (max-width:760px){
+  .wrap{padding:18px 16px 110px}
+  .top-in{padding:10px 16px}
+  .step .lbl{display:none}
+  .card{padding:16px}
+  table.t thead{display:none}
+  table.t tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  table.t td{border:0;padding:2px 0}
+  table.t td[data-l]:before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3)}
+  table.t td.n{text-align:left}
+  table.t td.wide{grid-column:1/-1}
+  .maprow{grid-template-columns:1fr 1fr}
+  .maprow.mhead{display:none}
+  .trow{flex-wrap:wrap}
+  .moves .mv{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand" id="brand"><span class="logo">◆</span><span id="tTitle"></span></div>
+  <span class="meta" id="hdrMeta"></span>
+  <span class="grow"></span>
+  <div class="seg" id="langSeg"><button data-l="nb">Bokmål</button><button data-l="nn">Nynorsk</button></div>
+  <button class="hbtn" id="btnTheme"></button>
+  <button class="hbtn" id="btnSettings"></button>
+  <div class="menu" id="menuProj"><button class="hbtn" id="btnMenu" aria-label="Meny">⋯</button>
+    <div class="menu-pop"><button id="mSave"></button><button id="mOpen"></button><button id="mReset"></button></div></div>
+  <input type="file" id="fileProject" accept=".json" class="hidden">
+</div></header>
+<nav class="steps" id="steps"></nav>
+<main class="wrap" id="main"></main>
+<footer class="foot" id="foot"><div class="foot-in">
+  <button class="btn" id="btnPrev"></button><span class="grow"></span><button class="btn pri" id="btnNext"></button>
+</div></footer>
+
+<script>
+"use strict";
+/* ================================================================ DATA (generert av tools/build_html.py) */
+const SPEC = /*__SPEC__*/null;
+const KONTOPLAN = /*__KONTOPLAN__*/null;
+
+/* ================================================================ SPRÅK (bokmål er grunnspråk, NN = nynorsk) */
+const NN = {
+  "Nøkkeltallsanalyse jordbruk": "Nøkkeltalsanalyse jordbruk",
+  "Innstillinger": "Innstillingar", "Tilbake til analysen": "Tilbake til analysen",
+  "Lagre prosjekt": "Lagre prosjekt", "Åpne prosjekt": "Opne prosjekt", "Start på nytt": "Start på nytt",
+  "Mørk modus": "Mørk modus", "Lys modus": "Lys modus",
+  "Ingen saldobalanse": "Ingen saldobalanse", "regnskapsår": "rekneskapsår",
+  "Import": "Import", "Varelager": "Varelager", "Avskrivninger": "Avskrivingar", "Korrigeringer": "Korrigeringar",
+  "Tekstinnhold": "Tekstinnhald", "Rapport": "Rapport",
+  "Produksjoner": "Produksjonar", "Produksjonsdata": "Produksjonsdata", "Fordelingsnøkler": "Fordelingsnøklar",
+  "Flytt beløp": "Flytt beløp", "Kontroll": "Kontroll",
+  "Tilbake": "Tilbake", "Neste:": "Neste:", "Last ned PDF": "Last ned PDF", "Steg": "Steg",
+  "Import av saldobalanse": "Import av saldobalanse", "Importer fra Tripletex": "Importer frå Tripletex",
+  "Fiktive tall for en eksempelgård inntil Tripletex-koblingen er aktivert.": "Fiktive tal for ein eksempelgard til Tripletex-koplinga er aktivert.",
+  "Last opp fil": "Last opp fil", "Excel- eller CSV-eksport av saldobalansen.": "Excel- eller CSV-eksport av saldobalansen.",
+  "Velg fil": "Vel fil", "Klient": "Klient", "Regnskapsår": "Rekneskapsår", "Utarbeidet av": "Utarbeidd av",
+  "Saldobalanse": "Saldobalanse", "Driftsinntekter": "Driftsinntekter", "Driftskostnader": "Driftskostnader",
+  "Driftsresultat": "Driftsresultat", "før korrigeringer": "før korrigeringar", "resultatkontoer": "resultatkontoar",
+  "Søk konto eller navn": "Søk konto eller namn", "Konto": "Konto", "Navn": "Namn", "Inngående": "Inngåande",
+  "Utgående": "Utgåande", "Mengde": "Mengd", "Kobling": "Kopling", "Balanse": "Balanse", "Automatisk": "Automatisk",
+  "Driftsmessige verdier på varelager": "Driftsmessige verdiar på varelager",
+  "Antall": "Tal", "Skattemessig": "Skattemessig", "Driftsmessig": "Driftsmessig", "Pris per dyr": "Pris per dyr",
+  "Korrigering": "Korrigering", "Sum korrigering": "Sum korrigering", "Lagerkontoer": "Lagerkontoar",
+  "Bruk skattemessige verdier": "Bruk skattemessige verdiar", "Ingen lagerkontoer i saldobalansen.": "Ingen lagerkontoar i saldobalansen.",
+  "Driftsmessige avskrivninger": "Driftsmessige avskrivingar", "Gjenanskaffelsesverdi": "Gjenanskaffingsverdi",
+  "Levetid": "Levetid", "år": "år", "Differanse": "Differanse", "Sum": "Sum",
+  "Ingen avskrivningskontoer i saldobalansen.": "Ingen avskrivingskontoar i saldobalansen.",
+  "Skattemessige avskrivninger": "Skattemessige avskrivingar", "Effekt på resultat": "Verknad på resultat",
+  "Tilbakestill automatisk valg": "Tilbakestill automatisk val", "ikke med": "ikkje med", "manuelt": "manuelt",
+  "Ingen aktive produksjoner.": "Ingen aktive produksjonar.", "Grovfôr og areal": "Grovfôr og areal", "Andre opplysninger": "Andre opplysningar",
+  "Fellespott": "Fellespott", "Maskinkostnader": "Maskinkostnader", "Innandørsmekanisering": "Innandørsmekanisering",
+  "Produksjon": "Produksjon", "Brukt": "Brukt", "Beløp": "Beløp", "Bruk automatisk nøkkel": "Bruk automatisk nøkkel",
+  "Summerer ikke til 100 %": "Summerer ikkje til 100 %", "Annen bruk": "Anna bruk",
+  "Fra konto": "Frå konto", "Til konto": "Til konto", "Forklaring": "Forklaring", "Slett": "Slett",
+  "Ny flytting": "Ny flytting", "Ingen flyttinger.": "Ingen flyttingar.",
+  "Avstemming": "Avstemming", "Stemmer": "Stemmer", "Avvik": "Avvik",
+  "Aktive produksjoner": "Aktive produksjonar", "Sum DB med tilskudd": "Sum DB med tilskot",
+  "Driftsoverskudd": "Driftsoverskot", "Post": "Post", "Beregnet": "Utrekna", "Overstyr": "Overstyr",
+  "Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.": "Analysen stemmer ikkje med rekneskapen. Sjekk koplingar til «Ikkje med» og fordelingsnøklar.",
+  "Sammendrag": "Samandrag", "Totaløkonomi": "Totaløkonomi", "Grovfôr": "Grovfôr",
+  "Automatisk tekst": "Automatisk tekst", "Redigert": "Redigert", "Lag ny tekst": "Lag ny tekst",
+  "Oppdater": "Oppdater", "Lager PDF …": "Lagar PDF …", "PDF-biblioteket er ikke lastet. Sjekk internettilgangen.": "PDF-biblioteket er ikkje lasta. Sjekk internettilgangen.",
+  "Kobling konto → produksjon": "Kopling konto → produksjon", "Del med": "Del med", "Vis bare manuelle": "Vis berre manuelle",
+  "Tilbakestill alle": "Tilbakestill alle", "Vil du fjerne alle manuelle koblinger?": "Vil du fjerne alle manuelle koplingar?",
+  "Vil du slette arbeidet og starte på nytt?": "Vil du slette arbeidet og starte på nytt?",
+  "Kunne ikke lese fila.": "Kunne ikkje lese fila.", "Fant ingen kontoer i fila.": "Fann ingen kontoar i fila.",
+  "Fellespott (nøkkel)": "Fellespott (nøkkel)", "Faste kostnader": "Faste kostnader", "Innandørsmek. (nøkkel)": "Innandørsmek. (nøkkel)",
+  "Totaløkonomi (ikke fordelt)": "Totaløkonomi (ikkje fordelt)", "Ikke med": "Ikkje med", "manuelle": "manuelle", "delt": "delt",
+  "Velg hvilke produksjoner som skal være med i analysen.": "Vel kva produksjonar som skal vere med i analysen.",
+  "Kontroller og fyll inn omfang og mengder for hver produksjon.": "Kontroller og fyll inn omfang og mengder for kvar produksjon.",
+  "Fordeling av fellespostene på produksjonene.": "Fordeling av fellespostane på produksjonane.",
+  "Flytt beløp som er ført på feil konto.": "Flytt beløp som er ført på feil konto.",
+  "Kontroller tallene og overstyr ved behov.": "Kontroller tala og overstyr ved behov.",
+  "Teksten genereres automatisk og kan redigeres før rapporten lages.": "Teksten blir laga automatisk og kan redigerast før rapporten blir laga.",
+  "Hentet fra saldobalansen": "Henta frå saldobalansen",
+  "Ugyldig formel ved": "Ugyldig formel ved",
+  "Mangler parentes etter": "Manglar parentes etter",
+  "Parentesene går ikke opp": "Parentesane går ikkje opp",
+  "Ukjent ledd": "Ukjent ledd",
+  "Formelen er ufullstendig – sjekk parenteser og ledd": "Formelen er ufullstendig – sjekk parentesar og ledd",
+  "Eksporter innstillinger": "Eksporter innstillingar", "Importer innstillinger": "Importer innstillingar",
+  "Fila er ikke en innstillingsfil.": "Fila er ikkje ei innstillingsfil.",
+  "Trykk OK for å erstatte innstillingene dine med fila, eller Avbryt for å slå dem sammen (fila går foran ved like kontoer).": "Trykk OK for å erstatte innstillingane dine med fila, eller Avbryt for å slå dei saman (fila går føre ved like kontoar).",
+  "Formelen viser tilbake til seg selv (sirkelreferanse)": "Formelen viser tilbake til seg sjølv (sirkelreferanse)",
+  "kontoer er ikke med i analysen": "kontoar er ikkje med i analysen", "Velg kobling i tabellen eller under Innstillinger.": "Vel kopling i tabellen eller under Innstillingar.",
+  "kontoer finnes ikke i kontoplanen": "kontoar finst ikkje i kontoplanen", "kontroller koblingen": "kontroller koplinga",
+  "sumlinjer i fila er holdt utenfor": "sumlinjer i fila er haldne utanfor", "Ukjent konto": "Ukjend konto",
+  "Kontoen finnes ikke i kontoplanen": "Kontoen finst ikkje i kontoplanen", "Herav innandørsmekanisering": "Herav innandørsmekanisering",
+  "HVIS": "VISS",
+  "AVRUND": "AVRUND",
+  "Andre næringer": "Andre næringar",
+  "Konteringsoppsett": "Konteringsoppsett",
+  "Kontoplan": "Kontoplan",
+  "Ingen avdeling": "Inga avdeling",
+  "Alle avdelinger": "Alle avdelingar",
+  "Avdeling": "Avdeling",
+  "Fylles inn manuelt": "Fyllast inn manuelt",
+  "Fordeles med nøkkel": "Fordelast med nøkkel",
+  "unntatt": "unnateke",
+  "Fjern": "Fjern",
+  "Øvrige 3xxx-kontoer": "Andre 3xxx-kontoar",
+  "Øvrige 4xxx-kontoer": "Andre 4xxx-kontoar",
+  "Standard": "Standard",
+  "Endret": "Endra",
+  "Endre formel": "Endre formel",
+  "Formel": "Formel",
+  "endringer": "endringar",
+  "Tilbakestill standard": "Tilbakestill standard",
+  "Nøkkeltall og tall per enhet": "Nøkkeltal og tal per eining",
+  "Vil du tilbakestille alle formler og kontoer til standard?": "Vil du tilbakestille alle formlar og kontoar til standard?",
+  "Kontoer i posten": "Kontoar i posten",
+  "Ingen kontoer": "Ingen kontoar",
+  "Intervall, f.eks. 4020-4029": "Intervall, t.d. 4020-4029",
+  "Legg til": "Legg til",
+  "Unnta kontoene fra posten": "Ta kontoane ut av posten",
+  "Unnta": "Ta ut",
+  "Med": "Med",
+  "Ferdig": "Ferdig",
+  "Sett inn ledd": "Set inn ledd",
+  "Legg til ledd": "Legg til ledd",
+  "Enkel redigering": "Enkel redigering",
+  "Avansert redigering": "Avansert redigering",
+  "Avbryt": "Avbryt",
+  "Lagre": "Lagre",
+  "Formelen er for sammensatt for enkel redigering.": "Formelen er for samansett for enkel redigering.",
+  "Last opp saldobalanse": "Last opp saldobalanse",
+  "Last opp hovedbok": "Last opp hovudbok",
+  "Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.": "Gir mengder per konto og tal per månad. Kan brukast åleine eller saman med saldobalansen.",
+  "Hovedbok": "Hovudbok",
+  "Fjern hovedbok": "Fjern hovudbok",
+  "Posteringer": "Posteringar",
+  "posteringer": "posteringar",
+  "Kontoer med mengde": "Kontoar med mengd",
+  "kontoer": "kontoar",
+  "Avstemming mot saldobalanse": "Avstemming mot saldobalanse",
+  "avvik": "avvik",
+  "Vis avvik": "Vis avvik",
+  "Skjul avvik": "Skjul avvik",
+  "Bruk mengder og månedstall fra hovedboken": "Bruk mengder og månadstal frå hovudboka",
+  "Fila har ingen mengdekolonner": "Fila har ingen mengdkolonnar",
+  "Fant ingen posteringer i fila.": "Fann ingen posteringar i fila.",
+  "Vis posteringer": "Vis posteringar",
+  "Dato": "Dato",
+  "Bilag": "Bilag",
+  "Tekst": "Tekst",
+  "Årsoppgjør": "Årsoppgjer",
+  "saldo- og sumlinjer er holdt utenfor": "saldo- og sumlinjer er haldne utanfor",
+  "Kolonner i fila": "Kolonnar i fila",
+  "Last opp fila på nytt for å endre kolonnene.": "Last opp fila på nytt for å endre kolonnane.",
+  "Kontonavn": "Kontonamn",
+  "Debet": "Debet",
+  "Kredit": "Kredit",
+  "Mengde 1": "Mengd 1",
+  "Mengde 2": "Mengd 2",
+  /* rapport */
+  "NØKKELTALLSANALYSE JORDBRUK": "NØKKELTALSANALYSE JORDBRUK", "Hovedtall": "Hovudtal",
+  "Dekningsbidrag med tilskudd": "Dekningsbidrag med tilskot", "Driftsoverskudd jordbruk": "Driftsoverskot jordbruk", "Nettoinntekt": "Nettoinntekt",
+  "Dekningsbidrag per produksjon": "Dekningsbidrag per produksjon", "Uten tilskudd": "Utan tilskot", "Med tilskudd": "Med tilskot",
+  "Oversikt": "Oversikt", "Omfang": "Omfang", "DB uten tilskudd": "DB utan tilskot", "Tilskudd": "Tilskot", "DB med tilskudd": "DB med tilskot",
+  "DB med tilskudd per enhet": "DB med tilskot per eining", "Fra produksjon til nettoinntekt": "Frå produksjon til nettoinntekt",
+  "Produksjonsinntekter": "Produksjonsinntekter", "Variable kostnader": "Variable kostnader", "Renter": "Renter",
+  "Andre inntekter": "Andre inntekter", "Tilskuddsandel av DB": "Tilskotsdel av DB", "Nøkkeltall per produksjon": "Nøkkeltal per produksjon",
+  "Fra dekningsbidrag til nettoinntekt": "Frå dekningsbidrag til nettoinntekt", "Fra skattemessig til driftsmessig resultat": "Frå skattemessig til driftsmessig resultat",
+  "Driftsoverskudd, skattemessig": "Driftsoverskot, skattemessig", "Tillegg skattemessige avskrivninger": "Tillegg skattemessige avskrivingar",
+  "Fradrag driftsmessige avskrivninger": "Fråtrekk driftsmessige avskrivingar", "Korrigering beholdningsendring": "Korrigering beholdningsendring",
+  "Driftsoverskudd, driftsmessig": "Driftsoverskot, driftsmessig", "Andre driftsinntekter": "Andre driftsinntekter",
+  "Tilskudd ikke fordelt": "Tilskot ikkje fordelt", "Variable kostnader ikke fordelt": "Variable kostnader ikkje fordelt",
+  "Driftsoverskudd andre næringer": "Driftsoverskot andre næringar", "Renteinntekter": "Renteinntekter", "Renteutgifter": "Renteutgifter",
+  "Nettoinntekt næring": "Nettoinntekt næring", "Bygningskostnader": "Bygningskostnader", "Andre faste kostnader": "Andre faste kostnader",
+  "Nøkkeltall": "Nøkkeltal", "Vurdering": "Vurdering", "Resultat per": "Resultat per", "Totalt": "Totalt",
+  "Variable kostnader per": "Variable kostnader per", "Etter maskinkostnader": "Etter maskinkostnader",
+  "Etter maskin og innandørsmekanisering": "Etter maskin og innandørsmekanisering",
+  "Areal": "Areal", "Kuenheter og grovfôrkostnad": "Kueiningar og grovfôrkostnad", "Korrigert grovfôrareal": "Korrigert grovfôrareal",
+  "dekar": "dekar", "Sum kuenheter": "Sum kueiningar", "Variabel grovfôrkostnad": "Variabel grovfôrkostnad", "kr per dekar": "kr per dekar",
+  "Regnskapstall": "Rekneskapstal", "Resultatregnskap etter kontogruppe": "Resultatrekneskap etter kontogruppe",
+  "Kontogruppe": "Kontogruppe", "Fordeling av regnskapet": "Fordeling av rekneskapen", "Mottaker": "Mottakar",
+  "Inntekter": "Inntekter", "Kostnader": "Kostnader", "Resultat": "Resultat", "Korrigeringer og forutsetninger": "Korrigeringar og føresetnader",
+  "Varelager og buskap": "Varelager og buskap", "Flyttede beløp": "Flytta beløp", "Manuelle koblinger": "Manuelle koplingar",
+  "Overstyrte tall": "Overstyrte tal", "Ingen.": "Ingen.", "Side": "Side", "av": "av", "Utarbeidet": "Utarbeidd",
+  "Regnskapsår {a}": "Rekneskapsår {a}", "per": "per", "Grunnlag": "Grunnlag", "Til": "Til", "Fra": "Frå",
+  "Ikke med i analysen": "Ikkje med i analysen", "Verdi": "Verdi",
+  /* automatiske tekstar */
+  "Analysen omfatter {n} produksjoner: {list}.": "Analysen omfattar {n} produksjonar: {list}.",
+  "Analysen omfatter én produksjon: {list}.": "Analysen omfattar éin produksjon: {list}.",
+  "Samlet dekningsbidrag med tilskudd ble {db} kr, og tilskudd utgjør {pct} av dette.": "Samla dekningsbidrag med tilskot vart {db} kr, og tilskot utgjer {pct} av dette.",
+  "{p} gir høyest dekningsbidrag med {v} kr.": "{p} gir høgast dekningsbidrag med {v} kr.",
+  "Faste kostnader er {fk} kr. Driftsoverskuddet i jordbruket blir {do} kr etter korrigering til driftsmessige tall, mot {ds} kr skattemessig.": "Faste kostnader er {fk} kr. Driftsoverskotet i jordbruket blir {do} kr etter korrigering til driftsmessige tal, mot {ds} kr skattemessig.",
+  "Nettoinntekten etter renter og andre næringer er {n} kr.": "Nettoinntekta etter renter og andre næringar er {n} kr.",
+  "Avskrivningene er justert fra {s} kr skattemessig til {d} kr driftsmessig.": "Avskrivingane er justerte frå {s} kr skattemessig til {d} kr driftsmessig.",
+  "Driftsmessige verdier på varelager og buskap gir en korrigering på {b} kr.": "Driftsmessige verdiar på varelager og buskap gir ei korrigering på {b} kr.",
+  "Maskinkostnadene utgjør {m} av de faste kostnadene.": "Maskinkostnadene utgjer {m} av dei faste kostnadene.",
+  "Faste kostnader tar {f} av dekningsbidraget med tilskudd.": "Faste kostnader tek {f} av dekningsbidraget med tilskot.",
+  "Renteutgiftene er {r} kr.": "Renteutgiftene er {r} kr.",
+  "Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr, eller {pe} kr {per}.": "Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget utan tilskot vart {db} kr, eller {pe} kr {per}.",
+  "Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr.": "Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget utan tilskot vart {db} kr.",
+  "Med {t} kr i tilskudd blir dekningsbidraget {dbm} kr, eller {pe} kr {per}.": "Med {t} kr i tilskot blir dekningsbidraget {dbm} kr, eller {pe} kr {per}.",
+  "Med {t} kr i tilskudd blir dekningsbidraget {dbm} kr.": "Med {t} kr i tilskot blir dekningsbidraget {dbm} kr.",
+  "Tilskuddene utgjør {p} av dekningsbidraget.": "Tilskota utgjer {p} av dekningsbidraget.",
+  "Største variable kostnad er {a} med {pa} av de variable kostnadene, deretter {b} med {pb}.": "Største variable kostnad er {a} med {pa} av dei variable kostnadene, deretter {b} med {pb}.",
+  "Største variable kostnad er {a} med {pa} av de variable kostnadene.": "Største variable kostnad er {a} med {pa} av dei variable kostnadene.",
+  "Etter fordelte maskinkostnader står det igjen {e} kr til bygninger, arbeid og kapital.": "Etter fordelte maskinkostnader står det att {e} kr til bygningar, arbeid og kapital.",
+  "Etter fordelte maskinkostnader og innandørsmekanisering står det igjen {e} kr til bygninger, arbeid og kapital.": "Etter fordelte maskinkostnader og innandørsmekanisering står det att {e} kr til bygningar, arbeid og kapital.",
+  "Produksjonen er i analysegruppen {g}.": "Produksjonen er i analysegruppa {g}.",
+  "Antall {u} er ikke registrert, så tall per enhet mangler.": "Tal {u} er ikkje registrert, så tal per eining manglar.",
+  "Dekningsbidraget per dekar grovfôr er {a} kr uten og {b} kr med tilskudd.": "Dekningsbidraget per dekar grovfôr er {a} kr utan og {b} kr med tilskot.",
+  "Prisendring på dyr i buskapen gir {v} kr {r} i DB per vinterfôret sau.": "Prisendring på dyr i buskapen gir {v} kr {r} i DB per vinterfôra sau.",
+  "høyere": "høgare", "lavere": "lågare",
+  "Innledning": "Innleiing", "Innhold": "Innhald", "Hovedtall og oversikt": "Hovudtal og oversikt", "klienten": "klienten",
+  "Maskin og innandørsmek.": "Maskin og innandørsmek.", "Igjen til bygg, arbeid, kapital": "Att til bygg, arbeid, kapital",
+  "Rapporten viser lønnsomheten i jordbruket for {k} i regnskapsåret {a}, fordelt på hver produksjon.": "Rapporten viser lønsemda i jordbruket for {k} i rekneskapsåret {a}, fordelt på kvar produksjon.",
+  "Grunnlaget er saldobalansen fra {src}": "Grunnlaget er saldobalansen frå {src}",
+  "og hovedboken, som gir mengder og tall per måned": "og hovudboka, som gir mengder og tal per månad",
+  "varelager og buskap er satt til driftsmessige verdier ({n} kontoer, {b} kr i korrigering)": "varelager og buskap er sette til driftsmessige verdiar ({n} kontoar, {b} kr i korrigering)",
+  "avskrivningene er beregnet driftsmessig ({s} kr skattemessig mot {d} kr driftsmessig)": "avskrivingane er rekna driftsmessig ({s} kr skattemessig mot {d} kr driftsmessig)",
+  "{n} beløp er flyttet til riktig konto": "{n} beløp er flytta til rett konto",
+  "{n} kontoer er koblet manuelt til produksjon": "{n} kontoar er kopla manuelt til produksjon",
+  "{n} tall er overstyrt": "{n} tal er overstyrte",
+  "Før analysen er tallene korrigert slik:": "Før analysen er tala korrigerte slik:",
+  "Tallene er brukt slik de står i regnskapet, uten driftsmessige korrigeringer.": "Tala er brukte slik dei står i rekneskapen, utan driftsmessige korrigeringar.",
+  "Felleskostnader, maskinkostnader og innandørsmekanisering er fordelt på produksjonene med fordelingsnøkler. Først kommer hovedtall og oversikt, deretter én side per produksjon med grafer og nøkkeltall, og til slutt regnskapstall og forutsetninger.": "Felleskostnader, maskinkostnader og innandørsmekanisering er fordelte på produksjonane med fordelingsnøklar. Først kjem hovudtal og oversikt, deretter éi side per produksjon med grafar og nøkkeltal, og til slutt rekneskapstal og føresetnader.",
+  "Korrigert grovfôrareal er {a} dekar, med {k} kuenheter. Det gir {d} dekar per kuenhet.": "Korrigert grovfôrareal er {a} dekar, med {k} kueiningar. Det gir {d} dekar per kueining.",
+  "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.": "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.",
+};
+const SPECIAL_LABEL = {POOL: "Fellespott (nøkkel)", FASTE: "Faste kostnader", INNMEK: "Innandørsmek. (nøkkel)", TOTAL: "Totaløkonomi (ikke fordelt)", NONE: "Ikke med"};
+
+/* ================================================================ HJELPARAR */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+let LANG = "nb";
+function T(s, vars) {
+  let out = LANG === "nn" ? (NN[s] ?? s) : s;
+  if (vars) out = out.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? "");
+  return out;
+}
+const NF0 = new Intl.NumberFormat("nb-NO", {maximumFractionDigits: 0});
+const NF1 = new Intl.NumberFormat("nb-NO", {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const NF2 = new Intl.NumberFormat("nb-NO", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function fmt(v, f) {
+  if (typeof v === "string") return v;
+  if (v == null || !isFinite(v) || Math.abs(v) < 1e-9) return "–";
+  switch (f) {
+    case "pct": return NF1.format(v * 100) + " %";
+    case "kr2": case "n2": return NF2.format(v);
+    case "n1": return NF1.format(v);
+    default: return NF0.format(v);
+  }
+}
+const kr = v => fmt(v, "kr");
+const pct = v => fmt(v, "pct");
+function num(s) {
+  if (typeof s === "number") return s;
+  if (s == null) return 0;
+  s = String(s).trim().replace(/\s| /g, "").replace(/kr$/i, "").replace(/−/g, "-");
+  if (/^-?[\d.]+,\d+$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+  else s = s.replace(",", ".");
+  const v = parseFloat(s);
+  return isFinite(v) ? v : 0;
+}
+function parseAcc(nr) { const p = String(nr).trim().split("."); return {nr: String(nr).trim(), base: parseInt(p[0], 10), avd: p[1] || "", suf: p[2] || ""}; }
+const ruleCache = {};
+function rules(str) {
+  if (ruleCache[str]) return ruleCache[str];
+  const inc = [], exc = [];
+  String(str || "").split(",").map(x => x.trim()).filter(Boolean).forEach(tok => {
+    const neg = tok.startsWith("!"); if (neg) tok = tok.slice(1);
+    const m = tok.match(/^(\d+)(?:-(\d+))?/); if (!m) return;
+    (neg ? exc : inc).push([parseInt(m[1], 10), parseInt(m[2] || m[1], 10)]);
+  });
+  return (ruleCache[str] = {inc, exc});
+}
+function inRule(n, str) { const r = rules(str); return r.inc.some(([a, b]) => n >= a && n <= b) && !r.exc.some(([a, b]) => n >= a && n <= b); }
+const byNr = (a, b) => String(a).localeCompare(String(b), "nb", {numeric: true});
+
+const KP = {}; KONTOPLAN.accounts.forEach(([nr, navn, type, m1, m2, g, avd]) => KP[nr] = {nr, navn, type, m1, m2, g, avd});
+function kontoNavn(nr) {
+  if (KP[nr]) return KP[nr].navn;
+  const a = parseAcc(nr);
+  return (KP[a.base + "." + a.avd] || KP[String(a.base)] || {navn: "Konto " + nr}).navn;
+}
+
+const ALLSHEETS = [...SPEC.common, ...SPEC.prods];
+const SHEET = {}; ALLSHEETS.forEach(s => SHEET[s.key] = s);
+const ROW = {};
+ALLSHEETS.forEach(s => s.rows.forEach(r => { if (r.id) ROW[s.key + "." + r.id] = Object.assign({sheet: s.key}, r); }));
+const PKEYS = SPEC.prodKeys;
+const isProd = k => PKEYS.includes(k);
+const SL = (obj, f) => (LANG === "nb" && obj[f + "_nb"]) ? obj[f + "_nb"] : obj[f];
+const LBL = r => (LANG === "nb" && r.label_nb) ? r.label_nb : r.label;
+const PN = k => isProd(k) ? SL(SHEET[k], "sheet") : k === "ANDRE" ? T("Andre næringer") : T(SPECIAL_LABEL[k] || k);
+/* rein etikett for rapport: utan parentesar og forkortingar */
+function clean(s) {
+  return String(s).replace(/\s*\([^)]*\)/g, "").replace(/ u\/(tilskudd|tilskot)/, (m, w) => (w === "tilskudd" ? " uten " : " utan ") + w)
+    .replace(/ m\/(tilskudd|tilskot)/, " med $1").replace(/\s+mm\.$/, "").replace(/[«»]/g, "").trim();
+}
+const FUNCS = {DIV: (a, b) => (b ? a / b : 0), IF: (c, a, b) => (c ? a : b), MAX: Math.max, MIN: Math.min, ABS: Math.abs,
+  ROUND: (x, n) => { const f = Math.pow(10, n || 0); return Math.round(x * f) / f; }, SUM: (...a) => a.reduce((x, y) => x + y, 0)};
+/* ---------- formelspråk (same som tools/formula.py) ---------- */
+const FN = new Set(["DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "ACTIVE", "SUM"]);
+function ftok(expr) {
+  const re = /\s*(?:(\d+\.\d+|\d+)|("[^"]*")|([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)|(<=|>=|<>|[-+*/(),<>=]))/y;
+  const out = []; let pos = 0; expr = String(expr || "").trim();
+  while (pos < expr.length) {
+    re.lastIndex = pos; const m = re.exec(expr);
+    if (!m) throw new Error(T("Ugyldig formel ved") + " «" + expr.slice(pos, pos + 12) + "»");
+    if (m[1] != null) out.push(["num", m[1]]); else if (m[2] != null) out.push(["str", m[2]]);
+    else if (m[3] != null) out.push([FN.has(m[3]) ? "fn" : "id", m[3]]); else out.push(["op", m[4]]);
+    pos = re.lastIndex;
+  }
+  return out;
+}
+function fsplit(tokens, i) {
+  if (!tokens[i + 1] || tokens[i + 1][1] !== "(") throw new Error(T("Mangler parentes etter") + " " + tokens[i][1]);
+  let d = 0, j = i + 1; const args = []; let cur = [];
+  for (; j < tokens.length; j++) {
+    const t = tokens[j];
+    if (t[0] === "op" && t[1] === "(") { d++; if (d > 1) cur.push(t); }
+    else if (t[0] === "op" && t[1] === ")") { d--; if (d === 0) { args.push(cur); return [args, j + 1]; } cur.push(t); }
+    else if (t[0] === "op" && t[1] === "," && d === 1) { args.push(cur); cur = []; }
+    else cur.push(t);
+  }
+  throw new Error(T("Parentesene går ikke opp"));
+}
+function fullId(name, key) {
+  const f = name.includes(".") ? name : key + "." + name;
+  if (!ROW[f]) throw new Error(T("Ukjent ledd") + ": " + name);
+  return f;
+}
+function frender(tokens, key, mode) {
+  let out = "", i = 0;
+  while (i < tokens.length) {
+    const [k, v] = tokens[i];
+    if (k === "fn") {
+      const [args, j] = fsplit(tokens, i);
+      if (v === "ACTIVE") { const pk = args[0] && args[0][0] ? args[0][0][1] : "";
+        out += mode === "js" ? `ACTIVE("${pk}")` : "[" + PN(pk) + "]"; }
+      else { const ra = args.map(a => frender(a, key, mode));
+        if (v === "DIV") out += mode === "js" ? `DIV(${ra[0]},${ra[1]})` : `${args[0].length > 1 ? "(" + ra[0] + ")" : ra[0]} ÷ ${args[1].length > 1 ? "(" + ra[1] + ")" : ra[1]}`;
+        else out += mode === "js" ? `${v}(${ra.join(",")})` : `${{IF: T("HVIS"), MAX: "MAKS", MIN: "MIN", ABS: "ABS", ROUND: T("AVRUND"), SUM: "SUM"}[v]}(${ra.join("; ")})`; }
+      i = j; continue;
+    }
+    if (k === "id") { const f = fullId(v, key);
+      out += mode === "js" ? `V("${f}")` : LBL(ROW[f]) + (f.split(".")[0] !== key ? " (" + SL(SHEET[f.split(".")[0]], "sheet") + ")" : ""); }
+    else if (k === "op") out += mode === "js" ? ({"=": "==", "<>": "!="}[v] || v) : ({"*": " × ", "-": " − ", "+": " + ", "/": " / "}[v] || v);
+    else out += mode === "txt" && k === "num" ? v.replace(".", ",") : v;
+    i++;
+  }
+  return out;
+}
+const fexpr = full => (SET.formulas && SET.formulas[full]) || ROW[full].expr;
+const ftext = (full, expr) => { try { return frender(ftok(expr ?? fexpr(full)), ROW[full].sheet, "txt"); } catch (e) { return expr ?? fexpr(full); } };
+const FCACHE = {};
+function compileExpr(expr, key) {
+  const id = key + "|" + expr;
+  if (!FCACHE[id]) FCACHE[id] = new Function("V", "DIV", "IF", "MAX", "MIN", "ABS", "ROUND", "SUM", "ACTIVE", "return (" + frender(ftok(expr), key, "js") + ");");
+  return FCACHE[id];
+}
+function fnFor(full) {
+  try { return compileExpr(fexpr(full), ROW[full].sheet); } catch (e) { return compileExpr(ROW[full].expr, ROW[full].sheet); }
+}
+const accFor = full => (SET.acc && SET.acc[full] != null ? SET.acc[full] : ROW[full].acc) || "";
+const AVD = KONTOPLAN.avds;
+
+const LAGER_BEH = [["1400-1402", 4090], ["1403", 4091], ["1405-1406", 4092], ["1407", 4094], ["1410-1412", 4197], ["1413-1414", 4095],
+  ["1415", 4191], ["1416", 4098], ["1420", 4190], ["1430-1433", 4194], ["1440", 4290], ["1441", 4291], ["1442", 4292], ["1443", 4293],
+  ["1444", 4294], ["1445", 4295], ["1446", 4296], ["1447", 4297], ["1448", 4298], ["1451", 4691], ["1452", 4692], ["1453", 4693],
+  ["1454", 4694], ["1455", 4695], ["1456", 4696], ["1457", 4697], ["1458", 4698], ["1460-1461", 4390]];
+function behKonto(nr) {
+  const a = parseAcc(nr), hit = LAGER_BEH.find(([r]) => inRule(a.base, r));
+  return hit ? hit[1] + (a.avd ? "." + a.avd : "") + (a.suf ? "." + a.suf : "") : null;
+}
+const BEH_RULE = "4090-4099, 4190-4199, 4290-4299, 4690-4699";
+const DERIVE = [
+  ["mjolk.liter", "3071", "", "end", "m1"], ["mjolk.kg_kjott", "3041", "511-512", "end", "m2"],
+  ["mjolk.kyr_ib", "1451", "511-512", "ib", "m1"], ["mjolk.kyr_ub", "1451", "511-512", "ub", "m1"],
+  ["mjolk.ung_o_ib", "1451", "514", "ib", "m1"], ["mjolk.ung_o_ub", "1451", "514", "ub", "m1"],
+  ["mjolk.ung_u_ib", "1451", "515", "ib", "m1"], ["mjolk.ung_u_ub", "1451", "515", "ub", "m1"],
+  ["oksar.kg_slakt", "3041", "516-518", "end", "m2"], ["oksar.tal_slakta", "3041", "516-518", "end", "m1"],
+  ["oksar.tal_kjopt", "4610", "516-518", "end", "m1"],
+  ["oksar.o12_ib", "1451", "516", "ib", "m1"], ["oksar.o12_ub", "1451", "516", "ub", "m1"],
+  ["oksar.u12_ib", "1451", "517-518", "ib", "m1"], ["oksar.u12_ub", "1451", "517-518", "ub", "m1"],
+  ["ammekyr.kyr_ib", "1452", "521-522", "ib", "m1"], ["ammekyr.kyr_ub", "1452", "521-522", "ub", "m1"],
+  ["ammekyr.okse_ib", "1452", "526", "ib", "m1"], ["ammekyr.okse_ub", "1452", "526", "ub", "m1"],
+  ["sau.kg_slakt", "3044", "541-543", "end", "m2"],
+  ["sau.s1_ib", "1454", "541", "ib", "m1"], ["sau.s2_ib", "1454", "542", "ib", "m1"], ["sau.s3_ib", "1454", "543", "ib", "m1"],
+  ["sau.s1_ub", "1454", "541", "ub", "m1"], ["sau.s2_ub", "1454", "542", "ub", "m1"], ["sau.s3_ub", "1454", "543", "ub", "m1"],
+  ["sau.s1_ib_kr", "1454", "541", "ib", "kr"], ["sau.s2_ib_kr", "1454", "542", "ib", "kr"], ["sau.s3_ib_kr", "1454", "543", "ib", "kr"],
+  ["sau.s1_ub_kr", "1454", "541", "ub", "kr"], ["sau.s2_ub_kr", "1454", "542", "ub", "kr"], ["sau.s3_ub_kr", "1454", "543", "ub", "kr"],
+  ["geit.liter", "3075", "", "end", "m1"],
+  ["geit.g1_ib", "1455", "551", "ib", "m1"], ["geit.g2_ib", "1455", "552", "ib", "m1"],
+  ["geit.g1_ub", "1455", "551", "ub", "m1"], ["geit.g2_ub", "1455", "552", "ub", "m1"],
+  ["egg.kg_egg", "3076", "", "end", "m1"],
+  ["slaktegris.gris_ib", "1453", "", "ib", "m1"], ["slaktegris.gris_ub", "1453", "", "ub", "m1"],
+  ["kylling.ib", "1456", "564-565", "ib", "m1"], ["kylling.ub", "1456", "564-565", "ub", "m1"],
+  ["kylling.kg_slakt", "3046", "564-565", "end", "m2"], ["kylling.tal_slakta", "3046", "564-565", "end", "m1"],
+];
+
+/* utleiing frå hovudboka med månadsfilter (som Duett: Måned=5-12 osv.) */
+const DERIVE_MONTH = [
+  ["sau.selde_arslam", [3044, 3054], "543", 5, 12, "m1"], ["sau.kjopte_lam", [4640], "543", 5, 12, "m1"],
+  ["sau.selde_jul_des", [3044, 3054], "541-543", 7, 12, "m1"],
+];
+/* ================================================================ FIKTIV SALDOBALANSE (eksempelgård) */
+const DEMO = {
+  klient: "TestKunde", aar: 2025,
+  result: [
+    ["3002.20", -48000, 0, 13300], ["3003.20", -24000, 0, 6700], ["3096.20", -6000],
+    ["3071.20", -1240000, 175000], ["3072.20", -60000], ["3073.20", -35000],
+    ["3041.20.511", -95000, 6, 1700], ["3041.20.516", -310000, 13, 4290], ["3051.20.514", -36000, 2],
+    ["3044.20.541", -28000, 12, 380], ["3044.20.543", -165000, 115, 2300], ["3054.20.543", -12000, 8],
+    ["3074.20", -9500], ["3162.20.511", -8000],
+    ["3410.20", -30000], ["3450.20", -210000], ["3451.20", -90000], ["3454.20", -160000], ["3455.20", -150000],
+    ["3413.20", -95000], ["3430.20", -120000], ["3457.20", -45000], ["3460.20", -25000], ["3499.20", 8000],
+    ["3440.20", -95000], ["3442.20", -18000], ["3606.20", -12000], ["3092.20", -25000],
+    ["4000.20", 14000], ["4001.20", 16000], ["4021.20", 365000], ["4024.20", 52000], ["4030.20", 18000],
+    ["4050.20", 165000], ["4057.20", 22000], ["4080.20", 19000], ["4110.20", 21000], ["4140.20", 46000],
+    ["4120.20", 9000], ["4521.20", 48000], ["4522.20", 14000], ["4524.20", 11000], ["4531.20", 12000],
+    ["4534.20", 9000], ["4533.20", 6000], ["4610.20.517", 42000, 12], ["4640.20.542", 6000, 1],
+    ["4131.20", 28000], ["4134.20", 7000], ["4551.20", 55000], ["4552.20", 18000],
+    ["6000.20", 120000], ["6010.20", 185000], ["6011.20", 15000], ["6030.20", 35000], ["6200.20", 78000],
+    ["6250.20", 62000], ["6621.20", 45000], ["6629.20", 28000], ["6601.20", 38000], ["6640.20", 22000],
+    ["6400.20", 12000], ["7503.20", 24000], ["7501.20", 31000], ["7502.20", 9000], ["6705.20", 32000],
+    ["6900.20", 8000], ["7401.20", 6500], ["7770.20", 2500], ["6471.20", 40000], ["4570.20", 150000],
+    ["5000.20", 60000], ["5400.20", 8500], ["7001.20", 12000],
+    ["8050.20", -1500], ["8150.10", 145000], ["8180.20", 36000],
+  ],
+  balance: [
+    ["1113.20", 1450000, 1330000], ["1181.20", 280000, 245000], ["1201.20", 520000, 416000],
+    ["1209.20", 405000, 324000], ["1241.20", 90000, 75000],
+    ["1405.20", 6000, 7500, 1500, 1900], ["1441.20.412", 8000, 4000, 2500, 1200], ["1447.20.472", 40000, 52000, 80000, 104000],
+    ["1451.20.511", 117000, 112500, 26, 25], ["1451.20.514", 35000, 38500, 10, 11], ["1451.20.515", 21600, 21600, 12, 12],
+    ["1451.20.516", 24000, 28000, 6, 7], ["1451.20.517", 14000, 12000, 7, 6],
+    ["1454.20.541", 55000, 52000, 55, 52], ["1454.20.542", 15400, 19800, 14, 18], ["1454.20.543", 16200, 18000, 18, 20],
+  ],
+  prodInputs: {
+    "mjolk.n": 25, "mjolk.kvote": 190000, "mjolk.distrikt_mjolk": 21000, "oksar.n": 13, "oksar.tal_livs": 0,
+    "sau.n": 70,
+    "korn.n": 60, "korn.avling": 22000, "korn.sal_kg": 20000,
+    "grovfor.overflate": 40, "grovfor.fulldyrka": 420, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
+    "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
+  },
+  map: {"4021.20": {t1: "mjolk", t2: "oksar", p2: 15}, "4521.20": {t1: "mjolk", t2: "oksar", p2: 10},
+    "4050.20": {t1: "POOL", t2: "korn", p2: 12}, "4110.20": {t1: "POOL", t2: "korn", p2: 45}},
+  lagerPris: {"1451.20.511": 18000, "1451.20.514": 14000, "1451.20.515": 7000, "1451.20.516": 16000, "1451.20.517": 7500,
+    "1454.20.541": 2200, "1454.20.542": 2400, "1454.20.543": 1900},
+  avskr: {"6000.20": {verdi: 2850000, levetid: 30}, "6010.20": {verdi: 2200000, levetid: 12}, "6030.20": {verdi: 450000, levetid: 15}},
+  moves: [{fra: "6200.20", til: "6250.20", belop: 8000, tekst: "Diesel til tørke ført på strøm"}],
+};
+function demoSaldobalanse() {
+  const sb = [];
+  DEMO.balance.forEach(([nr, ib, ub, mib, mub]) => sb.push({nr, navn: kontoNavn(nr), ib, ub, m1ib: mib || 0, m1ub: mub || 0, m1: 0, m2: 0}));
+  const res = {};
+  DEMO.result.forEach(([nr, a, m1, m2]) => res[nr] = {nr, navn: kontoNavn(nr), ib: 0, ub: a, m1: m1 || 0, m2: m2 || 0});
+  DEMO.balance.forEach(([nr, ib, ub]) => { const b = behKonto(nr); if (!b) return;
+    const cur = res[b] || (res[b] = {nr: b, navn: kontoNavn(b), ib: 0, ub: 0, m1: 0, m2: 0}); cur.ub += -(ub - ib); });
+  Object.values(res).forEach(r => sb.push(r));
+  return sb.sort((a, b) => byNr(a.nr, b.nr));
+}
+
+/* ================================================================ TILSTAND */
+const STORE = "jordbruksanalyse.prosjekt.v2", STORE_SET = "jordbruksanalyse.innstillinger.v1";
+function freshState() {
+  return {hb: null, hbQty: true, node: 0, maxNode: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [],
+    overrides: {}, map: {}, prodInputs: {}, active: {}, poolKey: null, maskinKey: null, innmekKey: null, texts: {}, kontrollProd: null, filter: ""};
+}
+let S = freshState(), SET = {map: {}, avd: {}, acc: {}, formulas: {}, lang: "nb", theme: null, tab: "kontoplan"};
+try { const r = localStorage.getItem(STORE); if (r) S = Object.assign(freshState(), JSON.parse(r)); } catch (e) { /* ingen lagring */ }
+try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET, JSON.parse(r)); } catch (e) { /* ingen lagring */ }
+["map", "avd", "acc", "formulas"].forEach(k => SET[k] = SET[k] || {});
+LANG = SET.lang || "nb";
+let VIEW = "wizard";
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* ignorer */ } }
+function saveSet() { try { localStorage.setItem(STORE_SET, JSON.stringify(SET)); } catch (e) { /* ignorer */ } }
+
+/* ================================================================ MOTOR */
+const sbIsResult = r => parseAcc(r.nr).base >= 3000;
+function lagerRows() {
+  return S.sb.filter(r => { const b = parseAcc(r.nr).base; return b >= 1400 && b <= 1499; }).map(r => {
+    const L = S.lager[r.nr] || {};
+    const ibD = L.ibD ?? r.ib, ubD = L.ubD ?? r.ub, endS = r.ub - r.ib, endD = ubD - ibD;
+    return {r, ibD, ubD, endS, endD, korr: endD - endS, beh: behKonto(r.nr)};
+  });
+}
+function avskrRows() {
+  return S.sb.filter(r => { const b = parseAcc(r.nr).base; return b >= 6000 && b <= 6099; }).map(r => {
+    const A = S.avskr[r.nr] || {};
+    let drift = r.ub;
+    if (A.verdi > 0 && A.levetid > 0) drift = A.verdi / A.levetid;
+    const manual = A.drift != null && A.drift !== "";
+    if (manual) drift = num(A.drift);
+    return {r, skatt: r.ub, drift, verdi: A.verdi, levetid: A.levetid, manual, diff: drift - r.ub};
+  });
+}
+function adjustedAccounts() {
+  const A = {};
+  S.sb.filter(sbIsResult).forEach(r => A[r.nr] = {nr: r.nr, navn: r.navn, orig: r.ub, amt: r.ub, m1: r.m1 || 0, m2: r.m2 || 0, notes: []});
+  const hq = S.hb && S.hb.qty && S.hbQty !== false ? hbSums() : null;
+  if (hq) Object.values(A).forEach(a => { const q = hq[a.nr]; if (q) { a.m1 = q.m1; a.m2 = q.m2; } });
+  const ensure = nr => A[nr] || (A[nr] = {nr, navn: kontoNavn(nr), orig: 0, amt: 0, m1: 0, m2: 0, notes: []});
+  lagerRows().forEach(l => { if (l.beh && Math.abs(l.korr) > 0.004) { const a = ensure(l.beh); a.amt += -l.korr; a.notes.push("lager"); } });
+  avskrRows().forEach(x => { if (Math.abs(x.diff) > 0.004) { const a = ensure(x.r.nr); a.amt = x.drift; a.notes.push("avskr"); } });
+  S.moves.forEach(m => {
+    const v = num(m.belop); if (!m.fra || !m.til || !v) return;
+    const f = ensure(m.fra), t = ensure(m.til), sg = f.amt < 0 ? -1 : 1;
+    f.amt -= sg * v; t.amt += sg * v; f.notes.push("flytt"); t.notes.push("flytt");
+  });
+  return A;
+}
+function candidates(nr) {
+  const a = parseAcc(nr);
+  if (a.suf) { const s = SPEC.suffixProd.find(([r]) => inRule(parseInt(a.suf, 10), r)); if (s) return s[1]; }
+  const h = SPEC.accountProd.find(([r]) => inRule(a.base, r));
+  if (h) return h[1];
+  return a.base >= 3000 && a.base <= 7999 ? ["FASTE"] : ["NONE"];
+}
+function prodInputVal(full, derived) {
+  if (S.prodInputs[full] != null && S.prodInputs[full] !== "") return num(S.prodInputs[full]);
+  return derived[full] ?? 0;
+}
+function deriveInputs(A) {
+  const D = {}, lag = {}; lagerRows().forEach(l => lag[l.r.nr] = l);
+  DERIVE.forEach(([full, base, suf, what, field]) => {
+    let sum = 0, hit = false;
+    const match = p => String(p.base) === base && (!suf || (p.suf && inRule(+p.suf, suf)));
+    if (what === "end") Object.values(A).forEach(a => { if (match(parseAcc(a.nr))) { sum += Math.abs(a[field] || 0); hit = true; } });
+    else S.sb.forEach(r => { if (!match(parseAcc(r.nr))) return; hit = true;
+      if (field === "kr") { const l = lag[r.nr]; sum += what === "ib" ? (l ? l.ibD : r.ib) : (l ? l.ubD : r.ub); }
+      else sum += what === "ib" ? (r.m1ib || 0) : (r.m1ub || 0); });
+    if (hit) D[full] = sum;
+  });
+  if (S.hb && S.hb.qty) DERIVE_MONTH.forEach(([full, bases, suf, m0, m1, field]) => {
+    let sum = 0, hit = false;
+    S.hb.rows.forEach(t => { const p = parseAcc(t[2]), mo = +t[0].slice(5, 7);
+      if (!bases.includes(p.base) || (suf && !(p.suf && inRule(+p.suf, suf))) || !mo || mo < m0 || mo > m1) return;
+      sum += t[field === "m1" ? 5 : 6]; hit = true; });
+    if (hit) D[full] = Math.abs(sum);
+  });
+  return D;
+}
+function engine(INP, active, FORCE = {}) {
+  const memo = {}, ACTIVE = k => (active.has(k) ? 1 : 0);
+  function V(full) {
+    if (full in memo) return memo[full];
+    memo[full] = 0;
+    let v;
+    if (S.overrides[full] != null && S.overrides[full] !== "") v = num(S.overrides[full]);
+    else if (full in FORCE) v = FORCE[full];
+    else { const r = ROW[full]; if (!r) v = 0; else if (r.t === "input") v = INP[full] ?? 0;
+      else { try { v = fnFor(full)(V, FUNCS.DIV, FUNCS.IF, FUNCS.MAX, FUNCS.MIN, FUNCS.ABS, FUNCS.ROUND, FUNCS.SUM, ACTIVE); } catch (e) { v = 0; } } }
+    if (typeof v === "number" && !isFinite(v)) v = 0;
+    return (memo[full] = v);
+  }
+  return V;
+}
+function normKey(obj, keys) {
+  const out = {}; let s = 0;
+  keys.forEach(k => { out[k] = Math.max(0, obj[k] || 0); s += out[k]; });
+  keys.forEach(k => out[k] = s ? out[k] / s * 100 : (keys.length ? 100 / keys.length : 0));
+  return out;
+}
+function mapFor(nr) { const m = SET.map[nr] || (S.map && S.map[nr]); return m && m.t1 ? m : null; }
+const avdDefault = nr => (KP[nr] ? KP[nr].avd : parseAcc(nr).avd) || "";
+const effAvd = nr => (SET.avd[nr] != null && SET.avd[nr] !== "" ? SET.avd[nr] : avdDefault(nr));
+const isJord = nr => ["", "20", "10"].includes(effAvd(nr));
+
+let M = null;
+function compute() {
+  const A = adjustedAccounts(), derived = deriveInputs(A), INP = {};
+  let andreNaering = 0;
+  Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr) && b >= 3000 && b <= 7999) andreNaering += -a.amt; });
+  if (Object.values(A).some(a => !isJord(a.nr))) derived["total.do_andre"] = andreNaering;
+  for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info")) INP[full] = prodInputVal(full, derived);
+  INP["total.do_andre"] = prodInputVal("total.do_andre", derived);
+  const firstAmt = {};
+  Object.values(A).forEach(a => { if (!a.amt || !isJord(a.nr)) return; const m = mapFor(a.nr);
+    const c = m ? [m.t1] : candidates(a.nr); if (c.some(x => SPECIAL_LABEL[x])) return; const p = c.find(isProd); if (p) firstAmt[p] = (firstAmt[p] || 0) + Math.abs(a.amt); });
+  const active = new Set(PKEYS.filter(k => S.active[k] != null ? S.active[k] : (INP[k + ".n"] > 0 || (firstAmt[k] || 0) > 0)));
+  const V0 = engine(INP, active), act = [...active];
+  const aP = {}, aM = {}, aI = {};
+  act.forEach(k => { const g = SHEET[k].group, ku = g === "grovfor" ? V0(k + ".kueiningar") : 0;
+    aP[k] = ku; aI[k] = g === "grovfor" ? ku : (g === "kraftfor" ? 5 : 0);
+    aM[k] = g === "grovfor" ? ku * 4 : (g === "plante" ? (k === "agurk" || k === "tomat" ? V0(k + ".n") / 2000 : V0(k + ".n") * 0.5) : 2); });
+  const poolKeys = act, innmekKeys = act.filter(k => SHEET[k].group !== "plante");
+  const autoP = normKey(aP, poolKeys), autoI = normKey(aI, innmekKeys), autoM = normKey(aM, act);
+  Object.keys(autoM).forEach(k => autoM[k] *= 0.95);
+  const pick = (store, auto, keys) => { const o = {}; keys.forEach(k => o[k] = store && store[k] != null && store[k] !== "" ? num(store[k]) : auto[k]); return o; };
+  const poolKey = pick(S.poolKey, autoP, poolKeys), innmekKey = pick(S.innmekKey, autoI, innmekKeys), maskinKey = pick(S.maskinKey, autoM, act);
+  const contrib = {}, add = (full, nr, v) => { INP[full] = (INP[full] || 0) + v; (contrib[full] = contrib[full] || []).push({nr, v}); };
+  const krRows = {}; SPEC.prods.forEach(p => krRows[p.key] = p.rows.filter(r => r.t === "input" && ["tilskot", "inn", "kost", "gf"].includes(r.kind)));
+  const fasteRows = SHEET.faste.rows.filter(r => r.t === "input" && accFor("faste." + r.id));
+  const tsum = {}, tadd = (t, nr, v) => { const b = parseAcc(nr).base, o = tsum[t] || (tsum[t] = {inn: 0, kost: 0}); if (b < 4000 || (b >= 8000 && b < 8100)) o.inn -= v; else o.kost += v; };
+  function toProd(k, nr, amt) { const base = parseAcc(nr).base;
+    const row = krRows[k].find(r => accFor(k + "." + r.id) && inRule(base, accFor(k + "." + r.id))) || krRows[k].find(r => r.id === (base < 4000 ? "andre_inn" : "andre_kost"));
+    if (!row) { ikkjeMed += amt; tadd("NONE", nr, amt); return; }
+    add(k + "." + row.id, nr, row.sign * amt); tadd(k, nr, amt); }
+  function toFaste(nr, amt) { const base = parseAcc(nr).base;
+    const row = fasteRows.find(r => inRule(base, accFor("faste." + r.id))) || SHEET.faste.rows.find(r => r.id === "a_annan");
+    add("faste." + row.id, nr, row.sign * amt); tadd("FASTE", nr, amt); }
+  function toTotal(nr, amt) { const b = parseAcc(nr).base;
+    if (b >= 8000 && b <= 8099) add("total.renteinn", nr, -amt); else if (b >= 8100) add("total.renteut", nr, amt);
+    else if (b >= 3400 && b <= 3499) add("total.tilskot_ufordelt", nr, -amt); else if (b < 4000) add("total.andre_inn", nr, -amt);
+    else add("total.andre_var", nr, amt); tadd("TOTAL", nr, amt); }
+  const resolve = nr => { const c = candidates(nr), prodC = c.filter(isProd), hit = prodC.find(x => active.has(x));
+    if (hit) return hit; const sp = c.find(x => SPECIAL_LABEL[x]); if (sp) return sp;
+    return prodC.length ? (active.size ? "POOL" : prodC[0]) : "NONE"; };
+  const alloc = {}; let innmekTotal = 0, ikkjeMed = 0, poolTotal = 0, poolCost = 0, poolInn = 0;
+  Object.values(A).forEach(a => {
+    if (!a.amt) return; const b = parseAcc(a.nr).base; if (b < 3000 || b > 8999) return;
+    if (!isJord(a.nr)) { alloc[a.nr] = [{t: "ANDRE", s: 1}]; tadd("ANDRE", a.nr, a.amt); return; }
+    const man = mapFor(a.nr); let parts;
+    if (man) { const p2 = man.t2 ? Math.min(100, Math.max(0, num(man.p2))) : 0; parts = [{t: man.t1, s: 1 - p2 / 100}]; if (p2) parts.push({t: man.t2, s: p2 / 100}); }
+    else parts = [{t: resolve(a.nr), s: 1}];
+    alloc[a.nr] = parts;
+    parts.forEach(({t, s}) => { const v = a.amt * s; if (!v) return;
+      if (isProd(t)) { if (active.has(t)) toProd(t, a.nr, v); else { ikkjeMed += v; tadd("NONE", a.nr, v); } }
+      else if (t === "POOL") { poolTotal += v; if (v > 0) poolCost += v; else poolInn -= v; poolKeys.forEach(k => { const sh = (poolKey[k] || 0) / 100; if (sh) toProd(k, a.nr, v * sh); }); }
+      else if (t === "FASTE") toFaste(a.nr, v);
+      else if (t === "INNMEK") { innmekTotal += v; toFaste(a.nr, v); }
+      else if (t === "TOTAL") toTotal(a.nr, v);
+      else { if (b <= 7999) ikkjeMed += v; tadd("NONE", a.nr, v); } });
+  });
+  innmekKeys.forEach(k => add("faste.innmek_" + k, "INNMEK", innmekTotal * (innmekKey[k] || 0) / 100));
+  SPEC.prods.forEach(p => { if (!active.has(p.key)) return; p.rows.forEach(r => {
+    if (r.t !== "input" || r.kind !== "info") return; const full = p.key + "." + r.id, rule = accFor(full);
+    if (!rule || (S.prodInputs[full] != null && S.prodInputs[full] !== "")) return;
+    let s = 0; Object.entries(contrib).forEach(([f, list]) => { if (f.startsWith(p.key + ".") && ROW[f].kind !== "tilskot") list.forEach(c => { if (/^\d{4}/.test(c.nr) && inRule(parseAcc(c.nr).base, rule)) s += c.v; }); });
+    INP[full] = s; }); });
+  act.forEach(k => INP["faste.pct_" + k] = (maskinKey[k] || 0) / 100);
+  let doSkatt = 0, avskrS = 0, avskrD = 0, behS = 0, behD = 0;
+  Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr)) return;
+    if (b >= 3000 && b <= 7999) doSkatt += -a.orig;
+    if (b >= 6000 && b <= 6099) { avskrS += a.orig; avskrD += a.amt; }
+    if (inRule(b, BEH_RULE)) { behS += -a.orig; behD += -a.amt; } });
+  Object.assign(INP, {"total.avskr_skatt": avskrS, "total.beh_skatt": behS, "total.beh_drift": behD, "total.do_skatt_rekneskap": doSkatt});
+  const V = engine(INP, active, {"total.avskr_drift": avskrD});
+  M = {A, INP, V, active, contrib, alloc, poolKey, maskinKey, innmekKey, poolKeys, innmekKeys, autoP, autoM, autoI,
+    poolTotal, poolCost, poolInn, innmekTotal, ikkjeMed, derived, resolve, tsum, prods: SPEC.prods.filter(p => active.has(p.key))};
+  return M;
+}
+
+/* ================================================================ NAVIGASJON */
+const NODES = [
+  {step: 0, id: "import", t: "Import av saldobalanse"}, {step: 1, id: "lager", t: "Driftsmessige verdier på varelager"},
+  {step: 2, id: "avskr", t: "Driftsmessige avskrivninger"},
+  {step: 3, id: "k_prod", t: "Produksjoner", d: "Velg hvilke produksjoner som skal være med i analysen."},
+  {step: 3, id: "k_data", t: "Produksjonsdata", d: "Kontroller og fyll inn omfang og mengder for hver produksjon."},
+  {step: 3, id: "k_nokkel", t: "Fordelingsnøkler", d: "Fordeling av fellespostene på produksjonene."},
+  {step: 3, id: "k_flytt", t: "Flytt beløp", d: "Flytt beløp som er ført på feil konto."},
+  {step: 3, id: "k_kontroll", t: "Kontroll", d: "Kontroller tallene og overstyr ved behov."},
+  {step: 4, id: "tekst", t: "Tekstinnhold", d: "Teksten genereres automatisk og kan redigeres før rapporten lages."},
+  {step: 5, id: "rapport", t: "Rapport"},
+];
+const STEPS = ["Import", "Varelager", "Avskrivninger", "Korrigeringer", "Tekstinnhold", "Rapport"];
+function go(i) {
+  if (!S.sb.length && i > 0) return;
+  S.node = Math.max(0, Math.min(NODES.length - 1, i)); S.maxNode = Math.max(S.maxNode, S.node);
+  VIEW = "wizard"; save(); render(); window.scrollTo({top: 0});
+}
+function renderChrome() {
+  document.documentElement.lang = LANG === "nn" ? "nn" : "nb";
+  $("#tTitle").textContent = T("Nøkkeltallsanalyse jordbruk");
+  document.title = T("Nøkkeltallsanalyse jordbruk");
+  $("#hdrMeta").textContent = S.sb.length ? `${S.klient || ""} · ${T("regnskapsår")} ${S.aar}` : T("Ingen saldobalanse");
+  $$("#langSeg button").forEach(b => b.classList.toggle("on", b.dataset.l === LANG));
+  const dark = document.documentElement.dataset.theme === "dark";
+  $("#btnTheme").textContent = dark ? "☀" : "☾"; $("#btnTheme").title = T(dark ? "Lys modus" : "Mørk modus"); $("#btnTheme").setAttribute("aria-label", $("#btnTheme").title);
+  $("#btnSettings").textContent = VIEW === "settings" ? T("Tilbake til analysen") : "⚙ " + T("Innstillinger");
+  $("#btnSettings").classList.toggle("on", VIEW === "settings");
+  $("#mSave").textContent = T("Lagre prosjekt"); $("#mOpen").textContent = T("Åpne prosjekt"); $("#mReset").textContent = T("Start på nytt");
+  const cur = NODES[S.node];
+  $("#steps").classList.toggle("hidden", VIEW === "settings");
+  $("#foot").classList.toggle("hidden", VIEW === "settings");
+  $("#steps").innerHTML = `<div class="steps-in">${STEPS.map((s, i) => {
+    const idx = NODES.map((n, j) => [n, j]).filter(([n]) => n.step === i).map(([, j]) => j), first = idx[0];
+    const reach = S.sb.length && first <= S.maxNode, done = i !== cur.step && idx.every(j => j <= S.maxNode) && (i < cur.step || S.maxNode > idx[idx.length - 1]);
+    return `<button class="step ${i === cur.step ? "cur" : ""} ${done ? "done" : ""}" data-i="${first}" ${reach ? "" : "disabled"}>
+      <span class="n">${done ? "✓" : i + 1}</span><span class="lbl">${T(s)}</span></button>`; }).join("")}</div>`;
+  $$("#steps .step").forEach(b => b.onclick = () => go(+b.dataset.i));
+  $("#btnPrev").textContent = "← " + T("Tilbake"); $("#btnPrev").disabled = S.node === 0;
+  const nx = NODES[S.node + 1];
+  $("#btnNext").textContent = nx ? `${T("Neste:")} ${T(nx.t)} →` : T("Last ned PDF");
+  $("#btnNext").disabled = !S.sb.length;
+}
+function render() {
+  document.documentElement.dataset.theme = SET.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  if (S.sb.length) compute();
+  renderChrome();
+  const m = $("#main");
+  if (VIEW === "settings") return renderSettings(m);
+  ({import: vImport, lager: vLager, avskr: vAvskr, k_prod: vProd, k_data: vData, k_nokkel: vNokkel, k_flytt: vFlytt,
+    k_kontroll: vKontroll, tekst: vTekst, rapport: vRapport})[NODES[S.node].id](m);
+}
+function rerender() { const y = window.scrollY; render(); window.scrollTo({top: y}); }
+function head() {
+  const n = NODES[S.node];
+  let sub = "";
+  if (n.step === 3) {
+    const subs = NODES.map((x, i) => [x, i]).filter(([x]) => x.step === 3);
+    sub = `<div class="substeps">${subs.map(([x, i], j) => `<button class="sub ${i === S.node ? "cur" : ""} ${i !== S.node && i <= S.maxNode ? "done" : ""}" data-i="${i}" ${i <= S.maxNode ? "" : "disabled"}>
+      ${i !== S.node && i <= S.maxNode ? "✓" : "4." + (j + 1)} ${T(x.t)}</button>`).join("")}</div>`;
+  }
+  return `<div class="pagehead"><div><div class="k">${T("Steg")} ${n.step + 1}</div><h1>${T(n.t)}</h1>${n.d ? `<div class="muted" style="margin-top:4px">${T(n.d)}</div>` : ""}</div></div>${sub}`;
+}
+function bindSubs(m) { $$(".sub", m).forEach(b => b.onclick = () => go(+b.dataset.i)); }
+function td(label, html, cls = "") { return `<td data-l="${esc(label)}" class="${cls}">${html}</td>`; }
+function targetOptions(sel, autoFor) {
+  const auto = autoFor != null ? `<option value="" ${!sel ? "selected" : ""}>${T("Automatisk")} · ${esc(PN(autoFor))}</option>` : "";
+  return auto + PKEYS.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(PN(k))}</option>`).join("") +
+    Object.keys(SPECIAL_LABEL).map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(T(SPECIAL_LABEL[k]))}</option>`).join("");
+}
+function autoTarget(nr) { return M ? M.resolve(nr) : candidates(nr)[0]; }
+const autoShown = nr => (isJord(nr) ? autoTarget(nr) : "ANDRE");
+const knownAcc = nr => !!(KP[nr] || KP[parseAcc(nr).base + ".20"]);
+function notIncluded(nr) { if (!M || !isJord(nr)) return false; const b = parseAcc(nr).base; if (b < 3000 || b > 7999) return false;
+  return (M.alloc[nr] || []).some(p => p.t === "NONE" || (isProd(p.t) && !M.active.has(p.t))); }
+function setMap(nr, field, val) {
+  const cur = SET.map[nr] || JSON.parse(JSON.stringify((S.map && S.map[nr]) || {}));
+  if (field === "t1") { if (!val) { delete SET.map[nr]; saveSet(); return; } cur.t1 = val; }
+  else if (field === "t2") { if (!cur.t1) cur.t1 = autoTarget(nr); cur.t2 = val || ""; if (val && !cur.p2) cur.p2 = 50; if (!val) cur.p2 = ""; }
+  else if (field === "p2") { if (!cur.t1) cur.t1 = autoTarget(nr); cur.p2 = num(val); }
+  SET.map[nr] = cur; saveSet();
+}
+
+/* ================================================================ STEG 1: IMPORT */
+function sbWarn() {
+  const res = S.sb.filter(sbIsResult), out = res.filter(r => notIncluded(r.nr)), unk = res.filter(r => !knownAcc(r.nr)), sk = S.sbSkipped || [];
+  if (!out.length && !unk.length && !sk.length) return "";
+  const li = list => list.slice(0, 12).map(r => `${esc(r.nr)} ${esc(r.navn)} (${kr(r.ub)})`).join(" · ") + (list.length > 12 ? " …" : "");
+  return `<div class="card">${out.length ? `<div class="notice warn" style="margin-bottom:6px"><b>${out.length} ${T("kontoer er ikke med i analysen")}</b> (${kr(out.reduce((s, r) => s + r.ub, 0))} kr). ${T("Velg kobling i tabellen eller under Innstillinger.")}<div class="sm" style="margin-top:4px">${li(out)}</div></div>` : ""}
+    ${unk.length ? `<div class="notice warn" style="margin-bottom:6px"><b>${unk.length} ${T("kontoer finnes ikke i kontoplanen")}</b> – ${T("kontroller koblingen")}.<div class="sm" style="margin-top:4px">${li(unk)}</div></div>` : ""}
+    ${sk.length ? `<div class="muted sm">${sk.length} ${T("sumlinjer i fila er holdt utenfor")}: ${esc(sk.slice(0, 6).join(" · "))}</div>` : ""}</div>`;
+}
+function vImport(m) {
+  const res = S.sb.filter(sbIsResult);
+  const inn = res.filter(r => parseAcc(r.nr).base < 4000).reduce((s, r) => s - r.ub, 0);
+  const kost = res.filter(r => { const b = parseAcc(r.nr).base; return b >= 4000 && b <= 7999; }).reduce((s, r) => s + r.ub, 0);
+  const f = (S.filter || "").toLowerCase();
+  const rows = S.sb.filter(r => !f || r.nr.includes(f) || r.navn.toLowerCase().includes(f) || (M && (M.alloc[r.nr] || []).some(p => PN(p.t).toLowerCase().includes(f))));
+  const cols = [T("Konto"), T("Navn"), T("Inngående"), T("Utgående"), T("Mengde"), T("Kobling")];
+  m.innerHTML = head() + `
+  <div class="choice" style="margin-bottom:16px">
+    <div class="opt"><h3>${T("Importer fra Tripletex")}</h3><p>${T("Fiktive tall for en eksempelgård inntil Tripletex-koblingen er aktivert.")}</p><button class="btn pri" id="btnTx">${T("Importer fra Tripletex")}</button></div>
+    <div class="opt"><h3>${T("Last opp saldobalanse")}</h3><p>${T("Excel- eller CSV-eksport av saldobalansen.")}</p><button class="btn" id="btnFile">${T("Velg fil")}</button><input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
+    <div class="opt"><h3>${T("Last opp hovedbok")}</h3><p>${T("Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.")}</p><button class="btn" id="btnHb">${T("Velg fil")}</button><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
+  </div>
+  ${S.hb ? hbCard() : ""}
+  <div class="card"><div class="fields">
+    <label class="field">${T("Klient")}<input id="inKlient" value="${esc(S.klient)}"></label>
+    <label class="field">${T("Regnskapsår")}<input id="inAar" type="number" value="${esc(S.aar)}"></label>
+    <label class="field">${T("Utarbeidet av")}<input id="inUtarb" value="${esc(S.utarbeidd)}"></label>
+  </div></div>
+  ${S.sb.length ? `
+  <div class="tiles">
+    <div class="tile"><div class="k">${T("Saldobalanse")}</div><div class="v">${S.sb.length}</div><div class="s">${res.length} ${T("resultatkontoer")} · ${esc(S.source)}</div></div>
+    <div class="tile"><div class="k">${T("Driftsinntekter")}</div><div class="v">${kr(inn)}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Driftskostnader")}</div><div class="v">${kr(kost)}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Driftsresultat")}</div><div class="v">${kr(inn - kost)}</div><div class="s">${T("før korrigeringer")}</div></div>
+  </div>
+  ${sbWarn()}
+  <div class="card"><div class="card-head"><h2>${T("Saldobalanse")}</h2><span class="grow"></span><input class="search" id="flt" placeholder="${T("Søk konto eller navn")}" value="${esc(S.filter)}"></div>
+  <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i >= 2 && i <= 4 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+  ${rows.map(r => { const isRes = sbIsResult(r), b = parseAcc(r.nr).base, man = mapFor(r.nr), out = isRes && notIncluded(r.nr), unk = isRes && !knownAcc(r.nr);
+    const sel = isRes && b <= 8999 ? `<select class="sel" data-nr="${esc(r.nr)}">${targetOptions(man ? man.t1 : "", autoShown(r.nr))}</select>${man && man.t2 ? ` <span class="pill acc">${T("delt")} ${num(man.p2)} % ${esc(PN(man.t2))}</span>` : ""}`
+      : `<span class="muted sm">${isRes ? "" : T("Balanse")}</span>`;
+    const hbn = S.hb && hbSums()[r.nr];
+    return `<tr class="${out ? "warnrow" : ""}">${td(cols[0], hbn ? `<button class="linkbtn" data-hb="${esc(r.nr)}" title="${T("Vis posteringer")}">${esc(r.nr)}</button>` : esc(r.nr), "acc")}${td(cols[1], esc(r.navn), "wide")}${td(cols[2], isRes ? "" : kr(r.ib), "n")}${td(cols[3], kr(r.ub), "n")}
+      ${td(cols[4], isRes ? qtyTxt(r.nr, M.A[r.nr] || r) : (r.m1ib || r.m1ub ? fmt(r.m1ib, "n") + " → " + fmt(r.m1ub, "n") : ""), "n")}${td(cols[5], sel + (out ? ` <span class="pill bad">${T("Ikke med")}</span>` : "") + (unk ? ` <span class="pill warn" title="${T("Kontoen finnes ikke i kontoplanen")}">${T("Ukjent konto")}</span>` : ""), "wide")}</tr>`; }).join("")}
+  </tbody></table></div>` : ""}`;
+  $("#btnTx").onclick = () => {
+    const keep = {klient: S.klient, utarbeidd: S.utarbeidd};
+    S = freshState(); S.sb = demoSaldobalanse(); S.source = "Tripletex (fiktiv)"; S.klient = keep.klient || DEMO.klient; S.aar = DEMO.aar; S.utarbeidd = keep.utarbeidd;
+    S.prodInputs = Object.assign({}, DEMO.prodInputs);
+    S.map = JSON.parse(JSON.stringify(DEMO.map));
+    Object.entries(DEMO.lagerPris).forEach(([nr, p]) => { const r = S.sb.find(x => x.nr === nr); if (r) S.lager[nr] = {ibD: r.m1ib * p, ubD: r.m1ub * p}; });
+    S.avskr = JSON.parse(JSON.stringify(DEMO.avskr)); S.moves = JSON.parse(JSON.stringify(DEMO.moves));
+    S.hb = demoHovedbok(S.sb); S.hbQty = true;
+    save(); render();
+  };
+  $("#btnFile").onclick = () => $("#fileSb").click();
+  $("#fileSb").onchange = e => importFile(e.target.files[0]);
+  $("#btnHb").onclick = () => $("#fileHb").click();
+  $("#fileHb").onchange = e => importHovedbok(e.target.files[0]);
+  const hq = $("#hbQty"); if (hq) hq.onchange = e => { S.hbQty = e.target.checked; save(); rerender(); };
+  const hr = $("#hbRemove"); if (hr) hr.onclick = () => { if (S.source === S.hbSource) { S.sb = []; S.source = ""; } S.hb = null; save(); rerender(); };
+  $$("[data-hbcol]", m).forEach(sl => sl.onchange = e => { HBRAW.map[e.target.dataset.hbcol] = +e.target.value; hbApply(HBRAW); });
+  const hd = $("#hbDiff"); if (hd) hd.onclick = () => { S.hbShowDiff = !S.hbShowDiff; rerender(); };
+  $$("[data-hb]", m).forEach(b => b.onclick = () => hbModal(b.dataset.hb));
+  $("#inKlient").onchange = e => { S.klient = e.target.value; save(); renderChrome(); };
+  $("#inAar").onchange = e => { S.aar = +e.target.value || S.aar; save(); renderChrome(); };
+  $("#inUtarb").onchange = e => { S.utarbeidd = e.target.value; save(); };
+  const flt = $("#flt"); if (flt) flt.oninput = e => { S.filter = e.target.value; const pos = e.target.selectionStart; vImport(m); const n = $("#flt"); n.focus(); n.setSelectionRange(pos, pos); };
+  $$("select[data-nr]", m).forEach(s => s.onchange = e => { setMap(e.target.dataset.nr, "t1", e.target.value); rerender(); });
+}
+function readRows(file) {
+  return file.arrayBuffer().then(buf => {
+    const isText = /\.(csv|txt)$/i.test(file.name);
+    let wb;
+    if (isText) { let s = new TextDecoder("utf-8").decode(buf); if (s.includes("\uFFFD")) s = new TextDecoder("windows-1252").decode(buf);
+      wb = XLSX.read(s.replace(/^\uFEFF/, ""), {type: "string", raw: true}); }
+    else wb = XLSX.read(buf, {type: "array"});
+    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: "", raw: true});
+  });
+}
+function headerCols(rows, need) {
+  let hi = rows.findIndex(r => r.some(c => /konto/i.test(String(c))) && r.some(c => need.test(String(c))));
+  if (hi < 0) hi = 0;
+  const H = rows[hi].map(c => String(c).toLowerCase().trim());
+  const col = (...res) => { for (const re of res) { const i = H.findIndex(h => re.test(h)); if (i >= 0) return i; } return -1; };
+  return {hi, H, col};
+}
+function accFromCell(v) {
+  const raw = String(v ?? "").trim(); let m = raw.match(/^\d{4}(\.\d+){0,2}/); if (!m) return null;
+  let nr = m[0]; if (typeof v === "number" && /^\d{4}\.\d$/.test(nr)) nr += "0";
+  return {nr, rest: raw.slice(m[0].length).replace(/^[\s\-–:]+/, "").trim()};
+}
+const normName = x => String(x || "").toLowerCase().replace(/[^a-z0-9æøåô]+/g, "");
+let KPBASE = null;
+function resolveAcc(nr, name, avdCell) {
+  if (nr.includes(".")) return nr;
+  if (!KPBASE) { KPBASE = {}; KONTOPLAN.accounts.forEach(a => { const b = parseAcc(a[0]).base; (KPBASE[b] = KPBASE[b] || []).push(a); }); }
+  const base = parseInt(nr, 10), cands = KPBASE[base] || [], avd = (String(avdCell ?? "").match(/^\s*(\d{1,3})/) || [])[1] || "";
+  if (!cands.length) return avd ? nr + "." + avd : nr;
+  // behald avdelinga frå fila sjølv om kontoplanen ikkje har kontoen i den avdelinga
+  const swap = n0 => { if (!avd || !AVD[avd]) return n0; const p = n0.split("."); if ((p[1] || "") === avd) return n0; if (p.length > 1) p[1] = avd; else p.push(avd); return p.join("."); };
+  const nn2 = normName(name);
+  if (nn2) { const hits = cands.filter(a => normName(a[1]) === nn2);
+    const h = hits.find(a => a[6] === avd) || hits.find(a => a[6] === "20") || hits[0]; if (h) return swap(h[0]); }
+  const plain = cands.filter(a => !parseAcc(a[0]).suf);
+  const p2 = (avd && plain.find(a => a[6] === avd)) || plain.find(a => a[6] === "20") || plain[0];
+  return p2 ? swap(p2[0]) : nr;
+}
+const SUMLINE = /^\s*(sum|totalt?)\b/i;
+const SUMRE = /(inng[åa]ende|utg[åa]ende)\s*(saldo|balanse)|^(sum|totalt?|saldo|ib|ub)\b|^(sum|total)\s/i;
+function parseDate(v) {
+  if (v == null || v === "") return "";
+  if (typeof v === "number" && v > 20000 && v < 80000) { const d = new Date(Math.round((v - 25569) * 86400000)); return d.toISOString().slice(0, 10); }
+  const s2 = String(v).trim(); let m;
+  if ((m = s2.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  if ((m = s2.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})/))) return `${m[3].length === 2 ? "20" + m[3] : m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return "";
+}
+function importFile(file) {
+  if (!file) return;
+  if (typeof XLSX === "undefined") { alert(T("Kunne ikke lese fila.")); return; }
+  readRows(file).then(rows => {
+    const {hi, col} = headerCols(rows, /saldo|ub|utg|beløp|belop/i);
+    const cNr = col(/^konto(nr|nummer)?$|kontonummer|^nr$/, /konto/);
+    const cNavn = col(/navn|namn|beskrivelse|tekst/), cIb = col(/^inng(?!.*mengde)|^ib$|opening/, /inng/), cUb = col(/^utg(?!.*mengde)/, /^ub$|closing/, /^saldo$/, /utg(?!.*mengde)/);
+    const cEnd = col(/endring|bevegelse|periode/, /beløp|belop/);
+    const cM1ib = col(/mengde.*(inng|ib)|(inng|ib).*mengde/), cM1ub = col(/mengde.*(utg|ub)|(utg|ub).*mengde/);
+    const cM1 = col(/mengde ?1(?!.*(inng|utg|ib|ub))|^antall$|^mengde$/), cM2 = col(/mengde ?2/), cAvd = col(/avdeling|department/);
+    const sb = [], seen = {}, skipped = [];
+    rows.slice(hi + 1).forEach(r => {
+      const a = accFromCell(r[cNr]); if (!a) return;
+      const navn = cNavn >= 0 && cNavn !== cNr ? String(r[cNavn]).trim() : a.rest;
+      if (SUMLINE.test(navn)) { skipped.push(String(r[cNr]).trim() + " " + navn); return; }
+      a.nr = resolveAcc(a.nr, navn, cAvd >= 0 ? r[cAvd] : "");
+      const ib = cIb >= 0 ? num(r[cIb]) : 0, ub = cUb >= 0 ? num(r[cUb]) : ib + (cEnd >= 0 ? num(r[cEnd]) : 0);
+      const m1 = cM1 >= 0 ? num(r[cM1]) : 0, m2 = cM2 >= 0 ? num(r[cM2]) : 0;
+      if (seen[a.nr]) { const o = seen[a.nr]; o.ib += parseInt(a.nr, 10) >= 3000 ? 0 : ib; o.ub += ub; o.m1 = (o.m1 || 0) + m1; o.m2 = (o.m2 || 0) + m2; return; }
+      sb.push(seen[a.nr] = parseInt(a.nr, 10) >= 3000 ? {nr: a.nr, navn: navn || kontoNavn(a.nr), ib: 0, ub, m1, m2}
+        : {nr: a.nr, navn: navn || kontoNavn(a.nr), ib, ub, m1ib: cM1ib >= 0 ? num(r[cM1ib]) : 0, m1ub: cM1ub >= 0 ? num(r[cM1ub]) : m1, m1: 0, m2: 0});
+    });
+    if (!sb.length) { alert(T("Fant ingen kontoer i fila.")); return; }
+    const keep = {klient: S.klient, utarbeidd: S.utarbeidd, aar: S.aar, hb: S.hb, hbQty: S.hbQty};
+    S = freshState(); Object.assign(S, keep); S.sb = sb.sort((a, b) => byNr(a.nr, b.nr)); S.source = file.name; S.sbSkipped = skipped; save(); render();
+  }).catch(() => alert(T("Kunne ikke lese fila.")));
+}
+/* ---------- hovudbok ---------- */
+function qtyTxt(nr, a) {
+  const k = KP[nr] || KP[parseAcc(nr).base + ".20"] || {}, u1 = k.m1 || (a.m2 ? "stk" : ""), u2 = k.m2 || "kg", out = [];
+  if (a.m1) out.push(fmt(Math.abs(a.m1), "n") + (u1 ? " " + u1 : ""));
+  if (a.m2) out.push(fmt(Math.abs(a.m2), "n") + " " + u2);
+  return out.join(" · ") || "–";
+}
+function hbCard() {
+  const rows = S.hb.rows, dates = rows.map(t => t[0]).filter(Boolean).sort(), diff = S.sb.length ? hbAvstem() : [], sums = hbSums();
+  const nAcc = Object.keys(sums).length, nQty = Object.values(sums).filter(q => q.m1 || q.m2).length;
+  return `<div class="card"><div class="card-head"><h2>${T("Hovedbok")}</h2><span class="muted sm">${esc(S.hb.file)}</span><span class="grow"></span>
+    <button class="btn sm ghost" id="hbRemove">${T("Fjern hovedbok")}</button></div>
+    <div class="tiles" style="margin-bottom:10px">
+      <div class="tile"><div class="k">${T("Posteringer")}</div><div class="v">${NF0.format(rows.length)}</div><div class="s">${dates.length ? esc(dates[0]) + " – " + esc(dates[dates.length - 1]) : ""}</div></div>
+      <div class="tile"><div class="k">${T("Kontoer med mengde")}</div><div class="v">${nQty}</div><div class="s">${T("av")} ${nAcc} ${T("kontoer")}</div></div>
+      <div class="tile"><div class="k">${T("Avstemming mot saldobalanse")}</div><div class="v">${!S.sb.length ? "–" : diff.length ? `<span class="pill bad">${diff.length} ${T("avvik")}</span>` : `<span class="pill good">${T("Stemmer")}</span>`}</div>
+        <div class="s">${diff.length ? `<button class="linkbtn" id="hbDiff">${T(S.hbShowDiff ? "Skjul avvik" : "Vis avvik")}</button>` : "&nbsp;"}</div></div>
+    </div>
+    ${S.hb.skipped ? `<div class="muted sm" style="margin-bottom:6px">${S.hb.skipped} ${T("saldo- og sumlinjer er holdt utenfor")}</div>` : ""}
+    <details class="grp" ${S.hb.qty ? "" : "open"}><summary>${T("Kolonner i fila")}</summary><div class="inner">
+      ${HBRAW && HBRAW.file === S.hb.file ? `<div class="fields">${HB_FIELDS.map(([k, l]) => `<label class="field">${T(l)}<select class="sel" data-hbcol="${k}"><option value="-1">–</option>
+        ${HBRAW.H.map((h, i) => `<option value="${i}" ${HBRAW.map[k] === i ? "selected" : ""}>${esc(h || "(" + (i + 1) + ")")}</option>`).join("")}</select></label>`).join("")}</div>`
+      : `<div class="muted sm">${T("Last opp fila på nytt for å endre kolonnene.")}</div>`}</div></details>
+    <label class="row sm"><input type="checkbox" id="hbQty" ${S.hbQty !== false ? "checked" : ""} ${S.hb.qty ? "" : "disabled"}> ${T(S.hb.qty ? "Bruk mengder og månedstall fra hovedboken" : "Fila har ingen mengdekolonner")}</label>
+    ${S.hbShowDiff && diff.length ? `<table class="t" style="margin-top:12px"><thead><tr><th>${T("Konto")}</th><th class="n">${T("Saldobalanse")}</th><th class="n">${T("Hovedbok")}</th><th class="n">${T("Differanse")}</th></tr></thead><tbody>
+      ${diff.map(d => `<tr>${td(T("Konto"), esc(d.nr) + " " + esc(d.navn), "wide")}${td(T("Saldobalanse"), kr(d.sb), "n")}${td(T("Hovedbok"), kr(d.hb), "n")}${td(T("Differanse"), kr(d.hb - d.sb), "n")}</tr>`).join("")}</tbody></table>` : ""}</div>`;
+}
+const HB_FIELDS = [["konto", "Konto"], ["kontonavn", "Kontonavn"], ["dato", "Dato"], ["bilag", "Bilag"], ["tekst", "Tekst"], ["belop", "Beløp"],
+  ["debet", "Debet"], ["kredit", "Kredit"], ["m1", "Mengde 1"], ["m2", "Mengde 2"], ["avd", "Avdeling"]];
+let HBRAW = null; // rådata frå siste opplasting (berre i minnet)
+function hbGuess(rows) {
+  const {hi, H, col} = headerCols(rows, /beløp|belop|debet|kredit|amount/i);
+  const g = {
+    konto: col(/^konto(nr|nummer)?$|kontonummer/, /^konto/, /konto/), kontonavn: col(/kontonavn|kontobeskrivelse|account name/),
+    dato: col(/^dato$|bilagsdato|date/, /dato/), bilag: col(/bilagsnummer|bilagsnr|^bilag|voucher/), tekst: col(/^beskrivelse|^tekst|description/, /beskrivelse|tekst/),
+    belop: col(/^beløp$|^belop$|^beløp \(nok\)|^amount$/, /^beløp(?!.*valuta)|^belop(?!.*valuta)/, /beløp(?!.*valuta)/),
+    debet: col(/debet/), kredit: col(/kredit/),
+    m1: col(/mengde ?1|^antall|^mengde$|^kvantum|quantity|^volum/, /antall|mengde(?! ?2)/), m2: col(/mengde ?2|^kg$|vekt/), avd: col(/avdeling|department/),
+  };
+  if (g.kontonavn === g.konto) g.kontonavn = -1;
+  if (g.belop >= 0 && (g.debet >= 0 || g.kredit >= 0) && g.belop !== g.debet) { /* beløp finst – bruk det */ g.debet = g.kredit = -1; }
+  return {hi, H, map: g};
+}
+function hbParse(raw) {
+  const {rows, hi, map: g} = raw, out = []; let skipped = 0;
+  rows.slice(hi + 1).forEach(r => {
+    const a = accFromCell(r[g.konto]); if (!a) return;
+    const navn = g.kontonavn >= 0 ? String(r[g.kontonavn]).trim() : a.rest, tekst = g.tekst >= 0 ? String(r[g.tekst]).trim() : "";
+    const bilag = g.bilag >= 0 ? String(r[g.bilag]).trim() : "";
+    if (SUMRE.test(tekst) || SUMRE.test(bilag) || SUMLINE.test(a.rest) || (g.bilag >= 0 && !bilag)) { skipped++; return; }
+    const bel = g.belop >= 0 ? num(r[g.belop]) : (g.debet >= 0 ? num(r[g.debet]) : 0) - (g.kredit >= 0 ? Math.abs(num(r[g.kredit])) : 0);
+    const nr = resolveAcc(a.nr, navn, g.avd >= 0 ? r[g.avd] : "");
+    out.push([parseDate(g.dato >= 0 ? r[g.dato] : ""), bilag, nr, tekst.slice(0, 80), bel, g.m1 >= 0 ? num(r[g.m1]) : 0, g.m2 >= 0 ? num(r[g.m2]) : 0, g.avd >= 0 ? String(r[g.avd]).trim() : ""]);
+  });
+  return {out, skipped};
+}
+function hbApply(raw) {
+  const {out, skipped} = hbParse(raw);
+  if (!out.length) { alert(T("Fant ingen posteringer i fila.")); return false; }
+  S.hb = {file: raw.file, rows: out, qty: raw.map.m1 >= 0 || raw.map.m2 >= 0, skipped, map: raw.map, H: raw.H};
+  if (S.hbQty == null) S.hbQty = true;
+  if (!S.sb.length || S.source === S.hbSource) { // ingen saldobalanse: bygg resultatkontoar frå hovudboka
+    const sum = {}; out.forEach(t => { sum[t[2]] = (sum[t[2]] || 0) + t[4]; });
+    S.sb = Object.entries(sum).map(([nr, v]) => parseAcc(nr).base >= 3000 ? {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1: 0, m2: 0}
+      : {nr, navn: kontoNavn(nr), ib: 0, ub: v, m1ib: 0, m1ub: 0, m1: 0, m2: 0}).sort((a, b) => byNr(a.nr, b.nr));
+    S.source = S.hbSource = raw.file;
+    const yr = out.map(t => t[0].slice(0, 4)).filter(Boolean).sort()[0]; if (yr) S.aar = +yr;
+  }
+  HBC = null; save(); render(); return true;
+}
+function importHovedbok(file) {
+  if (!file) return;
+  if (typeof XLSX === "undefined") { alert(T("Kunne ikke lese fila.")); return; }
+  readRows(file).then(rows => { const g = hbGuess(rows); HBRAW = {file: file.name, rows, hi: g.hi, H: g.H, map: g.map}; hbApply(HBRAW); })
+    .catch(e => { console.error(e); alert(T("Kunne ikke lese fila.")); });
+}
+let HBC = null;
+function hbSums() {
+  if (!S.hb) return null;
+  if (HBC && HBC.ref === S.hb) return HBC.sums;
+  const sums = {};
+  S.hb.rows.forEach(t => { const o = sums[t[2]] || (sums[t[2]] = {amt: 0, m1: 0, m2: 0, n: 0}); o.amt += t[4]; o.m1 += t[5]; o.m2 += t[6]; o.n++; });
+  HBC = {ref: S.hb, sums}; return sums;
+}
+function hbAvstem() {
+  const sums = hbSums(); if (!sums) return [];
+  const diff = [];
+  const hasBal = Object.keys(sums).some(nr => parseAcc(nr).base < 3000);
+  S.sb.forEach(r => { const isRes = sbIsResult(r); if (!isRes && !hasBal) return; const want = isRes ? r.ub : r.ub - r.ib, got = sums[r.nr] ? sums[r.nr].amt : 0;
+    if (Math.abs(want - got) > 0.5) diff.push({nr: r.nr, navn: r.navn, sb: want, hb: got}); });
+  Object.keys(sums).forEach(nr => { if (!S.sb.some(r => r.nr === nr) && Math.abs(sums[nr].amt) > 0.5) diff.push({nr, navn: kontoNavn(nr), sb: 0, hb: sums[nr].amt}); });
+  return diff.sort((a, b) => byNr(a.nr, b.nr));
+}
+function hbModal(nr) {
+  const rows = (S.hb ? S.hb.rows : []).filter(t => t[2] === nr).sort((a, b) => (a[0] > b[0] ? 1 : -1));
+  const sum = rows.reduce((x, t) => [x[0] + t[4], x[1] + t[5], x[2] + t[6]], [0, 0, 0]);
+  const cols = [T("Dato"), T("Bilag"), T("Tekst"), T("Beløp"), T("Mengde") + " 1", T("Mengde") + " 2"];
+  modal("", el => {
+    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Hovedbok")}</div><h2>${esc(nr)} ${esc(kontoNavn(nr))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 2 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+      ${rows.map(t => `<tr>${td(cols[0], esc(t[0]))}${td(cols[1], esc(t[1]))}${td(cols[2], esc(t[3]), "wide")}${td(cols[3], kr(t[4]), "n")}${td(cols[4], fmt(t[5], "n"), "n")}${td(cols[5], fmt(t[6], "n"), "n")}</tr>`).join("")}
+      <tr class="sum"><td colspan="3">${T("Sum")} · ${rows.length} ${T("posteringer")}</td><td class="n">${kr(sum[0])}</td><td class="n">${fmt(sum[1], "n")}</td><td class="n">${fmt(sum[2], "n")}</td></tr></tbody></table>`;
+    $("#mClose", el).onclick = closeModal;
+  });
+}
+function demoHovedbok(sb) {
+  const out = []; let bilag = 1000;
+  const months = nr => { const p = parseAcc(nr); if (p.base === 3044 || p.base === 3054) return [8, 9, 10, 11]; if (p.base === 4640) return [10]; if (p.base === 4610) return [3, 4]; return [2, 5, 8, 11]; };
+  sb.filter(sbIsResult).forEach(r => { const ms = months(r.nr), k = ms.length;
+    ms.forEach((mo, i) => { const share = i === k - 1 ? 1 - (k - 1) / k : 1 / k, round = v => Math.round(v * share);
+      out.push([`${DEMO.aar}-${String(mo).padStart(2, "0")}-15`, String(bilag++), r.nr, r.navn, round(r.ub), i === k - 1 ? r.m1 - Math.round(r.m1 / k) * (k - 1) : Math.round(r.m1 / k), i === k - 1 ? r.m2 - Math.round(r.m2 / k) * (k - 1) : Math.round(r.m2 / k), "20"]); });
+    const s2 = out.filter(t => t[2] === r.nr).reduce((x, t) => x + t[4], 0); out[out.length - 1][4] += r.ub - s2; });
+  sb.filter(r => !sbIsResult(r) && r.ub !== r.ib).forEach(r => out.push([`${DEMO.aar}-12-31`, String(bilag++), r.nr, T("Årsoppgjør"), r.ub - r.ib, 0, 0, "20"]));
+  return {file: "Tripletex hovedbok (fiktiv)", rows: out, qty: true};
+}
+
+/* ================================================================ STEG 2: VARELAGER */
+function vLager(m) {
+  const L = lagerRows(), sum = L.reduce((s, l) => s + l.korr, 0);
+  const cols = [T("Konto"), T("Antall"), T("Skattemessig"), T("Pris per dyr"), T("Driftsmessig") + " 1.1.", T("Driftsmessig") + " 31.12.", T("Korrigering")];
+  m.innerHTML = head() + `
+  <div class="tiles"><div class="tile"><div class="k">${T("Lagerkontoer")}</div><div class="v">${L.length}</div></div>
+    <div class="tile"><div class="k">${T("Sum korrigering")}</div><div class="v">${kr(sum)}</div><div class="s">kr</div></div></div>
+  <div class="card">${L.length ? `<table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 0 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+    ${L.map(l => { const r = l.r, b = parseAcc(r.nr).base, dyr = b >= 1450 && b <= 1458 && (r.m1ub || r.m1ib);
+      return `<tr data-nr="${esc(r.nr)}">${td(cols[0], `<div class="acc">${esc(r.nr)}</div><div>${esc(r.navn)}</div>`, "wide")}
+      ${td(cols[1], r.m1ib || r.m1ub ? fmt(r.m1ib, "n") + " → " + fmt(r.m1ub, "n") : "", "n")}
+      ${td(cols[2], kr(r.ib) + " → " + kr(r.ub), "n")}
+      ${td(cols[3], dyr ? `<input class="inp num" style="max-width:100px" data-f="pris" value="${l.ubD && r.m1ub ? Math.round(l.ubD / r.m1ub) : ""}">` : "", "n")}
+      ${td(cols[4], `<input class="inp num" data-f="ibD" value="${Math.round(l.ibD)}">`, "n")}${td(cols[5], `<input class="inp num" data-f="ubD" value="${Math.round(l.ubD)}">`, "n")}
+      ${td(cols[6], `<b>${kr(l.korr)}</b>`, "n")}</tr>`; }).join("")}
+    <tr class="sum"><td colspan="6">${T("Sum korrigering")}</td><td class="n">${kr(sum)}</td></tr></tbody></table>
+    <div class="row" style="margin-top:14px"><button class="btn sm" id="btnLagerReset">${T("Bruk skattemessige verdier")}</button></div>`
+    : `<div class="muted">${T("Ingen lagerkontoer i saldobalansen.")}</div>`}</div>`;
+  $$("tr[data-nr] input", m).forEach(inp => inp.onchange = e => {
+    const nr = e.target.closest("tr").dataset.nr, f = e.target.dataset.f, r = S.sb.find(x => x.nr === nr), cur = S.lager[nr] || (S.lager[nr] = {});
+    if (f === "pris") { const p = num(e.target.value); cur.ibD = r.m1ib * p; cur.ubD = r.m1ub * p; } else cur[f] = num(e.target.value);
+    save(); rerender(); });
+  const rb = $("#btnLagerReset"); if (rb) rb.onclick = () => { S.lager = {}; save(); rerender(); };
+}
+
+/* ================================================================ STEG 3: AVSKRIVNINGER */
+function vAvskr(m) {
+  const R = avskrRows(), sS = R.reduce((s, x) => s + x.skatt, 0), sD = R.reduce((s, x) => s + x.drift, 0);
+  const cols = [T("Konto"), T("Skattemessig"), T("Gjenanskaffelsesverdi"), T("Levetid"), T("Driftsmessig"), T("Differanse")];
+  m.innerHTML = head() + `
+  <div class="tiles"><div class="tile"><div class="k">${T("Skattemessige avskrivninger")}</div><div class="v">${kr(sS)}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Driftsmessige avskrivninger")}</div><div class="v">${kr(sD)}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Effekt på resultat")}</div><div class="v">${kr(sS - sD)}</div><div class="s">kr</div></div></div>
+  <div class="card">${R.length ? `<table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 0 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
+    ${R.map(x => `<tr data-nr="${esc(x.r.nr)}">${td(cols[0], `<div class="acc">${esc(x.r.nr)}</div><div>${esc(x.r.navn)}</div>`, "wide")}${td(cols[1], kr(x.skatt), "n")}
+      ${td(cols[2], `<input class="inp num" data-f="verdi" value="${x.verdi ?? ""}">`, "n")}${td(cols[3], `<input class="inp num" style="max-width:70px" data-f="levetid" value="${x.levetid ?? ""}"> <span class="muted sm">${T("år")}</span>`, "n")}
+      ${td(cols[4], `<input class="inp num" data-f="drift" value="${Math.round(x.drift)}">`, "n")}${td(cols[5], kr(x.diff), "n")}</tr>`).join("")}
+    <tr class="sum"><td>${T("Sum")}</td><td class="n">${kr(sS)}</td><td></td><td></td><td class="n">${kr(sD)}</td><td class="n">${kr(sD - sS)}</td></tr></tbody></table>`
+    : `<div class="muted">${T("Ingen avskrivningskontoer i saldobalansen.")}</div>`}</div>`;
+  $$("tr[data-nr] input", m).forEach(inp => inp.onchange = e => {
+    const nr = e.target.closest("tr").dataset.nr, f = e.target.dataset.f, cur = S.avskr[nr] || (S.avskr[nr] = {});
+    if (f === "drift") cur.drift = e.target.value === "" ? null : num(e.target.value);
+    else { cur[f] = e.target.value === "" ? null : num(e.target.value); cur.drift = null; }
+    save(); rerender(); });
+}
+
+/* ================================================================ STEG 4: KORRIGERINGER */
+function vProd(m) {
+  m.innerHTML = head() + `<div class="card"><div class="prodgrid">${SPEC.prods.map(p => { const on = M.active.has(p.key);
+    return `<label class="prodcard ${on ? "on" : ""}"><input type="checkbox" data-k="${p.key}" ${on ? "checked" : ""}>
+      <div><div class="nm">${esc(SL(p, "sheet"))}</div><div class="sub2">${on ? fmt(M.V(p.key + ".n"), "n") + " " + esc(SL(p, "unit_label")) : T("ikke med")}${S.active[p.key] != null ? " · " + T("manuelt") : ""}</div></div></label>`; }).join("")}</div>
+    <div class="row" style="margin-top:14px"><button class="btn sm ghost" id="btnAuto">${T("Tilbakestill automatisk valg")}</button></div></div>`;
+  bindSubs(m);
+  $$(".prodcard input", m).forEach(c => c.onchange = e => { S.active[e.target.dataset.k] = e.target.checked; save(); rerender(); });
+  $("#btnAuto").onclick = () => { S.active = {}; save(); rerender(); };
+}
+function vData(m) {
+  const groups = M.prods.map(p => [p.key, SL(p, "sheet") + " – " + SL(p, "title")]);
+  if (SPEC.grovforKeys.some(g => M.active.has(g)) || M.active.has("silofor") || M.active.has("hoy")) groups.push(["grovfor", T("Grovfôr og areal")]);
+  groups.push(["total", T("Andre opplysninger")]);
+  m.innerHTML = head() + (M.prods.length ? "" : `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>`) + groups.map(([k, t]) => {
+    const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info") && (k !== "total" || r.id === "do_andre"));
+    if (!rows.length) return "";
+    return `<div class="card"><h2>${esc(t)}</h2><div class="fields">${rows.map(r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full];
+      return `<label class="field"><span>${esc(LBL(r))} <span class="unit">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</span></span>
+        <input class="inp num" data-full="${full}" value="${has ? S.prodInputs[full] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" ${d != null && !has ? `title="${T("Hentet fra saldobalansen")}"` : ""}></label>`; }).join("")}</div></div>`; }).join("");
+  bindSubs(m);
+  $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.full]; else S.prodInputs[e.target.dataset.full] = num(v); save(); rerender(); });
+}
+function keyCard(title, keys, cur, auto, store, total, extraRow = "", note = "") {
+  const sum = keys.reduce((s, k) => s + (cur[k] || 0), 0);
+  const cols = [T("Produksjon"), T("Automatisk"), T("Brukt"), T("Beløp")];
+  return `<div class="card"><div class="card-head"><h2>${title}</h2><span class="grow"></span><span class="muted sm">${note || kr(total) + " kr"}</span></div>
+  <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]} %</th><th class="n">${cols[3]}</th></tr></thead><tbody>
+  ${keys.map(k => `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], pct(auto[k] / 100), "n muted")}
+    ${td(cols[2], `<input class="inp num" style="max-width:90px" data-store="${store}" data-k="${k}" value="${S[store] && S[store][k] != null ? S[store][k] : ""}" placeholder="${NF1.format(auto[k] || 0)}">`, "n")}
+    ${td(cols[3], kr(total * (cur[k] || 0) / 100), "n")}</tr>`).join("")}${extraRow}
+  <tr class="sum"><td>${T("Sum")}</td><td></td><td class="n">${NF1.format(sum)} %</td><td class="n">${kr(total * sum / 100)}</td></tr></tbody></table>
+  <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-reset="${store}">${T("Bruk automatisk nøkkel")}</button>
+  ${store !== "maskinKey" && Math.abs(sum - 100) > 0.05 ? `<span class="pill bad">${T("Summerer ikke til 100 %")}</span>` : ""}</div></div>`;
+}
+function vNokkel(m) {
+  const V = M.V;
+  const anna = `<tr>${td(T("Produksjon"), T("Annen bruk"), "muted")}<td></td>${td(T("Brukt"), pct(V("faste.pct_anna")), "n muted")}${td(T("Beløp"), kr(V("faste.maskin_anna")), "n muted")}</tr>`;
+  m.innerHTML = head() + (!M.active.size ? `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>` :
+    keyCard(T("Fellespott"), M.poolKeys, M.poolKey, M.autoP, "poolKey", M.poolCost, "", `${T("Kostnader")} ${kr(M.poolCost)} kr · ${T("Tilskudd")} ${kr(M.poolInn)} kr`) +
+    keyCard(T("Maskinkostnader"), [...M.active], M.maskinKey, M.autoM, "maskinKey", V("faste.maskin_sum"), anna) +
+    (M.innmekKeys.length ? keyCard(T("Innandørsmekanisering"), M.innmekKeys, M.innmekKey, M.autoI, "innmekKey", M.innmekTotal) : ""));
+  bindSubs(m);
+  $$("input[data-store]", m).forEach(i => i.onchange = e => { const st = e.target.dataset.store; S[st] = S[st] || {};
+    if (e.target.value.trim() === "") delete S[st][e.target.dataset.k]; else S[st][e.target.dataset.k] = num(e.target.value); save(); rerender(); });
+  $$("button[data-reset]", m).forEach(b => b.onclick = () => { S[b.dataset.reset] = null; save(); rerender(); });
+}
+function accDatalist() {
+  const list = new Set(Object.keys(M.A));
+  KONTOPLAN.accounts.forEach(([nr]) => { const b = parseAcc(nr).base; if (b >= 3000 && b <= 8999) list.add(nr); });
+  return `<datalist id="dlAcc">${[...list].sort(byNr).map(nr => `<option value="${esc(nr)}">${esc(kontoNavn(nr))}</option>`).join("")}</datalist>`;
+}
+function vFlytt(m) {
+  m.innerHTML = head() + `<div class="card moves">${accDatalist()}
+    ${S.moves.length ? S.moves.map((mv, i) => `<div class="mv" data-i="${i}">
+      <label class="field">${T("Fra konto")}<input class="inp" list="dlAcc" data-f="fra" value="${esc(mv.fra)}"><span class="muted sm">${esc(mv.fra ? kontoNavn(mv.fra) : "")}</span></label>
+      <label class="field">${T("Til konto")}<input class="inp" list="dlAcc" data-f="til" value="${esc(mv.til)}"><span class="muted sm">${esc(mv.til ? kontoNavn(mv.til) : "")}</span></label>
+      <label class="field">${T("Beløp")}<input class="inp num" data-f="belop" value="${esc(mv.belop)}"></label>
+      <label class="field">${T("Forklaring")}<input class="inp" data-f="tekst" value="${esc(mv.tekst || "")}"></label>
+      <button class="btn sm ghost" data-del="${i}">${T("Slett")}</button></div>`).join("") : `<div class="muted">${T("Ingen flyttinger.")}</div>`}
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnAddMove">+ ${T("Ny flytting")}</button></div></div>`;
+  bindSubs(m);
+  $("#btnAddMove").onclick = () => { S.moves.push({fra: "", til: "", belop: "", tekst: ""}); save(); rerender(); };
+  $$(".mv input", m).forEach(i => i.onchange = e => { const mv = S.moves[+e.target.closest(".mv").dataset.i];
+    mv[e.target.dataset.f] = e.target.dataset.f === "belop" ? num(e.target.value) : e.target.value.trim(); save(); rerender(); });
+  $$("button[data-del]", m).forEach(b => b.onclick = () => { S.moves.splice(+b.dataset.del, 1); save(); rerender(); });
+}
+function secTitle(r) { return clean(LBL(r)).replace(/^\d\.\s*(INPUT|OUTPUT|UTREKNING|BEREGNING)?(\/(UTREKNING|BEREGNING))?\s*[–-]?\s*/i, ""); }
+function vKontroll(m) {
+  const V = M.V, avvik = V("total.avvik");
+  const prods = M.prods, sel = prods.find(p => p.key === S.kontrollProd) ? S.kontrollProd : (prods[0] || {}).key;
+  let body = "";
+  if (sel) {
+    const p = SHEET[sel]; let sec = "", rowsHtml = "";
+    const cols = [T("Post"), T("Beregnet"), T("Overstyr")];
+    p.rows.forEach(r => {
+      if (r.t === "head") { sec = r.label; if (!/^5\./.test(sec)) rowsHtml += `<tr class="grp"><td colspan="3">${esc(secTitle(r))}</td></tr>`; return; }
+      if (/^5\./.test(sec)) return;
+      const full = sel + "." + r.id, ov = S.overrides[full] != null && S.overrides[full] !== "", c = M.contrib[full];
+      const tip = r.t === "calc" ? "= " + ftext(full) : (c && c.length ? c.map(x => x.nr + ": " + kr(x.v)).join("\n") : (r.src || ""));
+      rowsHtml += `<tr title="${esc(tip)}">${td(cols[0], r.kpi ? `<b>${esc(LBL(r))}</b>` : esc(LBL(r)), "wide")}${td(cols[1], `<span class="${ov ? "pill warn" : ""}">${fmt(V(full), r.fmt)}</span>`, "n")}
+        ${td(cols[2], r.fmt !== "txt" ? `<input class="inp num" data-full="${full}" value="${ov ? S.overrides[full] : ""}">` : "", "n")}</tr>`;
+    });
+    body = `<div class="card"><div class="card-head"><h2>${esc(SL(p, "title"))}</h2><span class="grow"></span>
+      <select class="sel" id="selProd">${prods.map(x => `<option value="${x.key}" ${x.key === sel ? "selected" : ""}>${esc(SL(x, "sheet"))}</option>`).join("")}</select></div>
+      <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]}</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+  }
+  m.innerHTML = head() + `<div class="tiles">
+    <div class="tile"><div class="k">${T("Aktive produksjoner")}</div><div class="v">${M.active.size}</div><div class="s">${prods.map(p => esc(SL(p, "sheet"))).join(", ")}</div></div>
+    <div class="tile"><div class="k">${T("Sum DB med tilskudd")}</div><div class="v">${kr(V("total.sum_db_m"))}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Driftsoverskudd")}</div><div class="v">${kr(V("total.do_drift"))}</div><div class="s">kr</div></div>
+    <div class="tile"><div class="k">${T("Avstemming")}</div><div class="v">${Math.abs(avvik) < 1 ? `<span class="pill good">${T("Stemmer")}</span>` : kr(avvik)}</div><div class="s">${Math.abs(avvik) < 1 ? "&nbsp;" : T("Avvik")}</div></div>
+  </div>${Math.abs(avvik) >= 1 ? `<div class="notice warn">${T("Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.")}</div>` : ""}${body}`;
+  bindSubs(m);
+  const sp = $("#selProd"); if (sp) sp.onchange = e => { S.kontrollProd = e.target.value; save(); rerender(); };
+  $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.overrides[e.target.dataset.full]; else S.overrides[e.target.dataset.full] = num(v); save(); rerender(); });
+}
+
+/* ================================================================ AUTOMATISKE TEKSTAR */
+function textKeys() {
+  const k = ["innledning", "sammendrag", "total"];
+  if (SPEC.grovforKeys.some(g => M.active.has(g))) k.push("grovfor");
+  return k.concat(M.prods.map(p => p.key));
+}
+function textTitle(k) { return k === "innledning" ? T("Innledning") : k === "sammendrag" ? T("Sammendrag") : k === "total" ? T("Totaløkonomi") : k === "grovfor" ? T("Grovfôr") : SL(SHEET[k], "title"); }
+const lc = s => String(s).charAt(0).toLowerCase() + String(s).slice(1);
+function perTxt(p) { return SL(p, "per_label").replace(/^pr /, T("per") + " "); }
+function autoText(k) {
+  const V = M.V, P = [];
+  if (k === "innledning") {
+    const L = lagerRows().filter(l => Math.abs(l.korr) > 0.5), AV = avskrRows().filter(x => Math.abs(x.diff) > 0.5);
+    const mv = S.moves.filter(x => x.fra && x.til && num(x.belop)), man = Object.keys(M.A).filter(nr => mapFor(nr)).length;
+    const ov = Object.values(S.overrides).filter(v => v != null && v !== "").length;
+    P.push(T("Rapporten viser lønnsomheten i jordbruket for {k} i regnskapsåret {a}, fordelt på hver produksjon.", {k: S.klient || T("klienten"), a: S.aar}) + " " +
+      T("Grunnlaget er saldobalansen fra {src}", {src: S.source || "Tripletex"}) + (S.hb ? " " + T("og hovedboken, som gir mengder og tall per måned") : "") + ".");
+    const korr = [];
+    if (L.length) korr.push(T("varelager og buskap er satt til driftsmessige verdier ({n} kontoer, {b} kr i korrigering)", {n: L.length, b: kr(L.reduce((s, l) => s + l.korr, 0))}));
+    if (AV.length) korr.push(T("avskrivningene er beregnet driftsmessig ({s} kr skattemessig mot {d} kr driftsmessig)", {s: kr(V("total.avskr_skatt")), d: kr(V("total.avskr_drift"))}));
+    if (mv.length) korr.push(T("{n} beløp er flyttet til riktig konto", {n: mv.length}));
+    if (man) korr.push(T("{n} kontoer er koblet manuelt til produksjon", {n: man}));
+    if (ov) korr.push(T("{n} tall er overstyrt", {n: ov}));
+    P.push(korr.length ? T("Før analysen er tallene korrigert slik:") + " " + korr.join("; ") + "." : T("Tallene er brukt slik de står i regnskapet, uten driftsmessige korrigeringer."));
+    P.push(T("Felleskostnader, maskinkostnader og innandørsmekanisering er fordelt på produksjonene med fordelingsnøkler. Først kommer hovedtall og oversikt, deretter én side per produksjon med grafer og nøkkeltall, og til slutt regnskapstall og forutsetninger."));
+  } else if (k === "sammendrag") {
+    const ps = M.prods, names = ps.map(p => lc(SL(p, "sheet")));
+    const list = names.length > 1 ? names.slice(0, -1).join(", ") + " og " + names[names.length - 1] : names[0] || "";
+    let a = ps.length ? T(ps.length === 1 ? "Analysen omfatter én produksjon: {list}." : "Analysen omfatter {n} produksjoner: {list}.", {n: ps.length, list}) + " " : "";
+    a += T("Samlet dekningsbidrag med tilskudd ble {db} kr, og tilskudd utgjør {pct} av dette.", {db: kr(V("total.sum_db_m")), pct: pct(V("total.k_tilskot_del"))});
+    const best = [...ps].sort((x, y) => V(y.key + ".db_m") - V(x.key + ".db_m"))[0];
+    if (best && ps.length > 1) a += " " + T("{p} gir høyest dekningsbidrag med {v} kr.", {p: SL(best, "sheet"), v: kr(V(best.key + ".db_m"))});
+    P.push(a);
+    P.push(T("Faste kostnader er {fk} kr. Driftsoverskuddet i jordbruket blir {do} kr etter korrigering til driftsmessige tall, mot {ds} kr skattemessig.",
+      {fk: kr(V("total.faste")), do: kr(V("total.do_drift")), ds: kr(V("total.do_skatt_rekneskap"))}) + " " + T("Nettoinntekten etter renter og andre næringer er {n} kr.", {n: kr(V("total.netto"))}));
+  } else if (k === "total") {
+    P.push(T("Faste kostnader tar {f} av dekningsbidraget med tilskudd.", {f: pct(V("total.k_faste_del"))}) + " " + T("Maskinkostnadene utgjør {m} av de faste kostnadene.", {m: pct(V("faste.k_maskin_del"))}) +
+      (V("total.renteut") ? " " + T("Renteutgiftene er {r} kr.", {r: kr(V("total.renteut"))}) : ""));
+    P.push(T("Avskrivningene er justert fra {s} kr skattemessig til {d} kr driftsmessig.", {s: kr(V("total.avskr_skatt")), d: kr(V("total.avskr_drift"))}) + " " +
+      T("Driftsmessige verdier på varelager og buskap gir en korrigering på {b} kr.", {b: kr(V("total.korr_beh"))}));
+  } else if (k === "grovfor") {
+    P.push(T("Korrigert grovfôrareal er {a} dekar, med {k} kuenheter. Det gir {d} dekar per kuenhet.", {a: fmt(V("grovfor.da_vk"), "n1"), k: fmt(V("grovfor.sum_ku"), "n1"), d: fmt(V("grovfor.korr_da_pr_ku"), "n2")}) + " " +
+      T("Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.", {v: kr(V("grovfor.varkost_pr_da")), m: kr(V("grovfor.maskin_pr_da"))}));
+  } else {
+    const p = SHEET[k], n = V(k + ".n"), per = perTxt(p);
+    const inn = V(k + ".inn_total"), kost = V(k + ".kost_total"), dbu = V(k + ".db_u"), dbm = V(k + ".db_m"), til = V(k + ".tilskot");
+    if (!n) P.push(T("Antall {u} er ikke registrert, så tall per enhet mangler.", {u: SL(p, "unit_label")}));
+    let a = n ? T("Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr, eller {pe} kr {per}.", {inn: kr(inn), kost: kr(kost), db: kr(dbu), pe: kr(dbu / n), per})
+      : T("Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr.", {inn: kr(inn), kost: kr(kost), db: kr(dbu)});
+    a += " " + (n ? T("Med {t} kr i tilskudd blir dekningsbidraget {dbm} kr, eller {pe} kr {per}.", {t: kr(til), dbm: kr(dbm), pe: kr(dbm / n), per}) : T("Med {t} kr i tilskudd blir dekningsbidraget {dbm} kr.", {t: kr(til), dbm: kr(dbm)}));
+    if (dbm > 0 && til > 0) a += " " + T("Tilskuddene utgjør {p} av dekningsbidraget.", {p: pct(til / dbm)});
+    P.push(a);
+    const costs = p.rows.filter(r => r.t === "input" && (r.kind === "kost" || r.kind === "gf")).map(r => ({l: lc(clean(LBL(r))), v: V(k + "." + r.id)})).filter(x => x.v > 0).sort((x, y) => y.v - x.v);
+    let b = "";
+    if (costs.length && kost > 0) b = costs[1] ? T("Største variable kostnad er {a} med {pa} av de variable kostnadene, deretter {b} med {pb}.", {a: costs[0].l, pa: pct(costs[0].v / kost), b: costs[1].l, pb: pct(costs[1].v / kost)})
+      : T("Største variable kostnad er {a} med {pa} av de variable kostnadene.", {a: costs[0].l, pa: pct(costs[0].v / kost)});
+    if (p.group === "grovfor" && n) b += " " + T("Dekningsbidraget per dekar grovfôr er {a} kr uten og {b} kr med tilskudd.", {a: kr(V(k + ".k_db_da_u")), b: kr(V(k + ".k_db_da_m"))});
+    b += " " + T(p.group === "plante" ? "Etter fordelte maskinkostnader står det igjen {e} kr til bygninger, arbeid og kapital." : "Etter fordelte maskinkostnader og innandørsmekanisering står det igjen {e} kr til bygninger, arbeid og kapital.", {e: kr(V(k + ".db_etter"))});
+    if (ROW[k + ".k_gruppe"]) b += " " + T("Produksjonen er i analysegruppen {g}.", {g: lc(V(k + ".k_gruppe"))});
+    if (k === "sau" && V("sau.k_prisendring")) { const v = V("sau.k_prisendring"); b += " " + T("Prisendring på dyr i buskapen gir {v} kr {r} i DB per vinterfôret sau.", {v: kr(Math.abs(v)), r: T(v > 0 ? "høyere" : "lavere")}); }
+    P.push(b.trim());
+  }
+  return P.filter(Boolean).join("\n\n");
+}
+function textFor(k) { const t = S.texts[k]; return t && t.edited ? t.text : autoText(k); }
+
+/* ================================================================ STEG 5: TEKST */
+function vTekst(m) {
+  m.innerHTML = head() + textKeys().map(k => { const ed = S.texts[k] && S.texts[k].edited;
+    return `<div class="card textcard"><div class="card-head"><h2>${esc(textTitle(k))}</h2>
+      <span class="pill ${ed ? "warn" : "acc"}">${T(ed ? "Redigert" : "Automatisk tekst")}</span><span class="grow"></span>
+      ${ed ? `<button class="btn sm ghost" data-regen="${k}">${T("Lag ny tekst")}</button>` : ""}</div>
+      <textarea data-k="${k}" rows="4">${esc(textFor(k))}</textarea></div>`; }).join("");
+  const fit = t => { t.style.height = "auto"; t.style.height = t.scrollHeight + 4 + "px"; };
+  $$("textarea", m).forEach(t => { fit(t); t.oninput = () => fit(t);
+    t.onchange = e => { S.texts[e.target.dataset.k] = {edited: true, text: e.target.value}; save(); rerender(); }; });
+  $$("button[data-regen]", m).forEach(b => b.onclick = () => { delete S.texts[b.dataset.regen]; save(); rerender(); });
+  bindSubs(m);
+}
+
+/* ================================================================ STEG 6: RAPPORT (pdfmake) */
+let pdfUrl = null;
+function vRapport(m) {
+  m.innerHTML = head() + `<div class="row" style="margin-bottom:14px"><button class="btn pri" id="btnPdf">${T("Last ned PDF")}</button>
+    <button class="btn" id="btnRefresh">${T("Oppdater")}</button></div>
+    <div class="pdfwrap" id="pdfwrap"><div class="ph">${T("Lager PDF …")}</div></div>`;
+  $("#btnPdf").onclick = downloadPdf; $("#btnRefresh").onclick = previewPdf;
+  previewPdf();
+}
+function previewPdf() {
+  const w = $("#pdfwrap"); if (!w) return;
+  if (typeof pdfMake === "undefined") { w.innerHTML = `<div class="ph">${T("PDF-biblioteket er ikke lastet. Sjekk internettilgangen.")}</div>`; return; }
+  try {
+    pdfMake.createPdf(buildDoc()).getBlob(b => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); pdfUrl = URL.createObjectURL(b);
+      w.innerHTML = `<iframe title="PDF" src="${pdfUrl}#view=FitH"></iframe>`; });
+  } catch (e) { console.error(e); w.innerHTML = `<div class="ph">${esc(e.message)}</div>`; }
+}
+function pdfName() { return `${T("Nøkkeltallsanalyse jordbruk").replace(/\s+/g, "_")}_${(S.klient || "klient").replace(/[^\wæøåÆØÅ]+/g, "_")}_${S.aar}.pdf`; }
+function downloadPdf() {
+  if (typeof pdfMake === "undefined") { alert(T("PDF-biblioteket er ikke lastet. Sjekk internettilgangen.")); return; }
+  pdfMake.createPdf(buildDoc()).download(pdfName());
+}
+
+/* ---------- SVG-diagram for PDF ---------- */
+const PC = {band: "#e4ede6", page: "#fbfbf8", cover: "#24503b", cover2: "#2e6249", accent: "#2e5e45", ink: "#1b211c", ink2: "#4a544c", muted: "#7b857d", line: "#e2e6df", soft: "#f3f6f2", s1: "#2a78d6", s2: "#eb6834", grid: "#eceee9"};
+function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1))), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
+function shortNum(v) { const a = Math.abs(v); return a >= 1e6 ? NF1.format(v / 1e6) + " mill." : a >= 1e4 ? NF0.format(v / 1000) + " k" : NF0.format(v); }
+function barSvg(items, o = {}) {
+  const series = o.series || [{color: PC.s1}], W = o.width || 515, labW = o.labelW || 130, valW = 62;
+  const bh = o.bar || 11, gap = 3, rowH = series.length * bh + (series.length - 1) * gap + (o.bar && o.bar < 9 ? 7 : 12);
+  const H = items.length * rowH + 22;
+  const all = items.flatMap(i => i.values), step = niceStep(((Math.max(0, ...all) - Math.min(0, ...all)) || 1) / (W - labW - valW < 150 ? 2 : 4));
+  const max = Math.ceil(Math.max(0, ...all) / step) * step, min = Math.floor(Math.min(0, ...all) / step) * step, span = (max - min) || 1;
+  const plotW = W - labW - valW, x = v => labW + (v - min) / span * plotW, x0 = x(0);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  for (let v = min; v <= max + step / 2; v += step) { const xx = x(v);
+    s += `<line x1="${xx}" x2="${xx}" y1="0" y2="${H - 16}" stroke="${PC.grid}" stroke-width="0.8"/><text x="${xx}" y="${H - 4}" text-anchor="middle" font-family="Helvetica" font-size="7.5" fill="${PC.muted}">${esc(shortNum(v))}</text>`; }
+  items.forEach((it, i) => {
+    const y = i * rowH + 6, lab = it.label.length > labW / 4.6 ? it.label.slice(0, Math.floor(labW / 4.6) - 1) + "…" : it.label;
+    s += `<text x="${labW - 8}" y="${y + (rowH - 12) / 2 + 3.5}" text-anchor="end" font-family="Helvetica" font-size="8.5" fill="${PC.ink}">${esc(lab)}</text>`;
+    it.values.forEach((v, j) => {
+      const yy = y + j * (bh + gap), xa = Math.min(x(v), x0), w = Math.max(0.8, Math.abs(x(v) - x0));
+      const col = (it.colors && it.colors[j]) || series[j].color;
+      s += `<rect x="${xa}" y="${yy}" width="${w}" height="${bh}" rx="2" fill="${col}"/>`;
+      if (j === it.values.length - 1 || o.labelAll) { const room = xa - labW > 46, lx = v >= 0 ? x(v) + 4 : (room ? xa - 4 : x0 + 4);
+        s += `<text x="${lx}" y="${yy + bh / 2 + 3}" text-anchor="${v >= 0 || !room ? "start" : "end"}" font-family="Helvetica" font-size="7.8" fill="${PC.ink2}">${esc(NF0.format(Math.round(v)))}</text>`; }
+    });
+  });
+  return s + `<line x1="${x0}" x2="${x0}" y1="0" y2="${H - 16}" stroke="${PC.muted}" stroke-width="0.8"/></svg>`;
+}
+/* ---------- byggjeklossar ---------- */
+const NOLINES = {hLineWidth: () => 0, vLineWidth: () => 0, paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0};
+const P = {
+  h1: (t, br = true, sub) => ({table: {widths: ["*"], body: [[{stack: [{text: t, style: "h1"}].concat(sub ? [{text: sub, style: "h1sub"}] : []), fillColor: PC.band, margin: [12, 8, 12, 8]}]]},
+    layout: Object.assign({}, NOLINES, {vLineWidth: i => (i === 0 ? 4 : 0), vLineColor: () => PC.accent}), margin: [0, 0, 0, 8], pageBreak: br ? "before" : undefined}),
+  h2: t => ({text: t, style: "h2"}),
+  kicker: t => ({text: t.toUpperCase(), style: "kicker"}),
+  tiles(arr) {
+    return {columns: arr.map(a => ({width: "*", table: {widths: ["*"], body: [[{stack: [
+      {text: a.k, style: "tileK"}, {text: a.v, style: "tileV"}, {text: a.s || " ", style: "tileS"}], fillColor: PC.soft, margin: [8, 7, 8, 7]}]]}, layout: NOLINES})),
+      columnGap: 8, margin: [0, 2, 0, 9]};
+  },
+  table(head, rows, widths, opts = {}) {
+    const nf = opts.numFrom ?? 1, body = [];
+    if (head) body.push(head.map((h, i) => ({text: h, style: "th", alignment: i >= nf ? "right" : "left"})));
+    rows.forEach(r => body.push(r.cells.map((c, i) => ({text: c, style: r.sum ? "tdSum" : (r.sub ? "tdSub" : "td"),
+      alignment: i >= nf ? "right" : "left", fillColor: r.sum ? PC.soft : undefined}))));
+    return {table: {headerRows: head ? 1 : 0, widths, body, dontBreakRows: true}, margin: [0, 0, 0, opts.mb ?? 12],
+      layout: {hLineWidth: (i, n) => (head && i === 1 ? 0.9 : (i === 0 || i === n.table.body.length ? 0 : 0.4)), vLineWidth: () => 0,
+        hLineColor: i => (head && i === 1 ? PC.accent : PC.line), paddingTop: () => opts.tight ? 1.1 : 2.3, paddingBottom: () => opts.tight ? 1.1 : 2.3, paddingLeft: () => 4, paddingRight: () => 4}};
+  },
+  box(text, title) {
+    const paras = String(text || "").split(/\n\s*\n/).filter(x => x.trim()).map(t => ({text: t.trim(), margin: [0, 0, 0, 5], style: "body"}));
+    return {table: {widths: ["*"], body: [[{stack: (title ? [{text: title, style: "boxT"}] : []).concat(paras), fillColor: PC.soft, margin: [10, 8, 10, 4]}]]},
+      layout: Object.assign({}, NOLINES, {vLineWidth: i => (i === 0 ? 2.5 : 0), vLineColor: () => PC.accent}), margin: [0, 2, 0, 9], unbreakable: true};
+  },
+  legend(items) { return {columns: items.map(it => ({width: "auto", columns: [{width: 12, canvas: [{type: "rect", x: 0, y: 1.5, w: 8, h: 8, r: 1.5, color: it.color}]}, {width: "auto", text: it.label, style: "small"}]})), columnGap: 14, margin: [0, 0, 0, 4]}; },
+  svg: (s, w) => ({svg: s, width: w || 515, margin: [0, 0, 0, 10]}),
+  none: () => ({text: T("Ingen."), style: "small", margin: [0, 0, 0, 10]}),
+};
+function unitTxt(r) { return r.unit === "kr/eining" ? "kr" : (r.unit === "%" || r.unit === "tekst" ? "" : r.unit); }
+function kpiRows(p) { const out = []; let on = false; p.rows.forEach(r => { if (r.t === "head") { on = /OUTPUT – (Nøkkeltal|Sum faste)/.test(r.label); return; } if (on) out.push(Object.assign({sheet: p.key}, r)); }); return out; }
+function unitRows(p) { const out = []; let on = false, sec = ""; p.rows.forEach(r => { if (r.t === "head") { if (r.label.startsWith("5.")) { on = true; return; } if (r.label.startsWith("6.")) on = false; else if (on) sec = r.label; return; } if (on) out.push(Object.assign({sec}, r)); }); return out; }
+const isSumLbl = l => /i alt|^Sum|^DB /.test(l);
+
+function buildDoc() {
+  const V = M.V, prods = M.prods, hasGF = SPEC.grovforKeys.some(k => M.active.has(k));
+  const doD = V("total.do_drift"), doS = V("total.do_skatt_rekneskap");
+  const tr = (l, v, sum) => ({cells: [l, kr(v)], sum});
+  const C = [];
+  /* 1. Forside */
+  const cv = (k, v) => ({width: "*", stack: [{text: k, color: "#bcd5c5", fontSize: 8.5}, {text: v, color: "#ffffff", fontSize: 19, bold: true, margin: [0, 3, 0, 0]}, {text: "kr", color: "#bcd5c5", fontSize: 8}]});
+  C.push({text: T("NØKKELTALLSANALYSE JORDBRUK"), color: "#bcd5c5", fontSize: 9.5, bold: true, characterSpacing: 2, margin: [0, 70, 0, 14]});
+  C.push({text: S.klient || "TestKunde", color: "#ffffff", fontSize: 34, bold: true});
+  C.push({text: T("Regnskapsår {a}", {a: S.aar}), color: "#e3eee7", fontSize: 14, margin: [0, 6, 0, 0]});
+  C.push({canvas: [{type: "line", x1: 0, y1: 0, x2: 70, y2: 0, lineWidth: 2.5, lineColor: "#8fc2a2"}], margin: [0, 26, 0, 30]});
+  C.push({columns: [cv(T("Dekningsbidrag med tilskudd"), kr(V("total.sum_db_m"))), cv(T("Driftsoverskudd jordbruk"), kr(doD)), cv(T("Nettoinntekt"), kr(V("total.netto")))], columnGap: 16});
+  C.push({text: "", margin: [0, 0, 0, 118]});
+  C.push({text: T("Innledning"), style: "coverH", margin: [0, 0, 0, 6]});
+  textFor("innledning").split(/\n\s*\n/).filter(x => x.trim()).forEach(x => C.push({text: x.trim(), style: "body", margin: [0, 0, 0, 6]}));
+  const toc = [T("Hovedtall og oversikt"), T("Nøkkeltall per produksjon"), T("Totaløkonomi")].concat(hasGF ? [T("Grovfôr")] : [], prods.map(p => SL(p, "title")), [T("Regnskapstall"), T("Korrigeringer og forutsetninger")]);
+  C.push({text: T("Innhold"), style: "coverH", margin: [0, 10, 0, 6]});
+  C.push({columns: [{width: "*", ul: toc.slice(0, Math.ceil(toc.length / 2)), style: "body"}, {width: "*", ul: toc.slice(Math.ceil(toc.length / 2)), style: "body"}], columnGap: 16});
+  C.push({text: (S.utarbeidd ? T("Utarbeidet av") + " " + S.utarbeidd + "   ·   " : "") + new Date().toLocaleDateString("nb-NO"), style: "small", margin: [0, 14, 0, 0]});
+  /* 2. Hovudtal */
+  C.push(P.h1(T("Hovedtall")));
+  C.push(P.tiles([
+    {k: T("Dekningsbidrag med tilskudd"), v: kr(V("total.sum_db_m")), s: "kr"}, {k: T("Faste kostnader"), v: kr(V("total.faste")), s: "kr"},
+    {k: T("Driftsoverskudd jordbruk"), v: kr(doD), s: T("Driftsmessig")}, {k: T("Nettoinntekt"), v: kr(V("total.netto")), s: "kr"}]));
+  C.push(P.box(textFor("sammendrag"), T("Sammendrag")));
+  if (prods.length) {
+    C.push(P.h2(T("Dekningsbidrag per produksjon")));
+    C.push(P.legend([{color: PC.s1, label: T("Uten tilskudd")}, {color: PC.s2, label: T("Med tilskudd")}]));
+    C.push(P.svg(barSvg(prods.map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".db_u"), V(p.key + ".db_m")]})), {series: [{color: PC.s1}, {color: PC.s2}], labelW: 110, bar: prods.length > 6 ? 7 : 10})));
+  }
+  /* Oversikt */
+  C.push(P.h1(T("Oversikt")));
+  C.push(P.table([T("Produksjon"), T("Omfang"), T("DB uten tilskudd"), T("Tilskudd"), T("DB med tilskudd"), T("DB med tilskudd per enhet")],
+    prods.map(p => { const n = V(p.key + ".n"); return {cells: [SL(p, "sheet"), fmt(n, "n") + " " + SL(p, "unit_label"), kr(V(p.key + ".db_u")), kr(V(p.key + ".tilskot")), kr(V(p.key + ".db_m")), n ? kr(V(p.key + ".db_m") / n) : "–"]}; })
+      .concat([{sum: true, cells: [T("Sum"), "", kr(V("total.sum_db_u")), kr(V("total.sum_tilskot")), kr(V("total.sum_db_m")), ""]}]), ["*", "auto", 70, 62, 70, 80], {numFrom: 2}));
+  const bridge = [
+    {label: T("Produksjonsinntekter"), v: V("total.sum_inn")}, {label: T("Tilskudd"), v: V("total.sum_tilskot") + V("total.tilskot_ufordelt")},
+    {label: T("Andre inntekter"), v: V("total.andre_inn")}, {label: T("Variable kostnader"), v: -(V("total.sum_var") + V("total.andre_var"))},
+    {label: T("Faste kostnader"), v: -V("total.faste")}, {label: T("Driftsoverskudd jordbruk"), v: doD, tot: true},
+    {label: T("Renter"), v: V("total.renteinn") - V("total.renteut")}, {label: T("Nettoinntekt"), v: V("total.netto"), tot: true}].filter(b => b.v || b.tot);
+  C.push(P.h2(T("Fra produksjon til nettoinntekt")));
+  C.push(P.legend([{color: PC.s1, label: T("Inntekter")}, {color: PC.s2, label: T("Kostnader")}, {color: PC.accent, label: T("Resultat")}]));
+  C.push(P.svg(barSvg(bridge.map(b => ({label: b.label, values: [b.v], colors: [b.tot ? PC.accent : (b.v >= 0 ? PC.s1 : PC.s2)]})), {labelW: 130, bar: 12})));
+  const fItems = [["Maskinkostnader", "faste.maskin_sum"], ["Bygningskostnader", "faste.bygg_sum"], ["Andre faste kostnader", "faste.andre_sum"]]
+    .map(([l, f]) => ({label: T(l), values: [V(f)]})).filter(x => x.values[0]);
+  const tItems = prods.filter(p => V(p.key + ".db_m") > 0).map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".tilskot") / V(p.key + ".db_m") * 100]}));
+  C.push({columns: [
+    {width: "*", stack: [P.h2(T("Faste kostnader") + ", kr"), P.svg(barSvg(fItems, {width: 250, labelW: 105}), 250)]},
+    {width: "*", stack: [P.h2(T("Tilskuddsandel av DB") + ", %"), tItems.length ? P.svg(barSvg(tItems, {width: 250, labelW: 80}), 250) : ""]}], columnGap: 15});
+  /* 3. Nøkkeltal per produksjon */
+  if (prods.length) {
+    C.push(P.h1(T("Nøkkeltall per produksjon")));
+    const cards = prods.map(p => { const k = p.key, kp = kpiRows(p).filter(r => r.fmt !== "txt").slice(0, 6), g = ROW[k + ".k_gruppe"];
+      return {table: {widths: ["*", "auto"], body: [
+        [{text: SL(p, "sheet"), style: "cardT", colSpan: 2, fillColor: PC.soft, margin: [6, 5, 6, 0]}, ""],
+        [{text: fmt(V(k + ".n"), "n") + " " + SL(p, "unit_label") + (g ? "  ·  " + V(k + ".k_gruppe") : ""), style: "small", colSpan: 2, fillColor: PC.soft, margin: [6, 0, 6, 5]}, ""]]
+        .concat(kp.map(r => [{text: clean(LBL(r)), style: "td", margin: [6, 0, 0, 0]}, {text: fmt(V(k + "." + r.id), r.fmt) + (unitTxt(r) && r.fmt !== "pct" ? " " + unitTxt(r) : ""), style: "td", alignment: "right", margin: [0, 0, 6, 0]}]))},
+        layout: {hLineWidth: (i, n) => (i > 2 && i < n.table.body.length ? 0.4 : 0), vLineWidth: () => 0, hLineColor: () => PC.line, paddingTop: () => 3, paddingBottom: () => 3},
+        margin: [0, 0, 0, 12], unbreakable: true}; });
+    for (let i = 0; i < cards.length; i += 2) C.push({columns: [{width: "*", stack: [cards[i]]}, {width: "*", stack: [cards[i + 1] || {text: ""}]}], columnGap: 14});
+  }
+  /* 4. Totaløkonomi */
+  C.push(P.h1(T("Totaløkonomi")));
+  C.push(P.box(textFor("total")));
+  C.push({columns: [
+    {width: "*", stack: [P.h2(T("Fra dekningsbidrag til nettoinntekt")), P.table(null, [
+      tr(T("Produksjonsinntekter"), V("total.sum_inn")), tr(T("Variable kostnader"), -V("total.sum_var")), tr(T("DB uten tilskudd"), V("total.sum_db_u"), true),
+      tr(T("Tilskudd"), V("total.sum_tilskot")), tr(T("DB med tilskudd"), V("total.sum_db_m"), true),
+      tr(T("Andre driftsinntekter"), V("total.andre_inn")), tr(T("Tilskudd ikke fordelt"), V("total.tilskot_ufordelt")), tr(T("Variable kostnader ikke fordelt"), -V("total.andre_var")),
+      tr(T("Faste kostnader"), -V("total.faste")), tr(T("Driftsoverskudd jordbruk"), doD, true), tr(T("Driftsoverskudd andre næringer"), V("total.do_andre")),
+      tr(T("Renteinntekter"), V("total.renteinn")), tr(T("Renteutgifter"), -V("total.renteut")), tr(T("Nettoinntekt næring"), V("total.netto"), true)], ["*", 80])]},
+    {width: "*", stack: [P.h2(T("Fra skattemessig til driftsmessig resultat")), P.table(null, [
+      tr(T("Driftsoverskudd, skattemessig"), doS), tr(T("Tillegg skattemessige avskrivninger"), V("total.avskr_skatt")), tr(T("Fradrag driftsmessige avskrivninger"), -V("total.avskr_drift")),
+      tr(T("Korrigering beholdningsendring"), V("total.korr_beh")), tr(T("Driftsoverskudd, driftsmessig"), doS + V("total.korr_avskr") + V("total.korr_beh"), true)], ["*", 80]),
+      P.h2(T("Nøkkeltall")), P.table(null, kpiRows(SHEET.total).concat(kpiRows(SHEET.faste).filter(r => r.fmt === "pct")).map(r => ({cells: [clean(LBL(r)), fmt(V(r.sheet + "." + r.id), r.fmt)]})), ["*", 60])]}], columnGap: 18});
+  const fcol = groups => { const fr = [];
+    groups.forEach(([l, f, pre]) => { SHEET.faste.rows.filter(r => r.t === "input" && r.id.startsWith(pre)).forEach(r => { const v = V("faste." + r.id); if (Math.abs(v) > 0.5) fr.push({cells: [clean(LBL(r)).replace(/^Innandørsmekanisering – /, ""), kr(v)], sub: true}); });
+      if (V(f)) fr.push({cells: [T(l), kr(V(f))], sum: true}); }); return fr; };
+  const fRight = fcol([["Andre faste kostnader", "faste.andre_sum", "a_"]]);
+  fRight.push({cells: [T("Faste kostnader"), kr(V("faste.faste_sum"))], sum: true});
+  fRight.push(...fcol([["Herav innandørsmekanisering", "faste.innmek_sum", "innmek_"]]));
+  C.push({stack: [P.h2(T("Faste kostnader")), {columns: [
+    {width: "*", stack: [P.table(null, fcol([["Maskinkostnader", "faste.maskin_sum", "m_"], ["Bygningskostnader", "faste.bygg_sum", "b_"]]), ["*", 70])]},
+    {width: "*", stack: [P.table(null, fRight, ["*", 70])]}], columnGap: 18}], unbreakable: true});
+  /* 5. Grovfôr */
+  if (hasGF) {
+    C.push(P.h1(T("Grovfôr")));
+    C.push(P.tiles([{k: T("Korrigert grovfôrareal"), v: fmt(V("grovfor.da_vk"), "n1"), s: T("dekar")}, {k: T("Sum kuenheter"), v: fmt(V("grovfor.sum_ku"), "n1")},
+      {k: T("Variabel grovfôrkostnad"), v: kr(V("grovfor.varkost_pr_da")), s: T("kr per dekar")}, {k: T("Maskinkostnader"), v: kr(V("grovfor.maskin_pr_da")), s: T("kr per dekar")}]));
+    C.push(P.box(textFor("grovfor")));
+    const sec = (from, to, skip) => { const out = []; let on = false; SHEET.grovfor.rows.forEach(r => { if (r.t === "head") { if (r.label.startsWith(from)) on = true; else if (to && r.label.startsWith(to)) on = false; return; }
+      if (!on) return; const v = V("grovfor." + r.id); if (skip && Math.abs(v) < 0.005) return; out.push({cells: [clean(LBL(r)), fmt(v, r.fmt)]}); }); return out; };
+    C.push({columns: [{width: "*", stack: [P.h2(T("Areal")), P.table(null, sec("1.", "4.", true), ["*", 60])]},
+      {width: "*", stack: [P.h2(T("Kuenheter og grovfôrkostnad")), P.table(null, sec("4.", "5.", true), ["*", 70]), P.h2(T("Nøkkeltall")), P.table(null, sec("5.", null, false), ["*", 70])]}], columnGap: 18});
+  }
+  /* 6. Produksjonane: éi side per produksjon, grafar først og tal etterpå */
+  prods.forEach(p => {
+    const k = p.key, n = V(k + ".n"), per = perTxt(p).replace(/^(per|pr) /, ""), g = ROW[k + ".k_gruppe"], d = x => (n ? x / n : x);
+    C.push(P.h1(SL(p, "title"), true, fmt(n, "n") + " " + SL(p, "unit_label") + (g ? "   ·   " + V(k + ".k_gruppe") : "") + "   ·   " + T("Regnskapsår {a}", {a: S.aar})));
+    const fixed = V(k + ".maskin") + (ROW[k + ".innmek"] ? V(k + ".innmek") : 0);
+    const res = [{label: T("Inntekter"), v: d(V(k + ".inn_total")), c: PC.s1}, {label: T("Variable kostnader"), v: -d(V(k + ".kost_total")), c: PC.s2},
+      {label: T("DB uten tilskudd"), v: d(V(k + ".db_u")), c: PC.accent}, {label: T("Tilskudd"), v: d(V(k + ".tilskot")), c: PC.s1},
+      {label: T("DB med tilskudd"), v: d(V(k + ".db_m")), c: PC.accent}, {label: T("Maskin og innandørsmek."), v: -d(fixed), c: PC.s2},
+      {label: T("Igjen til bygg, arbeid, kapital"), v: d(V(k + ".db_etter")), c: PC.accent}].filter(x => Math.abs(x.v) > 0.005 || x.c === PC.accent);
+    const costItems = unitRows(p).filter(r => /Variable kostnader/i.test(r.sec) && !/^Sum/.test(r.label)).map(r => ({label: clean(LBL(r)), values: [V(k + "." + r.id)]})).filter(x => Math.abs(x.values[0]) > 0.005);
+    C.push({columns: [
+      {width: "*", stack: [P.h2(T("Resultat") + " " + (n ? T("per") + " " + per : "") + ", kr"), P.svg(barSvg(res.map(x => ({label: x.label, values: [x.v], colors: [x.c]})), {width: 250, labelW: 112, bar: 6}), 250)]},
+      {width: "*", stack: costItems.length ? [P.h2(T("Variable kostnader") + " " + (n ? T("per") + " " + per : "") + ", kr"), P.svg(barSvg(costItems, {width: 250, labelW: 112, bar: 6, series: [{color: PC.s2}]}), 250)] : []}], columnGap: 15});
+    const kp = kpiRows(p).filter(r => r.fmt !== "txt");
+    C.push(P.tiles(kp.slice(0, 4).map(r => ({k: clean(LBL(r)), v: fmt(V(k + "." + r.id), r.fmt), s: unitTxt(r)}))));
+    C.push(P.box(textFor(k), T("Vurdering")));
+    const ur = unitRows(p).filter(r => isSumLbl(r.label) || Math.abs(V(k + "." + r.id)) > 0.005);
+    const unitTable = P.table([T("Resultat"), T("per") + " " + per, T("Totalt")], ur.map(r => ({cells: [clean(LBL(r)), fmt(V(k + "." + r.id), r.fmt), kr(V(k + "." + r.id) * n)], sum: isSumLbl(r.label)})), ["*", 52, 62], {tight: true, mb: 6});
+    const kpiTable = P.table([T("Nøkkeltall"), T("Verdi"), ""], kpiRows(p).map(r => ({cells: [clean(LBL(r)), fmt(V(k + "." + r.id), r.fmt), unitTxt(r)]})), ["*", "auto", 22], {numFrom: 1, tight: true, mb: 6});
+    C.push({columns: [{width: "*", stack: [unitTable]}, {width: "*", stack: [kpiTable]}], columnGap: 18});
+  });
+  /* 7. Rekneskapstal */
+  C.push(P.h1(T("Regnskapstall")));
+  C.push(P.h2(T("Resultatregnskap etter kontogruppe")));
+  const grp = {};
+  Object.values(M.A).forEach(a => { const b = parseAcc(a.nr).base; if (b < 3000 || b > 8999) return; const g = String(b).slice(0, 2);
+    const o = grp[g] || (grp[g] = {s: 0, d: 0}); o.s += -a.orig; o.d += -a.amt; });
+  const gk = Object.keys(grp).sort(), drift = gk.filter(g => +g < 80), fin = gk.filter(g => +g >= 80);
+  const gRow = g => ({cells: [g + " " + (KONTOPLAN.groups[g] || ""), kr(grp[g].s), kr(grp[g].d - grp[g].s), kr(grp[g].d)]});
+  const sumS = drift.reduce((s, g) => s + grp[g].s, 0), sumD = drift.reduce((s, g) => s + grp[g].d, 0);
+  C.push(P.table([T("Kontogruppe"), T("Skattemessig"), T("Korrigering"), T("Driftsmessig")],
+    drift.map(gRow).concat([{sum: true, cells: [T("Driftsresultat"), kr(sumS), kr(sumD - sumS), kr(sumD)]}]).concat(fin.map(gRow)), ["*", 75, 70, 75]));
+  C.push(P.h2(T("Fordeling av regnskapet")));
+  const tOrder = [...prods.map(p => p.key), "FASTE", "INNMEK", "TOTAL", "ANDRE", "NONE"].filter(t => M.tsum[t]);
+  C.push(P.table([T("Mottaker"), T("Inntekter"), T("Kostnader")], tOrder.map(t => ({cells: [t === "NONE" ? T("Ikke med i analysen") : PN(t), kr(M.tsum[t].inn), kr(M.tsum[t].kost)]})), ["*", 90, 90]));
+  /* 8. Korrigeringar */
+  C.push(P.h1(T("Korrigeringer og forutsetninger")));
+  const L = lagerRows().filter(l => Math.abs(l.korr) > 0.5), AV = avskrRows().filter(x => Math.abs(x.diff) > 0.5);
+  C.push(P.h2(T("Varelager og buskap")));
+  C.push(L.length ? P.table([T("Konto"), T("Skattemessig") + " 1.1.", "31.12.", T("Driftsmessig") + " 1.1.", "31.12.", T("Korrigering")],
+    L.map(l => ({cells: [l.r.nr + "  " + l.r.navn, kr(l.r.ib), kr(l.r.ub), kr(l.ibD), kr(l.ubD), kr(l.korr)]})).concat([{sum: true, cells: [T("Sum"), "", "", "", "", kr(L.reduce((s, l) => s + l.korr, 0))]}]), ["*", 52, 52, 56, 56, 56]) : P.none());
+  C.push(P.h2(T("Avskrivninger")));
+  C.push(AV.length ? P.table([T("Konto"), T("Skattemessig"), T("Driftsmessig"), T("Grunnlag")],
+    AV.map(x => ({cells: [x.r.nr + "  " + x.r.navn, kr(x.skatt), kr(x.drift), x.verdi && x.levetid && !x.manual ? kr(x.verdi) + " / " + x.levetid + " " + T("år") : T("manuelt")]})), ["*", 65, 65, 95]) : P.none());
+  const mv = S.moves.filter(x => x.fra && x.til && num(x.belop));
+  C.push(P.h2(T("Flyttede beløp")));
+  C.push(mv.length ? P.table([T("Fra"), T("Til"), T("Beløp"), T("Forklaring")], mv.map(x => ({cells: [x.fra + "  " + kontoNavn(x.fra), x.til + "  " + kontoNavn(x.til), kr(num(x.belop)), x.tekst || ""]})), ["*", "*", 50, "*"], {numFrom: 2}) : P.none());
+  const man = Object.keys(M.A).filter(nr => mapFor(nr)).sort(byNr);
+  C.push(P.h2(T("Manuelle koblinger")));
+  C.push(man.length ? P.table([T("Konto"), T("Kobling")], man.map(nr => { const x = mapFor(nr); return {cells: [nr + "  " + kontoNavn(nr), PN(x.t1) + (x.t2 ? ` ${100 - num(x.p2)} %  ·  ${PN(x.t2)} ${num(x.p2)} %` : "")]}; }), ["*", "*"], {numFrom: 9}) : P.none());
+  const ov = Object.entries(S.overrides).filter(([f, v]) => v != null && v !== "" && ROW[f]);
+  if (ov.length) { C.push(P.h2(T("Overstyrte tall"))); C.push(P.table(null, ov.map(([f, v]) => ({cells: [SL(SHEET[f.split(".")[0]], "sheet") + ": " + clean(LBL(ROW[f])), fmt(num(v), ROW[f].fmt)]})), ["*", 80])); }
+  if (prods.length) { C.push({unbreakable: true, stack: [P.h2(T("Fordelingsnøkler")), P.table([T("Produksjon"), T("Fellespott"), T("Maskinkostnader"), T("Innandørsmekanisering")],
+      prods.map(p => ({cells: [SL(p, "sheet"), pct((M.poolKey[p.key] || 0) / 100), pct((M.maskinKey[p.key] || 0) / 100), M.innmekKeys.includes(p.key) ? pct((M.innmekKey[p.key] || 0) / 100) : "–"]})), ["*", 80, 90, 110])]}); }
+  return {
+    pageSize: "A4", pageMargins: [40, 54, 40, 46], content: C,
+    info: {title: T("Nøkkeltallsanalyse jordbruk") + " – " + (S.klient || ""), author: S.utarbeidd || ""},
+    background: page => page === 1
+      ? {canvas: [{type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: PC.page}, {type: "rect", x: 0, y: 0, w: 595.28, h: 430, color: PC.cover},
+        {type: "rect", x: 0, y: 430, w: 595.28, h: 5, color: "#8fc2a2"}, {type: "ellipse", x: 560, y: 60, r1: 150, r2: 150, color: PC.cover2}]}
+      : {canvas: [{type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: PC.page}, {type: "rect", x: 0, y: 0, w: 595.28, h: 4, color: PC.accent},
+        {type: "line", x1: 40, y1: 40, x2: 555.28, y2: 40, lineWidth: 0.5, lineColor: PC.line}]},
+    header: page => page === 1 ? null : {margin: [40, 22, 40, 0], columns: [{text: T("Nøkkeltallsanalyse jordbruk") + "  ·  " + (S.klient || ""), style: "hdr"}, {text: T("Regnskapsår {a}", {a: S.aar}), style: "hdr", alignment: "right"}]},
+    footer: (page, count) => page === 1 ? null : ({margin: [40, 14, 40, 0], columns: [{text: T("Utarbeidet") + " " + new Date().toLocaleDateString("nb-NO") + (S.utarbeidd ? "  ·  " + S.utarbeidd : ""), style: "hdr"},
+      {text: `${T("Side")} ${page} ${T("av")} ${count}`, style: "hdr", alignment: "right"}]}),
+    defaultStyle: {font: "Roboto", fontSize: 9, color: PC.ink, lineHeight: 1.2},
+    styles: {
+      h1: {fontSize: 17, bold: true, color: PC.accent}, h1sub: {fontSize: 8.5, color: PC.ink2, margin: [0, 2, 0, 0]},
+      coverH: {fontSize: 11, bold: true, color: PC.accent},
+      h2: {fontSize: 10.5, bold: true, color: PC.accent, margin: [0, 6, 0, 5]},
+      kicker: {fontSize: 8, bold: true, color: PC.accent, characterSpacing: 1.2, margin: [0, 0, 0, 6]},
+      tileK: {fontSize: 7.5, color: PC.muted}, tileV: {fontSize: 15, bold: true, margin: [0, 2, 0, 0]}, tileS: {fontSize: 7.5, color: PC.ink2},
+      th: {fontSize: 7.8, bold: true, color: PC.accent}, td: {fontSize: 8.6}, tdSub: {fontSize: 8.3, color: PC.ink2}, tdSum: {fontSize: 8.6, bold: true},
+      body: {fontSize: 9.2, lineHeight: 1.3}, boxT: {fontSize: 9.5, bold: true, color: PC.accent, margin: [0, 0, 0, 4]},
+      small: {fontSize: 8, color: PC.muted}, hdr: {fontSize: 7.5, color: PC.muted}, cardT: {fontSize: 10.5, bold: true, color: PC.accent},
+    },
+  };
+}
+
+/* ================================================================ INNSTILLINGER */
+function renderSettings(m) {
+  const tab = SET.tab === "kontering" ? "kontering" : "kontoplan";
+  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T(tab === "kontering" ? "Konteringsoppsett" : "Kontoplan")}</h1></div></div>
+    <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
+    <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button>
+    <span class="grow"></span><button class="btn sm ghost" id="setExp">${T("Eksporter innstillinger")}</button><button class="btn sm ghost" id="setImp">${T("Importer innstillinger")}</button>
+    <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>`;
+  $$(".tabs .tab", m).forEach(b => b.onclick = () => { SET.tab = b.dataset.tab; saveSet(); renderSettings(m); });
+  $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas};
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], {type: "application/json"})); a.download = "innstillinger_jordbruksanalyse.json"; a.click(); };
+  $("#setImp", m).onclick = () => $("#setFile", m).click();
+  $("#setFile", m).onchange = e => { const f = e.target.files[0]; if (!f) return;
+    f.text().then(txt => { let d; try { d = JSON.parse(txt); } catch (err) { d = null; }
+      if (!d || d.type !== "jordbruksanalyse-innstillinger") { alert(T("Fila er ikke en innstillingsfil.")); return; }
+      const replace = confirm(T("Trykk OK for å erstatte innstillingene dine med fila, eller Avbryt for å slå dem sammen (fila går foran ved like kontoer)."));
+      ["map", "avd", "acc", "formulas"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
+      saveSet(); render(); }); };
+  (tab === "kontering" ? renderKontering : renderKontoplan)($("#setBody"), m);
+}
+function avdOptions(sel, def) {
+  return `<option value="" ${!sel ? "selected" : ""}>${def ? def + " " + esc(AVD[def] || "") : T("Ingen avdeling")}</option>` +
+    Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("");
+}
+function renderKontoplan(el, m) {
+  const f = (SET.filter || "").toLowerCase(), onlyMan = !!SET.onlyManual, avdF = SET.avdFilter ?? "20";
+  const inSb = new Set(S.sb.map(r => r.nr));
+  const all = [...new Set([...KONTOPLAN.accounts.map(a => a[0]), ...inSb])].sort(byNr);
+  const target = nr => (mapFor(nr) ? mapFor(nr).t1 : autoTarget(nr));
+  const isRes = nr => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; };
+  const manual = nr => !!mapFor(nr) || (SET.avd[nr] != null && SET.avd[nr] !== "");
+  const shown = all.filter(nr => (!onlyMan || manual(nr)) && (avdF === "*" || effAvd(nr) === avdF || (avdF === "20" && effAvd(nr) === ""))
+    && (!f || nr.includes(f) || kontoNavn(nr).toLowerCase().includes(f) || (isRes(nr) && PN(target(nr)).toLowerCase().includes(f))));
+  const groups = {}; shown.forEach(nr => { const g = String(parseAcc(nr).base).slice(0, 2); (groups[g] = groups[g] || []).push(nr); });
+  const nMan = all.filter(manual).length;
+  el.innerHTML = `<div class="card"><div class="row">
+      <input class="search" id="sflt" placeholder="${T("Søk konto eller navn")}" value="${esc(SET.filter || "")}">
+      <select class="sel" id="avdF"><option value="*" ${avdF === "*" ? "selected" : ""}>${T("Alle avdelinger")}</option>${Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === avdF ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("")}</select>
+      <label class="row sm"><input type="checkbox" id="onlyMan" ${onlyMan ? "checked" : ""}> ${T("Vis bare manuelle")}</label><span class="grow"></span>
+      <span class="pill acc">${nMan} ${T("manuelle")}</span><button class="btn sm ghost" id="resetMap">${T("Tilbakestill alle")}</button></div></div>
+    <div class="maprow mhead"><span>${T("Konto")}</span><span>${T("Navn")}</span><span>${T("Avdeling")}</span><span>${T("Kobling")}</span><span>${T("Del med")}</span><span>%</span></div>
+    ${Object.keys(groups).sort().map(g => `<details class="grp" data-g="${g}" ${f || onlyMan || (SET.openGroups || []).includes(g) ? "open" : ""}>
+      <summary>${g} ${esc(KONTOPLAN.groups[g] || "")} <span class="grow"></span><span class="muted sm">${groups[g].length}</span></summary><div class="inner"></div></details>`).join("")}`;
+  const fill = d => { const box = $(".inner", d);
+    box.innerHTML = groups[d.dataset.g].map(nr => { const x = mapFor(nr) || {}, res = isRes(nr), av = SET.avd[nr] || "", ad = avdDefault(nr);
+      return `<div class="maprow ${manual(nr) ? "manual" : ""}" data-nr="${esc(nr)}"><span class="nr acc">${esc(nr)}${inSb.has(nr) ? " •" : ""}</span><span>${esc(kontoNavn(nr))}</span>
+        <select class="sel ${av ? "ovr" : ""}" data-f="avd">${avdOptions(av, ad)}</select>
+        ${res ? `<select class="sel" data-f="t1">${targetOptions(x.t1 || "", autoShown(nr))}</select>
+        <select class="sel" data-f="t2"><option value="">${T("Del med")} …</option>${PKEYS.concat(Object.keys(SPECIAL_LABEL)).map(k => `<option value="${k}" ${k === x.t2 ? "selected" : ""}>${esc(PN(k))}</option>`).join("")}</select>
+        <input class="inp num" data-f="p2" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}>` : `<span class="muted sm">${T("Balanse")}</span><span></span><span></span>`}</div>`; }).join("");
+    $$("select, input", box).forEach(e2 => e2.onchange = e => { const nr = e.target.closest(".maprow").dataset.nr;
+      if (e.target.dataset.f === "avd") { if (e.target.value) SET.avd[nr] = e.target.value; else delete SET.avd[nr]; saveSet(); }
+      else setMap(nr, e.target.dataset.f, e.target.value);
+      if (S.sb.length) compute(); fill(d); renderChrome(); }); };
+  $$("details.grp", el).forEach(d => { if (d.open) fill(d); d.ontoggle = () => { if (d.open) fill(d);
+    const o = new Set(SET.openGroups || []); d.open ? o.add(d.dataset.g) : o.delete(d.dataset.g); SET.openGroups = [...o]; saveSet(); }; });
+  $("#sflt").oninput = e => { SET.filter = e.target.value; const pos = e.target.selectionStart; renderKontoplan(el, m); const n = $("#sflt"); n.focus(); n.setSelectionRange(pos, pos); };
+  $("#avdF").onchange = e => { SET.avdFilter = e.target.value; saveSet(); renderKontoplan(el, m); };
+  $("#onlyMan").onchange = e => { SET.onlyManual = e.target.checked; saveSet(); renderKontoplan(el, m); };
+  $("#resetMap").onclick = () => { if (confirm(T("Vil du fjerne alle manuelle koblinger?"))) { SET.map = {}; SET.avd = {}; saveSet(); render(); } };
+}
+
+/* ---------- Konteringsoppsett ---------- */
+const KSHEETS = () => [...SPEC.prods.map(p => p.key), "faste", "total"];
+function simpleTerms(expr) {
+  let t; try { t = ftok(expr); } catch (e) { return null; }
+  const terms = []; let sign = 1, expect = "id";
+  for (const [k, v] of t) {
+    if (expect === "id") { if (k === "op" && (v === "+" || v === "-")) { sign = v === "-" ? -sign : sign; continue; } if (k !== "id") return null; terms.push({sign, id: v}); sign = 1; expect = "op"; }
+    else { if (k !== "op" || (v !== "+" && v !== "-")) return null; sign = v === "-" ? -1 : 1; expect = "id"; }
+  }
+  return terms.length ? terms : null;
+}
+function termsToExpr(terms) { return terms.map((t, i) => (t.sign < 0 ? "-" : (i ? "+" : "")) + t.id).join(""); }
+function sectionOf(sh) { const out = {}; let sec = ""; sh.rows.forEach(r => { if (r.t === "head") { if (/^\d\./.test(r.label)) sec = r.label; } else out[r.id] = sec; }); return out; }
+const isDetailSec = l => /OUTPUT – (Per|Nøkkeltal)/.test(l || "");
+function accChips(full) {
+  const r = ROW[full], acc = accFor(full), toks = acc.split(",").map(x => x.trim()).filter(Boolean), ov = SET.acc[full] != null;
+  if (!["tilskot", "inn", "kost", "gf", "fast"].includes(r.kind) && !(r.kind === "info" && (r.acc || ov))) return `<div class="chips"><span class="chip muted">${T(r.kind === "info" ? "Fylles inn manuelt" : "Produksjonsdata")}</span></div>`;
+  if (r.acc == null && !ov && !acc && !/\.andre_(inn|kost)$/.test(full)) return `<div class="chips"><span class="chip muted">${T("Fordeles med nøkkel")}</span></div>`;
+  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" title="${esc(chipTitle(t))}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
+    ${!toks.length && /andre_(inn|kost)$/.test(full) ? `<span class="chip muted">${T(full.endsWith("andre_inn") ? "Øvrige 3xxx-kontoer" : "Øvrige 4xxx-kontoer")}</span>` : ""}
+    <button class="chip add" data-add="${full}">+ ${T("Konto")}</button>${ov ? `<button class="btn sm ghost" data-racc="${full}">${T("Standard")}</button>` : ""}</div>`;
+}
+function chipTitle(t) {
+  const x = t.replace("!", ""), m = x.match(/^(\d{4})(?:-(\d{4}))?$/); if (!m) return x;
+  return m[2] ? `${kontoNavn(m[1] + ".20")} … ${kontoNavn(m[2] + ".20")}` : kontoNavn(m[1] + ".20");
+}
+function renderKontering(el, m) {
+  const keys = KSHEETS(), sel = keys.includes(SET.kSheet) ? SET.kSheet : (M && M.prods[0] ? M.prods[0].key : "mjolk"), sh = SHEET[sel];
+  const secs = sectionOf(sh), V = S.sb.length && M ? M.V : null;
+  const calcs = sh.rows.filter(r => r.t === "calc"), main = calcs.filter(r => !isDetailSec(secs[r.id])), rest = calcs.filter(r => isDetailSec(secs[r.id]));
+  const nOv = Object.keys(SET.acc).length + Object.keys(SET.formulas).length;
+  const val = full => V ? `<span class="fval">${fmt(V(full), ROW[full].fmt)}</span>` : "";
+  const fcard = r => { const full = sel + "." + r.id, expr = fexpr(full), terms = simpleTerms(expr), ov = !!SET.formulas[full];
+    return `<div class="fcard ${ov ? "ovr" : ""}"><div class="fhead"><b>${esc(LBL(r))}</b>${val(full)}<span class="grow"></span>
+      ${ov ? `<span class="pill warn">${T("Endret")}</span>` : ""}<button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>
+      ${terms ? `<div class="terms">${terms.map(t => { let f; try { f = fullId(t.id, sel); } catch (e) { return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><span class="bad">${esc(t.id)}</span></div>`; }
+        const rr = ROW[f]; return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><div class="tb"><div class="tl">${esc(LBL(rr))}${f.split(".")[0] !== sel ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : ""}${val(f)}</div>
+          ${rr.t === "input" ? accChips(f) : `<div class="chips"><span class="chip muted">${T("Formel")}</span></div>`}</div></div>`; }).join("")}</div>`
+      : `<div class="ftext">= ${esc(ftext(full))}</div>`}</div>`; };
+  el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
+      <span class="grow"></span>${nOv ? `<span class="pill warn">${nOv} ${T("endringer")}</span>` : ""}<button class="btn sm" id="resetStd">${T("Tilbakestill standard")}</button></div></div>
+    ${main.map(fcard).join("")}
+    <details class="grp"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">
+      ${rest.map(r => { const full = sel + "." + r.id, ov = !!SET.formulas[full];
+        return `<div class="frow ${ov ? "ovr" : ""}"><div><b>${esc(LBL(r))}</b>${val(full)}<div class="ftext">= ${esc(ftext(full))}</div></div><button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>`; }).join("")}</div></details>`;
+  $("#kSel").onchange = e => { SET.kSheet = e.target.value; saveSet(); renderKontering(el, m); };
+  $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); if (S.sb.length) compute(); renderKontering(el, m); } };
+  const redraw = () => { if (S.sb.length) compute(); renderKontering(el, m); };
+  $$(".chip .x", el).forEach(b => b.onclick = () => { const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
+    toks.splice(+b.dataset.i, 1); SET.acc[full] = toks.join(", "); saveSet(); redraw(); });
+  $$("[data-add]", el).forEach(b => b.onclick = () => accModal(b.dataset.add, redraw));
+  $$("[data-racc]", el).forEach(b => b.onclick = () => { delete SET.acc[b.dataset.racc]; saveSet(); redraw(); });
+  $$("[data-edit]", el).forEach(b => b.onclick = () => formulaModal(b.dataset.edit, redraw));
+}
+/* ---------- overlay ---------- */
+function modal(html, onMount) {
+  closeModal();
+  const o = document.createElement("div"); o.className = "overlay"; o.id = "overlay";
+  o.innerHTML = `<div class="dialog" role="dialog" aria-modal="true">${html}</div>`;
+  o.addEventListener("mousedown", e => { if (e.target === o) closeModal(); });
+  document.body.appendChild(o); document.body.style.overflow = "hidden";
+  onMount($(".dialog", o));
+}
+function closeModal() { const o = $("#overlay"); if (o) o.remove(); document.body.style.overflow = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+function baseAccounts() {
+  const seen = {}; KONTOPLAN.accounts.forEach(([nr, navn]) => { const p = parseAcc(nr); if (p.base < 3000 || p.base > 8999 || p.suf) return;
+    if (!seen[p.base] || p.avd === "20") seen[p.base] = navn; });
+  return Object.entries(seen).map(([b, n]) => [b, n]).sort((a, b) => a[0] - b[0]);
+}
+function accModal(full, done) {
+  const r = ROW[full];
+  const draw = d => { const toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean), q = (d.q || "").toLowerCase();
+    const list = baseAccounts().filter(([b, n]) => !q || b.includes(q) || n.toLowerCase().includes(q)).slice(0, 80);
+    d.el.innerHTML = `<div class="dhead"><div><div class="k">${T("Kontoer i posten")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      <div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div>
+      <div class="row" style="margin:14px 0 8px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
+        <input class="inp" id="mRange" placeholder="${T("Intervall, f.eks. 4020-4029")}" style="width:190px"><button class="btn sm" id="mAddR">+ ${T("Legg til")}</button>
+        <button class="btn sm" id="mExR" title="${T("Unnta kontoene fra posten")}">− ${T("Unnta")}</button></div>
+      <div class="alist">${list.map(([b, n]) => { const has = toks.some(t => !t.startsWith("!") && inRule(+b, t));
+        return `<button class="arow ${has ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has ? "" : "muted"}">${has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div>
+      <div class="row dfoot"><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
+    const setToks = t => { SET.acc[full] = t.join(", "); saveSet(); draw(d); };
+    $$(".chip .x", d.el).forEach(b => b.onclick = () => { toks.splice(+b.dataset.i, 1); setToks(toks); });
+    $$(".arow", d.el).forEach(b => b.onclick = () => { const v = b.dataset.b;
+      if (b.classList.contains("on")) { const i = toks.indexOf(v); if (i >= 0) toks.splice(i, 1); else toks.push("!" + v); } else toks.push(v); setToks(toks); });
+    const addR = neg => { const v = $("#mRange", d.el).value.replace(/\s/g, ""); if (!/^\d{4}(-\d{4})?$/.test(v)) return; toks.push((neg ? "!" : "") + v); setToks(toks); };
+    $("#mAddR", d.el).onclick = () => addR(false); $("#mExR", d.el).onclick = () => addR(true);
+    const q2 = $("#mq", d.el); q2.oninput = e => { d.q = e.target.value; const p = e.target.selectionStart; draw(d); const n = $("#mq", d.el); n.focus(); n.setSelectionRange(p, p); };
+    $("#mClose", d.el).onclick = $("#mOk", d.el).onclick = () => { closeModal(); done(); };
+  };
+  modal("", el => draw({el}));
+}
+function formulaCycle(full, expr) {
+  const refs = (f, e) => ftok(e).filter(([k]) => k === "id").map(([, v]) => v.includes(".") ? v : ROW[f].sheet + "." + v).filter(x => ROW[x] && ROW[x].t === "calc");
+  const seen = new Set(), stack = refs(full, expr);
+  while (stack.length) { const x = stack.pop(); if (x === full) return true; if (seen.has(x)) continue; seen.add(x); try { stack.push(...refs(x, fexpr(x))); } catch (e) { /* ugyldig formel elles */ } }
+  return false;
+}
+function formulaModal(full, done) {
+  const r = ROW[full], key = r.sheet, sh = SHEET[key];
+  const st = {expr: fexpr(full)}; st.terms = simpleTerms(st.expr); st.adv = !st.terms;
+  const opts = sel => sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc")).map(x => `<option value="${x.id}" ${x.id === sel ? "selected" : ""}>${esc(LBL(x))}</option>`).join("");
+  const draw = el => {
+    const expr = st.adv ? st.expr : termsToExpr(st.terms || []);
+    let err = "", txt = "", val = "";
+    try { frender(ftok(expr), key, "js"); try { compileExpr(expr, key); } catch (e2) { throw new Error(T("Formelen er ufullstendig – sjekk parenteser og ledd")); } if (formulaCycle(full, expr)) throw new Error(T("Formelen viser tilbake til seg selv (sirkelreferanse)")); txt = ftext(full, expr);
+      if (S.sb.length) { const old = SET.formulas[full]; SET.formulas[full] = expr; compute(); val = fmt(M.V(full), r.fmt); if (old == null) delete SET.formulas[full]; else SET.formulas[full] = old; compute(); }
+    } catch (e) { err = e.message; }
+    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Endre formel")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+      ${st.adv ? `<textarea class="fedit" id="fx" spellcheck="false">${esc(st.expr)}</textarea>
+        <div class="row" style="margin-top:8px"><select class="sel" id="ins"><option value="">${T("Sett inn ledd")} …</option>${opts("")}</select>
+        <span class="muted sm">DIV(a,b) · IF(a&lt;b,x,y) · MAX · MIN · ROUND</span></div>`
+      : `<div class="tedit">${(st.terms || []).map((t, i) => `<div class="trow" data-i="${i}"><select class="sel sg2" data-f="sign"><option value="1" ${t.sign > 0 ? "selected" : ""}>+</option><option value="-1" ${t.sign < 0 ? "selected" : ""}>−</option></select>
+          <select class="sel" data-f="id">${opts(t.id)}</select><button class="btn sm ghost" data-del="${i}" aria-label="${T("Fjern")}">×</button></div>`).join("")}
+        <button class="btn sm" id="addT">+ ${T("Legg til ledd")}</button></div>`}
+      <div class="fprev ${err ? "bad" : ""}">${err ? esc(err) : `= ${esc(txt)}${val ? `<div class="sm muted" style="margin-top:4px">${T("Resultat")}: <b>${val}</b></div>` : ""}`}</div>
+      <div class="row dfoot"><button class="btn sm ghost" id="toggleAdv">${T(st.adv ? "Enkel redigering" : "Avansert redigering")}</button>
+        <button class="btn sm ghost" id="fStd">${T("Tilbakestill standard")}</button><span class="grow"></span>
+        <button class="btn" id="fCancel">${T("Avbryt")}</button><button class="btn pri" id="fSave" ${err ? "disabled" : ""}>${T("Lagre")}</button></div>`;
+    $("#mClose", el).onclick = $("#fCancel", el).onclick = closeModal;
+    $("#toggleAdv", el).onclick = () => { if (st.adv) { const t = simpleTerms(st.expr); if (!t) { alert(T("Formelen er for sammensatt for enkel redigering.")); return; } st.terms = t; st.adv = false; } else { st.expr = termsToExpr(st.terms || []); st.adv = true; } draw(el); };
+    $("#fStd", el).onclick = () => { st.expr = r.expr; st.terms = simpleTerms(r.expr); st.adv = !st.terms; draw(el); };
+    $("#fSave", el).onclick = () => { const e2 = st.adv ? st.expr : termsToExpr(st.terms); if (e2 === r.expr) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); closeModal(); done(); };
+    if (st.adv) { const fx = $("#fx", el); fx.onchange = e => { st.expr = e.target.value; draw(el); };
+      $("#ins", el).onchange = e => { if (!e.target.value) return; st.expr = (fx.value.trim() ? fx.value.trim() + "+" : "") + e.target.value; draw(el); }; }
+    else {
+      $$(".trow select", el).forEach(s2 => s2.onchange = e => { const t = st.terms[+e.target.closest(".trow").dataset.i]; if (e.target.dataset.f === "sign") t.sign = +e.target.value; else t.id = e.target.value; draw(el); });
+      $$("[data-del]", el).forEach(b => b.onclick = () => { st.terms.splice(+b.dataset.del, 1); draw(el); });
+      $("#addT", el).onclick = () => { st.terms = st.terms || []; st.terms.push({sign: 1, id: sh.rows.find(x => x.t === "input").id}); draw(el); };
+    }
+  };
+  modal("", draw);
+}
+
+/* ================================================================ HENDINGAR */
+$("#btnPrev").onclick = () => go(S.node - 1);
+$("#btnNext").onclick = () => { if (S.node === NODES.length - 1) downloadPdf(); else go(S.node + 1); };
+$("#brand").onclick = () => { VIEW = "wizard"; render(); };
+$("#btnSettings").onclick = () => { VIEW = VIEW === "settings" ? "wizard" : "settings"; render(); window.scrollTo({top: 0}); };
+$$("#langSeg button").forEach(b => b.onclick = () => { LANG = SET.lang = b.dataset.l; saveSet(); rerender(); });
+$("#btnTheme").onclick = () => { SET.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; saveSet(); rerender(); };
+$("#btnMenu").onclick = e => { e.stopPropagation(); $("#menuProj").classList.toggle("open"); };
+document.addEventListener("click", () => $("#menuProj").classList.remove("open"));
+$("#mSave").onclick = () => { const blob = new Blob([JSON.stringify({prosjekt: S, koblinger: Object.assign({}, S.map || {}, SET.map)}, null, 1)], {type: "application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `analyse_${(S.klient || "klient").replace(/\W+/g, "_")}_${S.aar}.json`; a.click(); };
+$("#mOpen").onclick = () => $("#fileProject").click();
+$("#fileProject").onchange = e => { const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { try { const d = JSON.parse(t); S = Object.assign(freshState(), d.prosjekt || d); if (d.koblinger) S.map = Object.assign({}, S.map || {}, d.koblinger); save(); VIEW = "wizard"; render(); } catch (err) { alert(T("Kunne ikke lese fila.")); } }); };
+$("#mReset").onclick = () => { if (confirm(T("Vil du slette arbeidet og starte på nytt?"))) { S = freshState(); save(); VIEW = "wizard"; render(); } };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (!SET.theme) rerender(); });
+render();
+</script>
+</body>
+</html>
