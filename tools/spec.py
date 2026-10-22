@@ -841,10 +841,15 @@ def faste_sheet():
         rows.append(I(id, lab, "kr", v, src=acc, kind="fast", acc=acc, sign=1))
     rows.append(C("bygg_sum", "Sum bygningskostnader", "+".join(i[0] for i in FASTE_BYGG)))
     rows.append(H("5. INPUT – Herav innandørsmekanisering, fordelt på husdyrproduksjonane (kr)"))
+    im_total_ex = sum(INNMEK_EX.values())
+    rows.append(I("im_total", "Kostnader til innandørsmekanisering (kontoar)", "kr", im_total_ex,
+                  src=INNMEK_ACC, kind="innmek", acc=None, sign=1,
+                  note="Herav-post: kontoane er kopla til «Innandørsmek.» i kontoplanen og ligg alt i bygnings- og andre faste kostnader"))
     for k in HUSDYR_KEYS:
-        rows.append(I("innmek_" + k, "Innandørsmekanisering – %s" % PNAME[k], "kr", INNMEK_EX.get(k, 0),
-                      src=INNMEK_ACC + " (fordelt med nøkkel)", kind="fast", acc=None, sign=1,
-                      note="Herav-post: kostnadene ligg alt i bygnings- og andre faste kostnader, her blir dei berre fordelte"))
+        rows.append(I("im_pct_" + k, "Del innandørsmekanisering – %s" % PNAME[k], "%",
+                      INNMEK_EX.get(k, 0) / im_total_ex, src="Fordelingsnøkkel (fôr innandørs)", kind="pct"))
+    for k in HUSDYR_KEYS:
+        rows.append(C("innmek_" + k, "Innandørsmekanisering – %s" % PNAME[k], "im_total*im_pct_" + k))
     rows.append(C("innmek_sum", "Sum innandørsmekanisering (herav, inngår i summane ovanfor)", "+".join("innmek_" + k for k in HUSDYR_KEYS)))
     rows.append(H("6. INPUT – Andre faste kostnader"))
     for id, lab, acc, v in FASTE_ANDRE:
@@ -953,6 +958,7 @@ def total_sheet():
     rows.append(H("4. INPUT – Skattemessige tal frå rekneskapen (for avstemming)"))
     rows += [
         I("avskr_skatt", "Skattemessige avskrivingar", "kr", 8882.16, src="60xx i saldobalansen (før korrigering)", kind="fast"),
+        I("avskr_drift", "Driftsmessige avskrivingar", "kr", 98462.99 + 147609.12, src="60xx i saldobalansen (etter korrigering)", kind="fast"),
         I("beh_skatt", "Beholdningsendring buskap/varelager, skattemessig (+ = auke)", "kr", -58135,
           src="4090-4099, 4190-4199, 4290-4299, 4690-4699 (før korrigering)", kind="fast"),
         I("beh_drift", "Beholdningsendring buskap/varelager, driftsmessig (+ = auke)", "kr", 3740,
@@ -962,7 +968,6 @@ def total_sheet():
     ]
     rows.append(H("5. UTREKNING – Frå skattemessig til driftsmessig resultat"))
     rows += [
-        C("avskr_drift", "Driftsmessige avskrivingar", "faste.avskr_drift"),
         C("korr_avskr", "Korrigering avskrivingar (skatt – drift)", "avskr_skatt-avskr_drift"),
         C("korr_beh", "Korrigering beholdningsendring (drift – skatt)", "beh_drift-beh_skatt"),
         C("do_skatt_berekna", "Driftsoverskot skattemessig, berekna", "do_drift-korr_avskr-korr_beh"),

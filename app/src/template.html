@@ -223,6 +223,15 @@ details.grp .inner{padding:0 16px 14px}
 .dhead h2{margin:4px 0 0;font:400 28px/1.1 var(--serif)}
 .dhead .k{font:600 11.5px/1 var(--sans);color:var(--ink-3);text-transform:uppercase;letter-spacing:.14em}
 .dfoot{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.savebar{position:sticky;bottom:12px;z-index:20;margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px 10px 16px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--panel-border-hi);box-shadow:0 10px 30px rgba(0,0,0,.18);font-size:13px;color:var(--ink-2)}
+.savebar .dot{width:8px;height:8px;border-radius:50%;background:var(--ok,#3fb950);flex:none}
+.savebar.dirty{color:var(--ink)}
+.savebar.dirty .dot{background:var(--warning)}
+.chips .chip[data-ei]{cursor:pointer}
+.alist{user-select:none;-webkit-user-select:none}
+.alist .arow.sel{background:color-mix(in srgb,var(--warning) 16%,transparent)}
+.chips .chip[data-ei]:hover{border-color:var(--panel-border-hi)}
+.chips.big .chip.rep{outline:2px solid var(--warning);outline-offset:1px}
 .alist{display:flex;flex-direction:column;border:1px solid var(--field-border);border-radius:13px;max-height:320px;overflow:auto}
 .arow{display:flex;gap:12px;align-items:center;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 14px;text-align:left;cursor:pointer;font-size:14px}
 .arow:hover{background:var(--hover)}
@@ -474,7 +483,12 @@ const NN = {
   "Skriv formelen": "Skriv formelen", "Klikk for å bytte regnetegn": "Klikk for å byte reiketeikn", "Tall": "Tal",
   "Klikk på regnetegnet for å bytte mellom + − × ÷, × for å fjerne et ledd og + Ledd for å legge til. Klikk på et utregnet ledd for å se hva det består av.": "Klikk på reiketeiknet for å byte mellom + − × ÷, × for å fjerne eit ledd og + Ledd for å leggje til. Klikk på eit utrekna ledd for å sjå kva det består av.",
   "1 når produksjonen er med, ellers 0": "1 når produksjonen er med, elles 0", "er med": "er med", "Fordelingsnøkkel": "Fordelingsnøkkel", "Endre nøkkel": "Endre nøkkel",
-  "Hentes automatisk fra saldobalansen": "Blir henta automatisk frå saldobalansen", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
+  "Hentes automatisk fra saldobalansen": "Blir henta automatisk frå saldobalansen", "Kontoer 6000–6099 i jordbruk, beløp før korrigering": "Kontoar 6000–6099 i jordbruk, beløp før korrigering", "Kontoer 4090–4099, 4190–4199, 4290–4299 og 4690–4699, før korrigering": "Kontoar 4090–4099, 4190–4199, 4290–4299 og 4690–4699, før korrigering",
+  "Samme kontoer etter korrigering til driftsmessige verdier": "Same kontoar etter korrigering til driftsmessige verdiar", "Kontoer 6000–6099 i jordbruk, etter korrigering": "Kontoar 6000–6099 i jordbruk, etter korrigering", "Sum kontoer 3000–7999 i jordbruk, før korrigering": "Sum kontoar 3000–7999 i jordbruk, før korrigering",
+  "Ingen kontoer er koblet til innandørsmekanisering": "Ingen kontoar er kopla til innandørsmekanisering", "Kontoer koblet til «Innandørsmek.» i kontoplanen": "Kontoar kopla til «Innandørsmek.» i kontoplanen",
+  "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
+  "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
+  "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.": "Klikk ein konto for å ta han med eller fjerne han. Hald inne og dra over fleire kontoar for å leggje inn eit intervall.", "Bytt ut": "Byt ut", "med": "med", "avbryt bytte": "avbryt bytet", "Bytt": "Byt", "Bytt til denne": "Byt til denne", "Ingen kontoer koblet": "Ingen kontoar kopla", "Kontoer i andre avdelinger enn jordbruk": "Kontoar i andre avdelingar enn jordbruk", "for alle produksjoner som er med": "for alle produksjonar som er med", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
   "Skjul utregning": "Skjul utrekning", "Vis utregning": "Vis utrekning",
   "Hver formel vises som et regnestykke med én rad per ledd. «Vis utregning» åpner leddet, helt ned til kontoene, fordelingsnøklene og produksjonsdataene som kan endres direkte.": "Kvar formel blir vist som eit reknestykke med éi rad per ledd. «Vis utrekning» opnar leddet, heilt ned til kontoane, fordelingsnøklane og produksjonsdataa som kan endrast direkte.",
   "Del andeler med": "Del delar med", "Legg til deling": "Legg til deling", "{a} går til {t}": "{a} går til {t}", "Delingene kan ikke overstige 100 %": "Delingane kan ikkje vere over 100 %",
@@ -914,8 +928,20 @@ try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET,
 ["map", "avd", "acc", "formulas"].forEach(k => SET[k] = SET[k] || {});
 LANG = SET.lang || "nb";
 let VIEW = "wizard";
-function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* ignorer */ } }
-function saveSet() { try { localStorage.setItem(STORE_SET, JSON.stringify(SET)); } catch (e) { /* ignorer */ } }
+/* Innstillingar blir redigerte som kladd: endringane gjeld med ein gong i visninga, men blir først lagra når ein trykkjer Lagre */
+const DRAFT_SET = ["map", "avd", "acc", "formulas"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
+let DRAFT = null;
+const pick = (o, ks) => JSON.parse(JSON.stringify(ks.reduce((a, k) => (a[k] = o[k], a), {})));
+function save() { try { localStorage.setItem(STORE, JSON.stringify(DRAFT ? Object.assign({}, S, DRAFT.s) : S)); } catch (e) { /* ignorer */ } updSaveBar(); }
+function saveSet() { try { localStorage.setItem(STORE_SET, JSON.stringify(DRAFT ? Object.assign({}, SET, DRAFT.set) : SET)); } catch (e) { /* ignorer */ } updSaveBar(); }
+const draftDirty = () => !!DRAFT && (JSON.stringify(pick(SET, DRAFT_SET)) !== JSON.stringify(DRAFT.set) || JSON.stringify(pick(S, DRAFT_S)) !== JSON.stringify(DRAFT.s));
+function draftBegin() { if (!DRAFT) DRAFT = {set: pick(SET, DRAFT_SET), s: pick(S, DRAFT_S)}; }
+function draftCommit() { DRAFT = null; saveSet(); save(); }
+function draftDiscard() { if (!DRAFT) return; Object.assign(SET, JSON.parse(JSON.stringify(DRAFT.set))); Object.assign(S, JSON.parse(JSON.stringify(DRAFT.s))); DRAFT = null; saveSet(); save(); }
+function updSaveBar() { const b = document.getElementById("saveBar"); if (!b) return; const d = draftDirty();
+  b.classList.toggle("dirty", d); $("#sbTxt", b).textContent = T(d ? "Du har endringer som ikke er lagret" : "Alle endringer er lagret");
+  $("#sbSave", b).disabled = !d; $("#sbUndo", b).disabled = !d; }
+window.addEventListener("beforeunload", e => { if (draftDirty()) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ================================================================ MOTOR */
 const sbIsResult = r => parseAcc(r.nr).base >= 3000;
@@ -1059,7 +1085,7 @@ function compute() {
       if (isProd(t)) { if (active.has(t)) toProd(t, a.nr, v); else { ikkjeMed += v; tadd("NONE", a.nr, v); } }
       else if (KEYGROUP_OF[t] || t === "POOL") deferred.push({nr: a.nr, g: KEYGROUP_OF[t] || poolGroupOf(a.nr), v});
       else if (t === "FASTE") toFaste(a.nr, v);
-      else if (t === "INNMEK") { innmekTotal += v; toFaste(a.nr, v); }
+      else if (t === "INNMEK") { innmekTotal += v; (contrib["faste.im_total"] = contrib["faste.im_total"] || []).push({nr: a.nr, v}); toFaste(a.nr, v); }
       else if (t === "TOTAL") toTotal(a.nr, v);
       else { if (b <= 7999) ikkjeMed += v; tadd("NONE", a.nr, v); } });
   });
@@ -1094,7 +1120,8 @@ function compute() {
   deferred.forEach(({nr, g, v}) => { if (v > 0) gTot[g].cost += v; else gTot[g].inn -= v; let used = 0;
     members[g].forEach(k => { const sh = (keys[g][k] || 0) / 100; if (sh) { toProd(k, nr, v * sh); used += sh; } });
     if (used < 0.9999) { ikkjeMed += v * (1 - used); tadd("NONE", nr, v * (1 - used)); } });
-  members.innmek.forEach(k => { if (SHEET.faste.rows.some(r => r.id === "innmek_" + k)) add("faste.innmek_" + k, "INNMEK", innmekTotal * (keys.innmek[k] || 0) / 100); });
+  INP["faste.im_total"] = innmekTotal;
+  SHEET.faste.rows.forEach(r => { if (r.id && r.id.startsWith("im_pct_")) { const k = r.id.slice(7); INP["faste." + r.id] = members.innmek.includes(k) ? (keys.innmek[k] || 0) / 100 : 0; } });
   SPEC.prods.forEach(p => { if (!active.has(p.key)) return; p.rows.forEach(r => {
     if (r.t !== "input" || r.kind !== "info") return; const full = p.key + "." + r.id, rule = accFor(full);
     if (!rule || (S.prodInputs[full] != null && S.prodInputs[full] !== "")) return;
@@ -1107,7 +1134,8 @@ function compute() {
     if (b >= 6000 && b <= 6099) { avskrS += a.orig; avskrD += a.amt; }
     if (inRule(b, BEH_RULE)) { behS += -a.orig; behD += -a.amt; } });
   Object.assign(INP, {"total.avskr_skatt": avskrS, "total.beh_skatt": behS, "total.beh_drift": behD, "total.do_skatt_rekneskap": doSkatt});
-  const V = engine(INP, active, {"total.avskr_drift": avskrD});
+  INP["total.avskr_drift"] = avskrD;
+  const V = engine(INP, active);
   M = {A, INP, V, active, contrib, alloc, keys, autoKeys, members, basis, gTot, need, scale, annaPct, innmekTotal, ikkjeMed, derived, resolve, tsum, prods: SPEC.prods.filter(p => active.has(p.key))};
   return M;
 }
@@ -1160,7 +1188,8 @@ function render() {
   if (S.sb.length) compute();
   renderChrome();
   const m = $("#main");
-  if (VIEW === "settings") return renderSettings(m);
+  if (VIEW === "settings") { draftBegin(); return renderSettings(m); }
+  if (DRAFT) { if (!draftDirty() || confirm(T("Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem."))) draftCommit(); else { draftDiscard(); if (S.sb.length) compute(); } }
   ({import: vImport, lager: vLager, avskr: vAvskr, k_prod: vProd, k_data: vData, k_nokkel: vNokkel, k_flytt: vFlytt,
     k_kontroll: vKontroll, tekst: vTekst, rapport: vRapport})[NODES[S.node].id](m);
 }
@@ -1980,7 +2009,7 @@ function buildDoc() {
       tr(T("Korrigering beholdningsendring"), V("total.korr_beh")), tr(T("Driftsoverskudd, driftsmessig"), doS + V("total.korr_avskr") + V("total.korr_beh"), true)], ["*", 80]),
       P.h2(T("Nøkkeltall")), P.table(null, kpiRows(SHEET.total).concat(kpiRows(SHEET.faste).filter(r => r.fmt === "pct")).map(r => ({cells: [clean(LBL(r)), fmt(V(r.sheet + "." + r.id), r.fmt)]})), ["*", 60])]}], columnGap: 18});
   const fcol = groups => { const fr = [];
-    groups.forEach(([l, f, pre]) => { SHEET.faste.rows.filter(r => r.t === "input" && r.id.startsWith(pre)).forEach(r => { const v = V("faste." + r.id); if (Math.abs(v) > 0.5) fr.push({cells: [clean(LBL(r)).replace(/^Innandørsmekanisering – /, ""), kr(v)], sub: true}); });
+    groups.forEach(([l, f, pre]) => { SHEET.faste.rows.filter(r => r.id && r.id.startsWith(pre) && !r.id.endsWith("_sum")).forEach(r => { const v = V("faste." + r.id); if (Math.abs(v) > 0.5) fr.push({cells: [clean(LBL(r)).replace(/^Innandørsmekanisering – /, ""), kr(v)], sub: true}); });
       if (V(f)) fr.push({cells: [T(l), kr(V(f))], sum: true}); }); return fr; };
   const fRight = fcol([["Andre faste kostnader", "faste.andre_sum", "a_"]]);
   fRight.push({cells: [T("Faste kostnader"), kr(V("faste.faste_sum"))], sum: true});
@@ -2093,7 +2122,11 @@ function renderSettings(m) {
     <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
     <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button>
     <span class="grow"></span><button class="btn sm ghost" id="setExp">${T("Eksporter innstillinger")}</button><button class="btn sm ghost" id="setImp">${T("Importer innstillinger")}</button>
-    <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>`;
+    <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>
+    <div class="savebar" id="saveBar"><span class="dot"></span><span id="sbTxt"></span><span class="grow"></span><button class="btn sm ghost" id="sbUndo">${T("Forkast endringer")}</button><button class="btn sm pri" id="sbSave">${T("Lagre")}</button></div>`;
+  $("#sbSave", m).onclick = () => { draftCommit(); draftBegin(); updSaveBar(); };
+  $("#sbUndo", m).onclick = () => { if (confirm(T("Vil du forkaste endringene siden sist du lagret?"))) { draftDiscard(); draftBegin(); render(); } };
+  setTimeout(updSaveBar);
   $$(".tabs .tab", m).forEach(b => b.onclick = () => { SET.tab = b.dataset.tab; saveSet(); renderSettings(m); });
   $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas};
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], {type: "application/json"})); a.download = "innstillinger_jordbruksanalyse.json"; a.click(); };
@@ -2200,9 +2233,8 @@ const isDetailSec = l => /OUTPUT – (Per|Nøkkeltal)/.test(l || "");
 function accChips(full) {
   const r = ROW[full], acc = accFor(full), toks = acc.split(",").map(x => x.trim()).filter(Boolean), ov = SET.acc[full] != null;
   if (!["tilskot", "inn", "kost", "gf", "fast"].includes(r.kind) && !(r.kind === "info" && (r.acc || ov))) return `<div class="chips"><span class="chip muted">${T(r.kind === "info" ? "Fylles inn manuelt" : "Produksjonsdata")}</span></div>`;
-  if (r.acc == null && !ov && !acc && !/\.andre_(inn|kost)$/.test(full)) return `<div class="chips"><span class="chip muted">${T("Fordeles med nøkkel")}</span></div>`;
-  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" data-tt="${esc(`<b>${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}</b><div>${esc(chipTitle(t))}</div>`)}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
-    ${!toks.length && /andre_(inn|kost)$/.test(full) ? `<span class="chip muted">${T(full.endsWith("andre_inn") ? "Øvrige 3xxx-kontoer" : "Øvrige 4xxx-kontoer")}</span>` : ""}
+  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" data-ei="${i}" data-tt="${esc(`<b>${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}</b><div>${esc(chipTitle(t))}</div>`)}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
+    ${!toks.length ? `<span class="chip muted">${T(/andre_(inn|kost)$/.test(full) ? (full.endsWith("andre_inn") ? "Øvrige 3xxx-kontoer" : "Øvrige 4xxx-kontoer") : "Ingen kontoer koblet")}</span>` : ""}
     <button class="chip add" data-add="${full}">+ ${T("Konto")}</button>${ov ? `<button class="btn sm ghost" data-racc="${full}">${T("Standard")}</button>` : ""}</div>`;
 }
 function chipTitle(t) {
@@ -2247,6 +2279,28 @@ function flatTerms(expr) {
 }
 const flatToExpr = terms => terms.map((t, i) => (t.op ? (i || t.op === "-" ? t.op : "") : (i ? "+" : "")) + t.v).join("");
 const OPSYM = {"+": "+", "-": "−", "*": "×", "/": "÷"}, OPNEXT = {"+": "-", "-": "*", "*": "/", "/": "+"};
+const AUTO_SRC = {avskr_skatt: "Kontoer 6000–6099 i jordbruk, beløp før korrigering", beh_skatt: "Kontoer 4090–4099, 4190–4199, 4290–4299 og 4690–4699, før korrigering",
+  avskr_drift: "Kontoer 6000–6099 i jordbruk, etter korrigering", beh_drift: "Samme kontoer etter korrigering til driftsmessige verdier", do_skatt_rekneskap: "Sum kontoer 3000–7999 i jordbruk, før korrigering"};
+/* kontoane som faktisk har gått inn i ein post (frå siste utrekning) */
+function contribChips(full, empty) {
+  const c = ((M && M.contrib[full]) || []).filter(x => /^\d{4}/.test(x.nr)), by = {};
+  c.forEach(x => by[x.nr] = (by[x.nr] || 0) + x.v);
+  const list = Object.entries(by).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+  if (!list.length) return `<span class="dest"><span class="to">${esc(empty)}</span></span>`;
+  return `<div class="chips">${list.slice(0, 6).map(([nr, v]) => `<span class="chip" data-tt="${esc(`<b>${esc(nr)}</b><div>${esc(kontoNavn(nr))}</div><div>${kr(v)} kr</div>`)}">${esc(String(nr).slice(0, 4))}</span>`).join("")}${list.length > 6 ? `<span class="chip muted">+ ${list.length - 6}</span>` : ""}</div>`;
+}
+/* fordelingsnøkkel for éin produksjon: grunnlag og del, delen kan endrast her */
+function keySrc(g, k) {
+  const G = KEYGROUPS.find(x => x.id === g), st = (S.keys || {})[g] || {}, on = M && M.members[g].includes(k);
+  const bfmt = v => (G.unit === "kr" ? kr(v) + " kr" : fmt(v, G.unit === "da" ? "n1" : "n") + " " + G.unit);
+  const tot = on ? M.members[g].reduce((s, x) => s + (M.basis[g][x] || 0), 0) : 0, man = st[k] != null && st[k] !== "";
+  return `<span class="dest"><span class="to">${T("Nøkkel")}: ${esc(T(G.basis))}</span></span>${on ? `<span class="muted sm">${bfmt(M.basis[g][k] || 0)} ${T("av")} ${bfmt(tot)}</span>
+    <input class="inp num" style="max-width:80px" data-kg="${g}" data-kk="${k}" value="${man ? st[k] : ""}" placeholder="${NF1.format(M.autoKeys[g][k] || 0)}" aria-label="${T("Andel")} %"><span class="muted sm">% · ${T(man ? "manuelt" : "automatisk")}</span>` : `<span class="muted sm">${T("Produksjonen er ikke med")}</span>`}`;
+}
+/* «k.post*ACTIVE(k)+…» = same post summert over produksjonane som er med */
+function perProd(expr) { const parts = String(expr).replace(/\s/g, "").split("+"), out = {id: null, ks: []};
+  for (const x of parts) { const m = x.match(/^(\w+)\.(\w+)\*ACTIVE\((\w+)\)$/); if (!m || m[1] !== m[3] || (out.id && out.id !== m[2])) return null; out.id = m[2]; out.ks.push(m[1]); }
+  return out.ks.length > 1 ? out : null; }
 function renderKontering(el, m) {
   const keys = KSHEETS(), sel = keys.includes(SET.kSheet) ? SET.kSheet : (M && M.prods[0] ? M.prods[0].key : "mjolk"), sh = SHEET[sel];
   const secs = sectionOf(sh), V = S.sb.length && M ? M.V : null;
@@ -2258,13 +2312,18 @@ function renderKontering(el, m) {
   const sheetTag = (f, key) => (f.split(".")[0] !== key ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : "");
   const source = f => { const r = ROW[f], k = f.split(".")[0];
     if (["tilskot", "inn", "kost", "gf"].includes(r.kind) || (r.kind === "fast" && accFor(f)) || (r.kind === "info" && (r.acc || SET.acc[f] != null)) || /\.andre_(inn|kost)$/.test(f)) return accChips(f);
-    if (f.startsWith("faste.pct_") || f.startsWith("faste.innmek_")) return `<span class="dest"><span class="to">${T("Fordelingsnøkkel")}: ${T(f.startsWith("faste.pct_") ? "Maskinkostnader" : "Innandørsmekanisering")}</span></span><button class="btn sm ghost" data-gonode="k_nokkel">${T("Endre nøkkel")}</button>`;
-    if (k === "total" && ["avskr_skatt", "beh_skatt", "beh_drift", "do_skatt_rekneskap"].includes(r.id)) return `<span class="dest"><span class="to">${T("Hentes automatisk fra saldobalansen")}</span></span>`;
-    if (r.kind === "fast" && !accFor(f)) return `<span class="dest"><span class="to">${T("Sum av kontoer uten egen post")}</span></span>`;
+    if (f.startsWith("faste.pct_")) return keySrc("maskin", f.slice(10));
+    if (f.startsWith("faste.im_pct_")) return keySrc("innmek", f.slice(13));
+    if (f === "faste.im_total") return `${contribChips(f, T("Ingen kontoer er koblet til innandørsmekanisering"))}<span class="muted sm">${T("Kontoer koblet til «Innandørsmek.» i kontoplanen")}</span><button class="btn sm ghost" data-gotab="kontoplan">${T("Kontoplan")}</button>`;
+    if (f === "total.do_andre") { const has = S.prodInputs[f] != null && S.prodInputs[f] !== "", d = M && M.derived[f] != null ? M.derived[f] : null;
+      return `<input class="inp num" style="max-width:130px" data-pi="${f}" value="${has ? S.prodInputs[f] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" inputmode="decimal"><span class="muted sm">kr · ${T("Kontoer i andre avdelinger enn jordbruk")}</span>`; }
+    if (k === "total" && AUTO_SRC[r.id]) return `<span class="dest"><span class="to">${T(AUTO_SRC[r.id])}</span></span>`;
+    if (r.kind === "fast" && !accFor(f)) return contribChips(f, T(k === "total" ? "Kontoer uten kobling til produksjon" : "Sum av kontoer uten egen post"));
     const has = S.prodInputs[f] != null && S.prodInputs[f] !== "", d = M && M.derived[f] != null ? M.derived[f] : (r.kind === "norm" ? r.ex : null);
     return `<input class="inp num" style="max-width:130px" data-pi="${f}" value="${has ? S.prodInputs[f] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" inputmode="decimal"><span class="muted sm">${esc(r.unit === "kr/eining" ? "kr" : r.unit)} · ${T(r.kind === "norm" ? "Fôrnorm" : "Produksjonsdata")}</span>`; };
   /* regnestykket for ein formel, redigerbart */
-  const exprEd = full => { const key = full.split(".")[0], terms = flatTerms(fexpr(full));
+  const exprEd = full => { const key = full.split(".")[0], terms = flatTerms(fexpr(full)), pp = perProd(fexpr(full));
+    if (pp) return `<div class="expr"><span class="eq">=</span><span class="opsym">Σ</span><span class="tok calc">${esc(LBL(ROW[pp.ks[0] + "." + pp.id]))}</span><span class="muted sm">${T("for alle produksjoner som er med")}${M ? ` (${pp.ks.filter(k => M.active.has(k)).length})` : ""}</span><button class="op pen" data-edit="${full}" title="${T("Skriv formelen")}" aria-label="${T("Skriv formelen")}">✎</button></div>`;
     if (!terms) { let h; try { h = fhtml(ftok(fexpr(full)), key); } catch (e) { h = `<span class="bad">${esc(e.message)}</span>`; }
       return `<div class="expr"><span class="eq">=</span>${h}<button class="op pen" data-edit="${full}" title="${T("Skriv formelen")}" aria-label="${T("Skriv formelen")}">✎</button></div>`; }
     return `<div class="expr" data-full="${full}"><span class="eq">=</span>${terms.map((t, i) => { let f = null; if (t.k === "id") { try { f = fullId(t.v, key); } catch (e) { f = null; } }
@@ -2273,7 +2332,10 @@ function renderKontering(el, m) {
         : `<span class="tok ${f && ROW[f].t === "calc" ? "calc" : ""}">${f ? esc(LBL(ROW[f])) + sheetTag(f, key) : `<span class="bad">${esc(t.v)}</span>`}<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button></span>`;
       return opb + body; }).join("")}<button class="tok add" data-addt="${full}">+ ${T("Ledd")}</button><button class="tok add" data-addn="${full}">+ ${T("Tall")}</button></div>`; };
   /* éi rad per ledd; ledd som er rekna ut viser sitt eige regnestykke og kan opnast */
-  const rowsOf = (full, path) => refsOf(full).map(f => { const rr = ROW[f], key = full.split(".")[0], p2 = path + ">" + f, open = KOPEN.has(p2), calc = rr.t === "calc";
+  const inactiveRef = (full, f) => { if (!M) return false; const [sk, id] = f.split(".");
+    if (isProd(sk)) return !M.active.has(sk) && full.split(".")[0] !== sk;
+    const pk = sk === "faste" && PKEYS.find(k => id.endsWith("_" + k)); return !!pk && !M.active.has(pk); };
+  const rowsOf = (full, path) => refsOf(full).filter(f => !inactiveRef(full, f)).map(f => { const rr = ROW[f], key = full.split(".")[0], p2 = path + ">" + f, open = KOPEN.has(p2), calc = rr.t === "calc";
     const name = calc ? `<button class="lnk ${open ? "on" : ""}" data-open="${esc(p2)}">${esc(LBL(rr))}${sheetTag(f, key)} <span class="chev">${open ? "▾" : "▸"}</span></button>` : `${esc(LBL(rr))}${sheetTag(f, key)}`;
     return `<div class="post"><span class="pn">${name}</span><span>${calc ? exprEd(f) : source(f)}</span><span class="pv" ${!calc && contribTip(f) ? `data-tt="${esc(contribTip(f))}"` : ""}>${vtxt(f)}</span></div>
       ${calc && open ? `<div class="nest">${rowsOf(f, p2)}</div>` : ""}`; }).join("");
@@ -2300,6 +2362,7 @@ function renderKontering(el, m) {
   $$(".chip .x", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
     toks.splice(+b.dataset.i, 1); SET.acc[full] = toks.join(", "); saveSet(); redraw(); });
   $$("[data-add]", el).forEach(b => b.onclick = () => accModal(b.dataset.add, redraw));
+  $$(".chips[data-full] .chip[data-ei]", el).forEach(c => c.onclick = () => accModal(c.closest(".chips").dataset.full, redraw, +c.dataset.ei));
   $$("[data-racc]", el).forEach(b => b.onclick = () => { delete SET.acc[b.dataset.racc]; saveSet(); redraw(); });
   $$("[data-edit]", el).forEach(b => b.onclick = () => formulaModal(b.dataset.edit, redraw));
   $$("[data-fstd]", el).forEach(b => b.onclick = () => { delete SET.formulas[b.dataset.fstd]; saveSet(); redraw(); });
@@ -2311,6 +2374,9 @@ function renderKontering(el, m) {
   $$("[data-open]", el).forEach(b => b.onclick = () => { const k = b.dataset.open; if (KOPEN.has(k)) [...KOPEN].forEach(x => { if (x === k || x.startsWith(k + ">")) KOPEN.delete(x); }); else KOPEN.add(k); redraw(); });
   $$("[data-pi]", el).forEach(i2 => i2.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.pi]; else S.prodInputs[e.target.dataset.pi] = num(v); save(); redraw(); });
   $$("[data-gonode]", el).forEach(b => b.onclick = () => { VIEW = "wizard"; go(NODES.findIndex(n => n.id === b.dataset.gonode)); window.scrollTo({top: 0}); });
+  $$("[data-gotab]", el).forEach(b => b.onclick = () => { const t = document.querySelector(`.tab[data-tab="${b.dataset.gotab}"]`); if (t) t.click(); });
+  $$("[data-kg]", el).forEach(i2 => i2.onchange = e => { const g = e.target.dataset.kg, k = e.target.dataset.kk; S.keys = S.keys || {}; S.keys[g] = S.keys[g] || {};
+    if (e.target.value.trim() === "") delete S.keys[g][k]; else S.keys[g][k] = num(e.target.value); save(); redraw(); });
 }
 /* ---------- overlay ---------- */
 function modal(html, onMount) {
@@ -2330,24 +2396,41 @@ function baseAccounts() {
     if (!seen[p.base] || p.avd === "20") seen[p.base] = navn; });
   return Object.entries(seen).map(([b, n]) => [b, n]).sort((a, b) => a[0] - b[0]);
 }
-function accModal(full, done) {
+function accModal(full, done, rep0) {
   const r = ROW[full];
-  const draw = d => { const toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean), q = (d.q || "").toLowerCase();
-    const list = baseAccounts().filter(([b, n]) => !q || b.includes(q) || n.toLowerCase().includes(q)).slice(0, 80);
+  const near = i => (accFor(full).split(",").map(x => x.trim()).filter(Boolean)[i] || "").replace("!", "").slice(0, 2);
+  const draw = d => { if (d.rep === undefined) { d.rep = rep0 == null ? null : rep0; if (d.rep != null) d.q = near(d.rep); } const toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean), q = (d.q || "").toLowerCase();
+    const list = baseAccounts().filter(([b, n]) => !q || (/^\d+$/.test(q) ? b.startsWith(q) : b.includes(q) || n.toLowerCase().includes(q))).slice(0, 80);
     d.el.innerHTML = `${dHead(T("Kontoer i posten"), esc(LBL(r)))}<div class="dbody">
-      <div class="dsec"><div class="lbl">${T("Med i posten nå")}</div><div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div></div>
-      <div class="dsec"><div class="lbl">${T("Legg til eller fjern")}</div><div class="row" style="margin:0 0 10px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
-        <input class="inp" id="mRange" placeholder="${T("Intervall, f.eks. 4020-4029")}" style="width:190px"><button class="btn sm" id="mAddR">+ ${T("Legg til")}</button>
-        <button class="btn sm" id="mExR" title="${T("Unnta kontoene fra posten")}">− ${T("Unnta")}</button></div>
-      <div class="alist">${list.map(([b, n]) => { const has = toks.some(t => !t.startsWith("!") && inRule(+b, t));
-        return `<button class="arow ${has ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has ? "" : "muted"}">${has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div></div></div>
-      <div class="dfoot"><span class="muted sm">${T("Klikk en konto for å ta den med eller fjerne den.")}</span><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
+      <div class="dsec"><div class="lbl">${T("Med i posten nå")}</div><div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""} ${d.rep === i ? "rep" : ""}" data-ei="${i}" title="${T("Klikk for å bytte ut")}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div></div>
+      <div class="dsec"><div class="lbl">${d.rep != null && toks[d.rep] ? `${T("Bytt ut")} <b>${esc(toks[d.rep].replace("!", ""))}</b> ${T("med")} · <button class="lnk" id="mRepX">${T("avbryt bytte")}</button>` : T("Legg til eller fjern")}</div><div class="row" style="margin:0 0 10px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
+        <input class="inp" id="mRange" placeholder="${T("Intervall, f.eks. 4020-4029")}" style="width:190px" value="${d.rep != null && toks[d.rep] ? esc(toks[d.rep].replace("!", "")) : ""}">${d.rep != null && toks[d.rep] ? `<button class="btn sm pri" id="mRepR">${T("Bytt")}</button>` : `<button class="btn sm" id="mAddR">+ ${T("Legg til")}</button>
+        <button class="btn sm" id="mExR" title="${T("Unnta kontoene fra posten")}">− ${T("Unnta")}</button>`}</div>
+      <div class="alist">${list.map(([b, n]) => { const has = toks.some(t => !t.startsWith("!") && inRule(+b, t)), rp = d.rep != null && toks[d.rep];
+        return `<button class="arow ${has && !rp ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has && !rp ? "" : "muted"}">${rp ? "⇄ " + T("Bytt til denne") : has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div></div></div>
+      <div class="dfoot"><span class="muted sm">${T("Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.")}</span><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
     const setToks = t => { SET.acc[full] = t.join(", "); saveSet(); draw(d); };
-    $$(".chip .x", d.el).forEach(b => b.onclick = () => { toks.splice(+b.dataset.i, 1); setToks(toks); });
-    $$(".arow", d.el).forEach(b => b.onclick = () => { const v = b.dataset.b;
+    $$(".chip .x", d.el).forEach(b => b.onclick = e => { e.stopPropagation(); toks.splice(+b.dataset.i, 1); d.rep = null; setToks(toks); });
+    const doRep = v => { const neg = toks[d.rep].startsWith("!"); toks[d.rep] = (neg ? "!" : "") + v; d.rep = null; setToks(toks); };
+    $$(".chips.big .chip[data-ei]", d.el).forEach(c => c.onclick = () => { d.rep = d.rep === +c.dataset.ei ? null : +c.dataset.ei; if (d.rep != null) d.q = near(d.rep); draw(d); });
+    if ($("#mRepX", d.el)) $("#mRepX", d.el).onclick = () => { d.rep = null; draw(d); };
+    if ($("#mRepR", d.el)) $("#mRepR", d.el).onclick = () => { const v = $("#mRange", d.el).value.replace(/\s/g, ""); if (/^\d{4}(-\d{4})?$/.test(v)) doRep(v); };
+    /* hald inne og dra over fleire kontoar for å leggje inn eit intervall */
+    const rows = $$(".arow", d.el); let dr = null;
+    const mark = () => rows.forEach((x, i) => x.classList.toggle("sel", !!dr && i >= Math.min(dr.a, dr.b) && i <= Math.max(dr.a, dr.b)));
+    rows.forEach((x, i) => { x.onpointerdown = e => { if (e.button) return; dr = {a: i, b: i}; e.preventDefault(); };
+      x.onpointerenter = () => { if (dr) { dr.b = i; mark(); } }; });
+    const endDrag = () => { if (!dr) return; const {a, b} = dr; dr = null; mark(); if (a === b) return;
+      const lo = rows[Math.min(a, b)].dataset.b, hi = rows[Math.max(a, b)].dataset.b; d.noClick = true; setTimeout(() => { d.noClick = false; });
+      if (d.rep != null && toks[d.rep]) doRep(lo + "-" + hi); else { toks.push(lo + "-" + hi); setToks(toks); } };
+    const al = $(".alist", d.el); al.onpointermove = e => { if (!dr) return; const r = al.getBoundingClientRect();
+      if (e.clientY > r.bottom - 28) al.scrollTop += 12; else if (e.clientY < r.top + 28) al.scrollTop -= 12; };
+    d.el.onpointerup = endDrag; d.el.onpointerleave = () => { dr = null; mark(); };
+    rows.forEach(b => b.onclick = () => { if (d.noClick) return; const v = b.dataset.b;
+      if (d.rep != null && toks[d.rep]) return doRep(v);
       if (b.classList.contains("on")) { const i = toks.indexOf(v); if (i >= 0) toks.splice(i, 1); else toks.push("!" + v); } else toks.push(v); setToks(toks); });
     const addR = neg => { const v = $("#mRange", d.el).value.replace(/\s/g, ""); if (!/^\d{4}(-\d{4})?$/.test(v)) return; toks.push((neg ? "!" : "") + v); setToks(toks); };
-    $("#mAddR", d.el).onclick = () => addR(false); $("#mExR", d.el).onclick = () => addR(true);
+    if ($("#mAddR", d.el)) { $("#mAddR", d.el).onclick = () => addR(false); $("#mExR", d.el).onclick = () => addR(true); }
     const q2 = $("#mq", d.el); q2.oninput = e => { d.q = e.target.value; const p = e.target.selectionStart; draw(d); const n = $("#mq", d.el); n.focus(); n.setSelectionRange(p, p); };
     $("#mClose", d.el).onclick = $("#mOk", d.el).onclick = () => { closeModal(); done(); };
   };

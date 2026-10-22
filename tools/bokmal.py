@@ -38,7 +38,7 @@ WORDS = {
     "siloballar": "siloballer", "Frilandsgrønsak": "Frilandsgrønnsak", "Frilandsgrønsaker": "Frilandsgrønnsaker",
     "grønsaker": "grønnsaker", "auke": "økning", "tenester": "tjenester", "teljingar": "tellinger",
     "korrigeringar": "korrigeringer", "lenka": "lenket", "UTREKNING": "BEREGNING", "arket": "arket",
-    "Geiter": "Geiter", "Sauer": "Sauer", "kjøpte": "kjøpte",
+    "Geiter": "Geiter", "Sauer": "Sauer", "kjøpte": "kjøpte", "kontoar": "kontoer",
 }
 
 
