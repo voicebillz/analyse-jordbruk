@@ -24,6 +24,7 @@
   --tint:10%; --dialog-shadow:0 32px 80px -24px rgba(0,0,0,.9); --backdrop:rgba(0,0,0,.6);
   --ease-out:cubic-bezier(.22,1,.36,1); --ease-spring:cubic-bezier(.34,1.32,.52,1); --press:110ms; --transition:160ms cubic-bezier(.4,0,.2,1);
   --maxw:1240px;
+  --chart-bar:rgba(243,242,239,.28); --chart-bar-2:rgba(243,242,239,.14); --chart-neg:rgba(220,38,38,.75);
   --sans:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; --serif:"Instrument Serif",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
 :root[data-theme="light"]{
@@ -34,6 +35,7 @@
   --danger:#c0264f; --success:#15803d; --warning:#9a4508; --info:#0369a1; --fin:#1d4ed8;
   --btn-primary-bg:#0a0a0a; --btn-primary-ink:#ffffff; --hover:rgba(15,17,21,.03);
   --dialog-shadow:0 30px 70px -24px rgba(15,17,21,.3); --backdrop:rgba(15,17,21,.35);
+  --chart-bar:#bcbec3; --chart-bar-2:#dcdde0; --chart-neg:rgba(192,38,79,.75);
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -229,6 +231,59 @@ details.grp .inner{padding:0 16px 14px}
 .fedit{width:100%;min-height:110px;border:1px solid var(--field-border);border-radius:13px;padding:12px 14px;background:var(--field);font:13px/1.5 var(--mono)}
 .fprev{margin-top:12px;background:var(--field);border:1px solid var(--field-border);border-radius:12px;padding:12px 14px;font-size:14px}
 .fprev.bad{color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+/* grafar */
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:16px}
+.charts .chart{margin-bottom:0}
+.chart{background:var(--panel);border:1px solid var(--panel-border);border-radius:16px;padding:18px 20px 16px;margin-bottom:16px;min-width:0}
+.chart-head{display:flex;gap:8px 16px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.chart-t{font:600 11.5px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.chart-t .dim{color:var(--ink-3)}
+.lg{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-2)}
+.lg .sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+.lg .sw.dash{height:0;border-top:1.5px dashed var(--ink-3);border-radius:0;width:14px}
+.c-n{background:var(--chart-bar);fill:var(--chart-bar)}.c-hi{background:var(--lime);fill:var(--lime)}.c-neg{background:var(--chart-neg);fill:var(--chart-neg)}.c-2{background:var(--chart-bar-2)}
+.hb{display:grid;grid-template-columns:minmax(90px,190px) 1fr minmax(78px,auto);gap:12px;align-items:center;padding:4px 0;font-size:13px}
+.hb .l{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;top:4px;height:10px;border-radius:2px;min-width:2px}
+.hb .b.two{top:1px;height:7px}.hb .b.two2{top:10px;height:7px}
+.hb .z{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--line-2)}
+.hb .v{font:500 12.5px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2);text-align:right;white-space:nowrap}
+.hb.tot .l,.hb.tot .v{color:var(--ink);font-weight:600}
+.lc{position:relative;height:220px;margin:4px 0 0 0}
+.lc .plot{position:absolute;top:0;bottom:0;left:0;right:64px}
+.lc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.lc .grid{stroke:var(--line);stroke-width:1}
+.lc .ln{fill:none;stroke:var(--lime);stroke-width:2;stroke-linejoin:round}
+.lc .ar{fill:var(--lime);opacity:.13}
+.lc .ref{stroke:var(--ink-3);stroke-width:1.2;stroke-dasharray:5 5}
+.lc .yl{position:absolute;right:0;width:60px;white-space:nowrap;transform:translateY(-50%);font:500 11px/1 var(--mono);color:var(--ink-3)}
+.lc .rl{position:absolute;right:0;width:60px;white-space:nowrap;transform:translateY(-50%);font:600 11px/1.15 var(--mono);color:var(--ink);background:var(--panel)}
+.lc .dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px color-mix(in srgb,var(--lime) 18%,transparent)}
+.xl{display:flex;justify-content:space-between;margin-top:8px;font:500 11px/1 var(--mono);color:var(--ink-3)}
+.lc + .xl{margin-right:64px}
+.cols{display:flex;align-items:flex-end;gap:4px;height:160px;border-bottom:1px solid var(--line-2)}
+.cols .c{flex:1;min-width:3px;border-radius:2px 2px 0 0}
+.share{display:flex;height:12px;border-radius:3px;overflow:hidden;gap:2px;margin:2px 0 10px}
+.share span{display:block;height:100%}
+.share-lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:14px}
+/* hover på grafar */
+.tt{position:fixed;z-index:70;pointer-events:none;background:var(--panel-solid);border:1px solid var(--panel-border-hi);border-radius:10px;padding:8px 11px;font-size:12.5px;line-height:1.45;box-shadow:var(--dialog-shadow);max-width:280px;opacity:0;transform:translateY(4px);transition:opacity 120ms var(--ease-out),transform 120ms var(--ease-out)}
+.tt.on{opacity:1;transform:none}
+.tt b{font-weight:600}.tt .tv{font:500 12.5px/1.4 var(--mono);font-variant-numeric:tabular-nums}
+.tt .tr2{display:flex;gap:12px;justify-content:space-between}.tt .tr2 .lg{font-size:12px}
+.hb{border-radius:8px;margin:0 -8px;padding:4px 8px;transition:background var(--transition)}
+.hb:hover{background:var(--hover)}
+.hb:hover .b{filter:brightness(1.12)}
+.lc .hit{position:absolute;inset:0;display:flex}
+.lc .hit span{flex:1;position:relative}
+.lc .hit span:hover:before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed var(--ink-3)}
+.lc .hit span i{position:absolute;left:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--lime);opacity:0}
+.lc .hit span:hover i{opacity:1}
+.cols .c{transition:filter var(--transition)}
+.cols .c:hover{filter:brightness(1.2)}
+.share span{transition:filter var(--transition)}
+.share span:hover{filter:brightness(1.15)}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 @media (max-width:760px){
   .wrap{padding:22px 16px 110px}
@@ -345,6 +400,13 @@ const NN = {
   "Mangler parentes etter": "Manglar parentes etter",
   "Parentesene går ikke opp": "Parentesane går ikkje opp",
   "Ukjent ledd": "Ukjent ledd",
+  "Ingen tall å vise.": "Ingen tal å vise.", "For få punkter til å vise utvikling.": "For få punkt til å vise utvikling.", "Driftsresultat hittil i år": "Driftsresultat hittil i år", "akkumulert": "akkumulert",
+  "Fjorårets resultat": "Fjorårets resultat", "Driftsinntekter per måned": "Driftsinntekter per månad", "Største kontogrupper": "Største kontogrupper", "Korrigering per konto": "Korrigering per konto",
+  "driftsmessig minus skattemessig": "driftsmessig minus skattemessig", "Avskrivninger per konto": "Avskrivingar per konto", "Grovfôrareal mot fôrbehov": "Grovfôrareal mot fôrbehov",
+  "Sum arealbehov": "Sum arealbehov", "Korrigert grovfôrareal": "Korrigert grovfôrareal", "Arealbehov etter fôrnorm": "Arealbehov etter fôrnorm", "Eget areal": "Eige areal",
+  "Gjødsel, kalk, plantevern, såfrø og arealtilskudd etter areal.": "Gjødsel, kalk, plantevern, såfrø og arealtilskot etter areal.", "Plast, ensilering, kjøpt grovfôr og lagerendring etter vinterfôr.": "Plast, ensilering, kjøpt grovfôr og lagerendring etter vinterfôr.",
+  "Kraftfôr og veterinær uten produksjon, etter det som er ført direkte.": "Kraftfôr og veterinær utan produksjon, etter det som er ført direkte.", "Bunnfradrag og andre tilskudd etter tilskudd ført direkte.": "Bunnfrådrag og andre tilskot etter tilskot ført direkte.",
+  "Etter maskindekar; potet og grønnsaker teller dobbelt.": "Etter maskindekar; potet og grønsaker tel dobbelt.", "Etter fôr som gis innendørs.": "Etter fôr som blir gitt innandørs.",
   "Legg inn fjorårets prosjekt": "Legg inn fjorårets prosjekt", "I fjor": "I fjor", "Fjorårstall fra {a} er lagt inn og vises i rapporten.": "Fjorårstal frå {a} er lagde inn og blir viste i rapporten.",
   "Fjorårstall fra {a} vises i rapporten.": "Fjorårstal frå {a} blir viste i rapporten.", "Maskinkostnader fordelt på produksjoner": "Maskinkostnader fordelte på produksjonar", "Annen bruk": "Anna bruk",
   "Melkekvote {k} liter, levert {l} liter ({p}).": "Mjølkekvote {k} liter, levert {l} liter ({p}).", "Disponibel melkekvote mangler under Produksjonsdata, så kvoteoppfylling blir 0.": "Disponibel mjølkekvote manglar under Produksjonsdata, så kvoteoppfylling blir 0.",
@@ -505,12 +567,12 @@ const NN = {
   "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.": "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.",
 };
 const KEYGROUPS = [
-  {id: "areal", t: "POOL_AREAL", title: "Arealkostnader og arealtilskudd", basis: "Areal (dekar)", unit: "da", info: "Gjødsel, kalk, plantevern, såfrø og arealtilskudd. Husdyr får arealbehov etter fôrnorm, skalert til korrigert grovfôrareal."},
-  {id: "grovfor", t: "POOL_GF", title: "Høstet grovfôr", basis: "Vinterfôr (FEm)", unit: "FEm", info: "Plast, ensileringsmiddel, kjøpt grovfôr og lagerendring grovfôr."},
-  {id: "husdyr", t: "POOL_HUSDYR", title: "Felles husdyrkostnader", basis: "Direkte ført kraftfôr og veterinær (kr)", unit: "kr", info: "Kraftfôr, veterinær og inseminering som ikke er ført på produksjon. Uten direkte førte beløp brukes fôrnorm for kraftfôr."},
-  {id: "tilskudd", t: "POOL_TILSK", title: "Tilskudd uten egen kobling", basis: "Direkte ført tilskudd (kr)", unit: "kr", info: "Bunnfradrag, beitetilskudd og andre tilskudd fordeles etter tilskuddene som er ført direkte på produksjonene."},
-  {id: "maskin", title: "Maskinkostnader", basis: "Maskindekar", unit: "da", info: "Grovfôrbaserte husdyr: grovfôrareal for maskinkostnader fordelt etter arealbehov. Planteproduksjon: dekar, potet og grønnsaker teller dobbelt. Veksthus og kraftfôrbaserte husdyr: 0."},
-  {id: "innmek", title: "Innandørsmekanisering", basis: "Fôr innendørs (FEm)", unit: "FEm", info: "Vinterfôr og kraftfôr etter fôrnorm. Kraftfôrbaserte husdyr: kraftfôrkostnad delt på 4 kr per FEm."}];
+  {id: "areal", t: "POOL_AREAL", title: "Arealkostnader og arealtilskudd", basis: "Areal (dekar)", unit: "da", info: "Gjødsel, kalk, plantevern, såfrø og arealtilskudd etter areal."},
+  {id: "grovfor", t: "POOL_GF", title: "Høstet grovfôr", basis: "Vinterfôr (FEm)", unit: "FEm", info: "Plast, ensilering, kjøpt grovfôr og lagerendring etter vinterfôr."},
+  {id: "husdyr", t: "POOL_HUSDYR", title: "Felles husdyrkostnader", basis: "Direkte ført kraftfôr og veterinær (kr)", unit: "kr", info: "Kraftfôr og veterinær uten produksjon, etter det som er ført direkte."},
+  {id: "tilskudd", t: "POOL_TILSK", title: "Tilskudd uten egen kobling", basis: "Direkte ført tilskudd (kr)", unit: "kr", info: "Bunnfradrag og andre tilskudd etter tilskudd ført direkte."},
+  {id: "maskin", title: "Maskinkostnader", basis: "Maskindekar", unit: "da", info: "Etter maskindekar; potet og grønnsaker teller dobbelt."},
+  {id: "innmek", title: "Innandørsmekanisering", basis: "Fôr innendørs (FEm)", unit: "FEm", info: "Etter fôr som gis innendørs."}];
 const KEYGROUP_OF = {}, POOL_T = {}; KEYGROUPS.forEach(g => { if (g.t) { KEYGROUP_OF[g.t] = g.id; POOL_T[g.id] = g.t; } });
 function poolGroupOf(nr) { const b = parseAcc(nr).base, h = SPEC.accountProd.find(([r, t]) => KEYGROUP_OF[t[0]] && inRule(b, r));
   return h ? KEYGROUP_OF[h[1][0]] : (b >= 3400 && b <= 3499 ? "tilskudd" : b < 4000 ? "tilskudd" : "husdyr"); }
@@ -1040,6 +1102,76 @@ function setMap(nr, field, val) {
   SET.map[nr] = cur; saveSet();
 }
 
+/* ================================================================ GRAFAR (nettsida) */
+const CH = {
+  card(title, body, legend = [], sub = "") {
+    return `<div class="chart"><div class="chart-head"><span class="chart-t">${title}${sub ? ` <span class="dim">· ${sub}</span>` : ""}</span>
+      ${legend.map(l => `<span class="lg"><span class="sw ${l.c}"></span>${esc(l.t)}</span>`).join("")}</div>${body}</div>`;
+  },
+  /* liggjande søyler: items {label, v, c, v2?, c2?, tot?} */
+  hbar(items, o = {}) {
+    if (!items.length) return `<div class="muted sm">${T("Ingen tall å vise.")}</div>`;
+    const all = items.flatMap(i => [i.v, i.v2 ?? 0]), mx = Math.max(0, ...all), mn = Math.min(0, ...all), span = (mx - mn) || 1, pos = v => (v - mn) / span * 100;
+    const f = o.fmt || (v => kr(v)), z = pos(0);
+    return items.map(i => { const bar = (v, c, cls) => `<span class="b ${c} ${cls}" style="left:${Math.min(pos(v), z)}%;width:${Math.abs(pos(v) - z)}%"></span>`;
+      const tip = `<b>${esc(i.label)}</b>` + (i.v2 != null ? `<div class="tr2"><span class="lg"><span class="sw ${i.c || "c-n"}"></span>${esc(o.n1 || "")}</span><span class="tv">${f(i.v)}</span></div><div class="tr2"><span class="lg"><span class="sw ${i.c2 || "c-hi"}"></span>${esc(o.n2 || "")}</span><span class="tv">${f(i.v2)}</span></div>` : `<div class="tv">${f(i.v)}${o.unit ? " " + o.unit : ""}</div>`);
+      return `<div class="hb ${i.tot ? "tot" : ""}" data-tt="${esc(tip)}"><span class="l">${esc(i.label)}</span><span class="tr">${mn < 0 ? `<span class="z" style="left:${z}%"></span>` : ""}
+        ${i.v2 != null ? bar(i.v, i.c || "c-n", "two") + bar(i.v2, i.c2 || "c-hi", "two2") : bar(i.v, i.c || "c-n", "")}</span>
+        <span class="v">${i.v2 != null ? f(i.v2) : f(i.v)}</span></div>`; }).join("");
+  },
+  /* linje med fylt flate; pts [{x, y}], ref = stipla referanselinje */
+  line(pts, o = {}) {
+    if (pts.length < 2) return `<div class="muted sm">${T("For få punkter til å vise utvikling.")}</div>`;
+    const ys = pts.map(p => p.y).concat(o.ref != null ? [o.ref] : []), mx = Math.max(0, ...ys), mn = Math.min(0, ...ys);
+    const step = niceStep(((mx - mn) || 1) / 3), top = Math.ceil(mx / step) * step, bot = Math.floor(mn / step) * step, span = (top - bot) || 1;
+    const X = i => i / (pts.length - 1) * 100, Y = v => (top - v) / span * 100;
+    const path = pts.map((p, i) => `${i ? "L" : "M"}${X(i)},${Y(p.y)}`).join(" ");
+    let g = "", yl = "";
+    for (let v = bot; v <= top + step / 2; v += step) { g += `<line class="grid" x1="0" x2="100" y1="${Y(v)}" y2="${Y(v)}" vector-effect="non-scaling-stroke"/>`; yl += `<span class="yl" style="top:${Y(v)}%">${esc(shortNum(v))}</span>`; }
+    const last = pts[pts.length - 1];
+    return `<div class="lc"><div class="plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${g}
+      <path class="ar" d="${path} L100,${Y(Math.max(bot, Math.min(0, top)))} L0,${Y(Math.max(bot, Math.min(0, top)))} Z"/>
+      ${o.ref != null ? `<line class="ref" x1="0" x2="100" y1="${Y(o.ref)}" y2="${Y(o.ref)}" vector-effect="non-scaling-stroke"/>` : ""}
+      <path class="ln" d="${path}" vector-effect="non-scaling-stroke"/></svg>
+      <span class="dot" style="left:100%;top:${Y(last.y)}%"></span>
+      <div class="hit" style="left:${-50 / (pts.length - 1)}%;right:${-50 / (pts.length - 1)}%">${pts.map(p => `<span data-tt="${esc(`<b>${esc(p.x)}</b><div class="tv">${kr(p.y)} kr</div>`)}"><i style="top:${Y(p.y)}%"></i></span>`).join("")}</div></div>${yl}
+      ${o.ref != null ? `<span class="rl" style="top:${Y(o.ref)}%">${esc(o.refLabel || "")}<br>${esc(shortNum(o.ref))}</span>` : ""}</div>
+      <div class="xl">${[pts[0], pts[Math.floor((pts.length - 1) / 2)], last].map(p => `<span>${esc(p.x)}</span>`).join("")}</div>`;
+  },
+  /* ståande søyler, siste framheva */
+  cols(pts) {
+    const mx = Math.max(1, ...pts.map(p => Math.abs(p.y)));
+    return `<div class="cols">${pts.map((p, i) => `<span class="c ${i === pts.length - 1 ? "c-hi" : "c-n"}" style="height:${Math.max(1, Math.abs(p.y) / mx * 100)}%" data-tt="${esc(`<b>${esc(p.x)}</b><div class="tv">${kr(p.y)} kr</div>`)}"></span>`).join("")}</div>
+      <div class="xl"><span>${esc(pts[0].x)}</span><span>${esc(pts[pts.length - 1].x)}</span></div>`;
+  },
+  /* 100 %-søyle for fordelingsnøklar */
+  share(items) {
+    const tot = items.reduce((s, i) => s + Math.max(0, i.v), 0) || 1, op = i => (0.95 - i * 0.18).toFixed(2);
+    const seg = items.filter(i => i.v > 0).sort((a, b) => b.v - a.v);
+    return `<div class="share">${seg.map((i, j) => `<span class="${j ? "c-n" : "c-hi"}" style="width:${i.v / tot * 100}%;${j ? `opacity:${Math.max(.35, op(j - 1))}` : ""}" data-tt="${esc(`<b>${esc(i.label)}</b><div class="tv">${pct(i.v / tot)}</div>`)}"></span>`).join("")}</div>
+      <div class="share-lg">${seg.map((i, j) => `<span class="lg"><span class="sw ${j ? "c-n" : "c-hi"}" style="${j ? `opacity:${Math.max(.35, op(j - 1))}` : ""}"></span>${esc(i.label)} ${pct(i.v / tot)}</span>`).join("")}</div>`;
+  },
+};
+const MND = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"];
+/* månadstal frå hovudboka: driftsinntekter og driftsresultat (jordbruk) */
+function monthly() {
+  if (!S.hb || !S.hb.rows || !S.hb.rows.length) return null;
+  const inn = Array(12).fill(0), res = Array(12).fill(0); let any = false;
+  S.hb.rows.forEach(t => { const mo = +String(t[0]).slice(5, 7), b = parseAcc(t[2]).base; if (!mo || b < 3000 || b > 7999 || !isJord(t[2])) return;
+    any = true; res[mo - 1] -= t[4]; if (b < 4000) inn[mo - 1] -= t[4]; });
+  if (!any) return null;
+  let acc = 0; const cum = res.map((v, i) => ({x: MND[i], y: (acc += v)}));
+  return {inn: inn.map((v, i) => ({x: MND[i], y: v})), cum};
+}
+function overviewCharts() {
+  const mo = monthly();
+  if (mo) return `<div class="charts">${CH.card(T("Driftsresultat hittil i år"), CH.line(mo.cum, hasPrev() ? {ref: PV("total.do_skatt_rekneskap"), refLabel: T("I fjor")} : {}), [{c: "c-hi", t: String(S.aar)}].concat(hasPrev() ? [{c: "dash", t: T("Fjorårets resultat")}] : []), T("akkumulert"))}
+    ${CH.card(T("Driftsinntekter per måned"), CH.cols(mo.inn), [], "kr")}</div>`;
+  const grp = {}; Object.values(M.A).forEach(a => { const b = parseAcc(a.nr).base; if (b < 3000 || b > 7999 || !isJord(a.nr)) return; const g = String(b).slice(0, 2); grp[g] = (grp[g] || 0) + -a.orig; });
+  const items = Object.entries(grp).filter(([, v]) => Math.abs(v) > 0.5).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 10)
+    .map(([g, v]) => ({label: g + " " + (KONTOPLAN.groups[g] || ""), v, c: v >= 0 ? "c-hi" : "c-n"}));
+  return CH.card(T("Største kontogrupper"), CH.hbar(items), [{c: "c-hi", t: T("Inntekter")}, {c: "c-n", t: T("Kostnader")}], "kr");
+}
 /* ================================================================ STEG 1: IMPORT */
 function sbWarn() {
   const res = S.sb.filter(sbIsResult), out = res.filter(r => notIncluded(r.nr)), unk = res.filter(r => !knownAcc(r.nr)), sk = S.sbSkipped || [];
@@ -1056,8 +1188,12 @@ function vImport(m) {
   const f = (S.filter || "").toLowerCase();
   const rows = S.sb.filter(r => !f || r.nr.includes(f) || r.navn.toLowerCase().includes(f) || (M && (M.alloc[r.nr] || []).some(p => PN(p.t).toLowerCase().includes(f))));
   const cols = [T("Konto"), T("Navn"), T("Inngående"), T("Utgående"), T("Mengde"), T("Kobling")];
+  const compact = S.sb.length > 0;
   m.innerHTML = head() + `
-  <div class="choice" style="margin-bottom:16px">
+  ${compact ? `<div class="card row" style="gap:12px"><div class="grow"><div class="muted sm">${T("Datakilde")}</div><div style="font-weight:600">${esc(S.source)}${S.hb ? " · " + T("Hovedbok") : ""}</div></div>
+    <button class="btn sm" id="btnTx">${T("Importer fra Tripletex")}</button><button class="btn sm" id="btnFile">${T("Ny saldobalanse")}</button><button class="btn sm" id="btnHb">${T("Hovedbok")}</button>
+    <input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>` : ""}
+  <div class="choice ${compact ? "hidden" : ""}" style="margin-bottom:16px">
     <div class="opt"><h3>${T("Importer fra Tripletex")}</h3><p>${T("Fiktive tall for en eksempelgård inntil Tripletex-koblingen er aktivert.")}</p><button class="btn pri" id="btnTx">${T("Importer fra Tripletex")}</button></div>
     <div class="opt"><h3>${T("Last opp saldobalanse")}</h3><p>${T("Excel- eller CSV-eksport av saldobalansen.")}</p><button class="btn" id="btnFile">${T("Velg fil")}</button><input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
     <div class="opt"><h3>${T("Last opp hovedbok")}</h3><p>${T("Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.")}</p><button class="btn" id="btnHb">${T("Velg fil")}</button><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
@@ -1075,6 +1211,7 @@ function vImport(m) {
     <div class="tile"><div class="k">${T("Driftskostnader")}</div><div class="v">${kr(kost)}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Driftsresultat")}</div><div class="v">${kr(inn - kost)}</div><div class="s">${T("før korrigeringer")}</div></div>
   </div>
+  ${overviewCharts()}
   ${sbWarn()}
   <div class="card"><div class="card-head"><h2>${T("Saldobalanse")}</h2><span class="grow"></span><input class="search" id="flt" placeholder="${T("Søk konto eller navn")}" value="${esc(S.filter)}"></div>
   <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i >= 2 && i <= 4 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
@@ -1309,6 +1446,7 @@ function vLager(m) {
   m.innerHTML = head() + `
   <div class="tiles"><div class="tile"><div class="k">${T("Lagerkontoer")}</div><div class="v">${L.length}</div></div>
     <div class="tile"><div class="k">${T("Sum korrigering")}</div><div class="v">${kr(sum)}</div><div class="s">kr</div></div></div>
+  ${L.some(l => Math.abs(l.korr) > 0.5) ? CH.card(T("Korrigering per konto"), CH.hbar(L.filter(l => Math.abs(l.korr) > 0.5).map(l => ({label: l.r.navn || l.r.nr, v: l.korr, c: l.korr >= 0 ? "c-hi" : "c-neg"}))), [], T("driftsmessig minus skattemessig")) : ""}
   <div class="card">${L.length ? `<table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 0 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
     ${L.map(l => { const r = l.r, b = parseAcc(r.nr).base, dyr = b >= 1450 && b <= 1458 && (r.m1ub || r.m1ib);
       return `<tr data-nr="${esc(r.nr)}">${td(cols[0], `<div class="acc">${esc(r.nr)}</div><div>${esc(r.navn)}</div>`, "wide")}
@@ -1335,6 +1473,7 @@ function vAvskr(m) {
   <div class="tiles"><div class="tile"><div class="k">${T("Skattemessige avskrivninger")}</div><div class="v">${kr(sS)}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Driftsmessige avskrivninger")}</div><div class="v">${kr(sD)}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Effekt på resultat")}</div><div class="v">${kr(sS - sD)}</div><div class="s">kr</div></div></div>
+  ${R.length ? CH.card(T("Avskrivninger per konto"), CH.hbar(R.map(x => ({label: x.r.navn || x.r.nr, v: x.skatt, v2: x.drift})), {n1: T("Skattemessig"), n2: T("Driftsmessig")}), [{c: "c-n", t: T("Skattemessig")}, {c: "c-hi", t: T("Driftsmessig")}], "kr") : ""}
   <div class="card">${R.length ? `<table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 0 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
     ${R.map(x => `<tr data-nr="${esc(x.r.nr)}">${td(cols[0], `<div class="acc">${esc(x.r.nr)}</div><div>${esc(x.r.navn)}</div>`, "wide")}${td(cols[1], kr(x.skatt), "n")}
       ${td(cols[2], `<input class="inp num" data-f="verdi" value="${x.verdi ?? ""}">`, "n")}${td(cols[3], `<input class="inp num" style="max-width:70px" data-f="levetid" value="${x.levetid ?? ""}"> <span class="muted sm">${T("år")}</span>`, "n")}
@@ -1350,7 +1489,8 @@ function vAvskr(m) {
 
 /* ================================================================ STEG 4: KORRIGERINGER */
 function vProd(m) {
-  m.innerHTML = head() + `<div class="card"><div class="prodgrid">${SPEC.prods.map(p => { const on = M.active.has(p.key);
+  const best = Math.max(...M.prods.map(p => M.V(p.key + ".db_m")));
+  m.innerHTML = head() + (M.prods.length ? CH.card(T("Dekningsbidrag med tilskudd"), CH.hbar(M.prods.map(p => ({label: SL(p, "sheet"), v: M.V(p.key + ".db_m"), c: M.V(p.key + ".db_m") === best ? "c-hi" : "c-n"}))), [], "kr") : "") + `<div class="card"><div class="prodgrid">${SPEC.prods.map(p => { const on = M.active.has(p.key);
     return `<label class="prodcard ${on ? "on" : ""}"><input type="checkbox" data-k="${p.key}" ${on ? "checked" : ""}>
       <div><div class="nm">${esc(SL(p, "sheet"))}</div><div class="sub2">${on ? fmt(M.V(p.key + ".n"), "n") + " " + esc(SL(p, "unit_label")) : T("ikke med")}${S.active[p.key] != null ? " · " + T("manuelt") : ""}</div></div></label>`; }).join("")}</div>
     <div class="row" style="margin-top:14px"><button class="btn sm ghost" id="btnAuto">${T("Tilbakestill automatisk valg")}</button></div></div>`;
@@ -1362,7 +1502,9 @@ function vData(m) {
   const groups = M.prods.map(p => [p.key, SL(p, "sheet") + " – " + SL(p, "title")]);
   if (SPEC.grovforKeys.some(g => M.active.has(g)) || M.active.has("silofor") || M.active.has("hoy")) groups.push(["grovfor", T("Grovfôr og areal")]);
   groups.push(["total", T("Andre opplysninger")]);
-  m.innerHTML = head() + (M.prods.length ? "" : `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>`) + groups.map(([k, t]) => {
+  const gfp = M.prods.filter(p => p.group === "grovfor"), V = M.V;
+  const arealChart = gfp.length ? CH.card(T("Grovfôrareal mot fôrbehov"), CH.hbar(gfp.map(p => ({label: SL(p, "sheet"), v: V("grovfor.an_" + p.key)})).concat([{label: T("Sum arealbehov"), v: V("grovfor.areal_norm"), tot: true}, {label: T("Korrigert grovfôrareal"), v: V("grovfor.da_vk"), c: "c-hi", tot: true}]), {fmt: v => fmt(v, "n1") + " da"}), [{c: "c-n", t: T("Arealbehov etter fôrnorm")}, {c: "c-hi", t: T("Eget areal")}], pct(V("grovfor.k_arealdekning"))) : "";
+  m.innerHTML = head() + arealChart + (M.prods.length ? "" : `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>`) + groups.map(([k, t]) => {
     const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info" || r.kind === "norm") && (k !== "total" || r.id === "do_andre"));
     if (!rows.length) return "";
     return `<div class="card"><h2>${esc(t)}</h2><div class="fields">${rows.map(r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full] ?? (r.kind === "norm" ? r.ex : undefined);
@@ -1380,7 +1522,8 @@ function keyCard(g) {
   const target = g.id === "maskin" ? 100 - M.annaPct : 100;
   const anna = g.id === "maskin" ? `<tr>${td(cols[0], T("Annen bruk (ikke jordbruksproduksjon)"), "muted")}<td></td><td></td>${td(cols[3], `<input class="inp num" style="max-width:90px" id="maskinAnna" value="${S.maskinAnna || ""}" placeholder="0">`, "n")}${td(cols[4], kr(V("faste.maskin_anna")), "n muted")}</tr>` : "";
   return `<div class="card"><div class="card-head"><h2>${T(g.title)}</h2><span class="grow"></span><span class="muted sm">${g.t ? `${T("Kostnader")} ${kr(M.gTot[g.id].cost)} kr · ${T("Inntekter og tilskudd")} ${kr(M.gTot[g.id].inn)} kr` : kr(total) + " kr"}</span></div>
-  <div class="muted sm" style="margin:-4px 0 10px">${T(g.info)}</div>
+  <div class="muted sm" style="margin:-4px 0 12px">${T(g.info)}</div>
+  ${CH.share(ks.map(k => ({label: PN(k), v: cur[k] || 0})))}
   <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]}</th><th class="n">${cols[3]} %</th><th class="n">${cols[4]}</th></tr></thead><tbody>
   ${ks.map(k => `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], bfmt(M.basis[g.id][k] || 0), "n muted")}${td(cols[2], pct(auto[k] / 100), "n muted")}
     ${td(cols[3], `<input class="inp num" style="max-width:90px" data-g="${g.id}" data-k="${k}" value="${st[k] != null ? st[k] : ""}" placeholder="${NF1.format(auto[k] || 0)}">`, "n")}
@@ -1418,6 +1561,13 @@ function vFlytt(m) {
   $$("button[data-del]", m).forEach(b => b.onclick = () => { S.moves.splice(+b.dataset.del, 1); save(); rerender(); });
 }
 function secTitle(r) { return clean(LBL(r)).replace(/^\d\.\s*(INPUT|OUTPUT|UTREKNING|BEREGNING)?(\/(UTREKNING|BEREGNING))?\s*[–-]?\s*/i, ""); }
+function kontrollChart() {
+  const V = M.V, it = [{label: T("Produksjonsinntekter"), v: V("total.sum_inn"), c: "c-n"}, {label: T("Variable kostnader"), v: -V("total.sum_var") - V("total.andre_var"), c: "c-neg"},
+    {label: T("Tilskudd"), v: V("total.sum_tilskot") + V("total.tilskot_ufordelt"), c: "c-n"}, {label: T("Andre inntekter"), v: V("total.andre_inn"), c: "c-n"},
+    {label: T("Faste kostnader"), v: -V("total.faste"), c: "c-neg"}, {label: T("Driftsoverskudd jordbruk"), v: V("total.do_drift"), c: "c-hi", tot: true},
+    {label: T("Renter"), v: V("total.renteinn") - V("total.renteut"), c: "c-neg"}, {label: T("Nettoinntekt"), v: V("total.netto"), c: "c-hi", tot: true}].filter(x => Math.abs(x.v) > 0.5 || x.tot);
+  return CH.card(T("Fra produksjon til nettoinntekt"), CH.hbar(it), [], "kr");
+}
 function checksCard() {
   const V = M.V, out = [], ok = (good, txt) => out.push(`<tr>${td("", `<span class="pill ${good === true ? "good" : good === "warn" ? "warn" : "bad"}">${T(good === true ? "OK" : good === "warn" ? "Sjekk" : "Feil")}</span>`)}${td("", txt, "wide")}</tr>`);
   if (M.active.has("mjolk")) { const kv = V("mjolk.kvote"), l = V("mjolk.liter");
@@ -1457,7 +1607,7 @@ function vKontroll(m) {
     <div class="tile"><div class="k">${T("Sum DB med tilskudd")}</div><div class="v">${kr(V("total.sum_db_m"))}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Driftsoverskudd")}</div><div class="v">${kr(V("total.do_drift"))}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Avstemming")}</div><div class="v">${Math.abs(avvik) < 1 ? `<span class="pill good">${T("Stemmer")}</span>` : kr(avvik)}</div><div class="s">${Math.abs(avvik) < 1 ? "&nbsp;" : T("Avvik")}</div></div>
-  </div>${Math.abs(avvik) >= 1 ? `<div class="notice warn">${T("Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.")}</div>` : ""}${checksCard()}${body}`;
+  </div>${Math.abs(avvik) >= 1 ? `<div class="notice warn">${T("Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.")}</div>` : ""}${kontrollChart()}${checksCard()}${body}`;
   bindSubs(m);
   const sp = $("#selProd"); if (sp) sp.onchange = e => { S.kontrollProd = e.target.value; save(); rerender(); };
   $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.overrides[e.target.dataset.full]; else S.overrides[e.target.dataset.full] = num(v); save(); rerender(); });
@@ -1580,31 +1730,40 @@ function downloadPdf() {
 }
 
 /* ---------- SVG-diagram for PDF ---------- */
-const PC = {band: "#e4ede6", page: "#fbfbf8", cover: "#24503b", cover2: "#2e6249", accent: "#2e5e45", ink: "#1b211c", ink2: "#4a544c", muted: "#7b857d", line: "#e2e6df", soft: "#f3f6f2", s1: "#2a78d6", s2: "#eb6834", grid: "#eceee9"};
+const PC = {band: "#e4ede6", page: "#fbfbf8", cover: "#24503b", cover2: "#2e6249", accent: "#2e5e45", ink: "#1b211c", ink2: "#4a544c", muted: "#7b857d", line: "#e2e6df", soft: "#f3f6f2", s1: "#b4b8be", s2: "#d4737f", hi: "#12a150", grid: "#ebece8"};
 function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1))), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
 function shortNum(v) { const a = Math.abs(v); return a >= 1e6 ? NF1.format(v / 1e6) + " mill." : a >= 1e4 ? NF0.format(v / 1000) + " k" : NF0.format(v); }
 function barSvg(items, o = {}) {
-  const series = o.series || [{color: PC.s1}], W = o.width || 515, labW = o.labelW || 130, valW = 62;
-  const bh = o.bar || 11, gap = 3, rowH = series.length * bh + (series.length - 1) * gap + (o.bar && o.bar < 9 ? 7 : 12);
-  const H = items.length * rowH + 22;
-  const all = items.flatMap(i => i.values), step = niceStep(((Math.max(0, ...all) - Math.min(0, ...all)) || 1) / (W - labW - valW < 150 ? 2 : 4));
-  const max = Math.ceil(Math.max(0, ...all) / step) * step, min = Math.floor(Math.min(0, ...all) / step) * step, span = (max - min) || 1;
-  const plotW = W - labW - valW, x = v => labW + (v - min) / span * plotW, x0 = x(0);
+  /* rein liggjande søylegraf: etikett | søyle | verdi, utan akse og rutenett */
+  const series = o.series || [{color: PC.s1}], W = o.width || 515, labW = o.labelW || 118, valW = o.valW || 58, gapX = 8;
+  const bh = o.bar || 9, gap = 2, n = series.length, rowH = n * bh + (n - 1) * gap + 8, H = items.length * rowH + 4;
+  const all = items.flatMap(i => i.values), mx = Math.max(0, ...all), mn = Math.min(0, ...all), span = (mx - mn) || 1;
+  const x0p = labW + gapX, plotW = W - labW - valW - gapX * 2, x = v => x0p + (v - mn) / span * plotW, x0 = x(0);
+  const f = o.fmt || (v => NF0.format(Math.round(v)));
   let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
-  for (let v = min; v <= max + step / 2; v += step) { const xx = x(v);
-    s += `<line x1="${xx}" x2="${xx}" y1="0" y2="${H - 16}" stroke="${PC.grid}" stroke-width="0.8"/><text x="${xx}" y="${H - 4}" text-anchor="middle" font-family="Helvetica" font-size="7.5" fill="${PC.muted}">${esc(shortNum(v))}</text>`; }
   items.forEach((it, i) => {
-    const y = i * rowH + 6, lab = it.label.length > labW / 4.6 ? it.label.slice(0, Math.floor(labW / 4.6) - 1) + "…" : it.label;
-    s += `<text x="${labW - 8}" y="${y + (rowH - 12) / 2 + 3.5}" text-anchor="end" font-family="Helvetica" font-size="8.5" fill="${PC.ink}">${esc(lab)}</text>`;
-    it.values.forEach((v, j) => {
-      const yy = y + j * (bh + gap), xa = Math.min(x(v), x0), w = Math.max(0.8, Math.abs(x(v) - x0));
-      const col = (it.colors && it.colors[j]) || series[j].color;
-      s += `<rect x="${xa}" y="${yy}" width="${w}" height="${bh}" rx="2" fill="${col}"/>`;
-      if (j === it.values.length - 1 || o.labelAll) { const room = xa - labW > 46, lx = v >= 0 ? x(v) + 4 : (room ? xa - 4 : x0 + 4);
-        s += `<text x="${lx}" y="${yy + bh / 2 + 3}" text-anchor="${v >= 0 || !room ? "start" : "end"}" font-family="Helvetica" font-size="7.8" fill="${PC.ink2}">${esc(NF0.format(Math.round(v)))}</text>`; }
-    });
+    const y = i * rowH + 4, cy = y + (n * bh + (n - 1) * gap) / 2, maxCh = Math.floor(labW / 4.3), lab = it.label.length > maxCh ? it.label.slice(0, maxCh - 1) + "…" : it.label;
+    s += `<text x="${labW}" y="${cy + 3}" text-anchor="end" font-family="Helvetica" font-size="8.2" fill="${it.bold ? PC.ink : PC.ink2}" ${it.bold ? 'font-weight="bold"' : ""}>${esc(lab)}</text>`;
+    it.values.forEach((v, j) => { const yy = y + j * (bh + gap), xa = Math.min(x(v), x0), w = Math.max(0.8, Math.abs(x(v) - x0));
+      s += `<rect x="${xa.toFixed(1)}" y="${yy}" width="${w.toFixed(1)}" height="${bh}" rx="1.5" fill="${(it.colors && it.colors[j]) || series[j].color}"/>`; });
+    s += `<text x="${W}" y="${cy + 3}" text-anchor="end" font-family="Courier" font-size="7.6" fill="${it.bold ? PC.ink : PC.ink2}">${esc(f(it.values[it.values.length - 1]))}</text>`;
   });
-  return s + `<line x1="${x0}" x2="${x0}" y1="0" y2="${H - 16}" stroke="${PC.muted}" stroke-width="0.8"/></svg>`;
+  return s + `<line x1="${x0}" x2="${x0}" y1="0" y2="${H}" stroke="${PC.line}" stroke-width="0.8"/></svg>`;
+}
+/* linjegraf med fylt flate (PDF) */
+function lineSvg(pts, o = {}) {
+  const W = o.width || 515, H = o.height || 150, padL = 4, padR = 46, padB = 16, ys = pts.map(p => p.y).concat(o.ref != null ? [o.ref] : []);
+  const mx = Math.max(0, ...ys), mn = Math.min(0, ...ys), step = niceStep(((mx - mn) || 1) / 3), top = Math.ceil(mx / step) * step, bot = Math.floor(mn / step) * step, span = (top - bot) || 1;
+  const X = i => padL + i / (pts.length - 1) * (W - padL - padR), Y = v => 4 + (top - v) / span * (H - padB - 8);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  for (let v = bot; v <= top + step / 2; v += step) s += `<line x1="${padL}" x2="${W - padR}" y1="${Y(v)}" y2="${Y(v)}" stroke="${PC.grid}" stroke-width="0.6"/><text x="${W - padR + 6}" y="${Y(v) + 2.5}" font-family="Courier" font-size="7" fill="${PC.muted}">${esc(shortNum(v))}</text>`;
+  const d = pts.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(p.y).toFixed(1)}`).join(" "), y0 = Y(Math.max(bot, Math.min(0, top)));
+  s += `<path d="${d} L${X(pts.length - 1)},${y0} L${X(0)},${y0} Z" fill="${PC.hi}" fill-opacity="0.12"/>`;
+  if (o.ref != null) s += `<line x1="${padL}" x2="${W - padR}" y1="${Y(o.ref)}" y2="${Y(o.ref)}" stroke="${PC.muted}" stroke-width="0.8" stroke-dasharray="3 3"/>`;
+  s += `<path d="${d}" fill="none" stroke="${PC.hi}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  const L = pts.length - 1; s += `<circle cx="${X(L)}" cy="${Y(pts[L].y)}" r="5" fill="${PC.hi}" fill-opacity="0.2"/><circle cx="${X(L)}" cy="${Y(pts[L].y)}" r="2.6" fill="${PC.hi}"/>`;
+  pts.forEach((p, i) => { if (i % 2 === 0 || i === L) s += `<text x="${X(i)}" y="${H - 3}" text-anchor="middle" font-family="Courier" font-size="7" fill="${PC.muted}">${esc(p.x)}</text>`; });
+  return s + "</svg>";
 }
 /* ---------- byggjeklossar ---------- */
 const NOLINES = {hLineWidth: () => 0, vLineWidth: () => 0, paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0};
@@ -1612,6 +1771,7 @@ const P = {
   h1: (t, br = true, sub) => ({table: {widths: ["*"], body: [[{stack: [{text: t, style: "h1"}].concat(sub ? [{text: sub, style: "h1sub"}] : []), fillColor: PC.band, margin: [12, 8, 12, 8]}]]},
     layout: Object.assign({}, NOLINES, {vLineWidth: i => (i === 0 ? 4 : 0), vLineColor: () => PC.accent}), margin: [0, 0, 0, 8], pageBreak: br ? "before" : undefined}),
   h2: t => ({text: t, style: "h2"}),
+  ct: (t, sub) => ({text: [{text: t.toUpperCase(), color: PC.ink2}].concat(sub ? [{text: "  ·  " + sub.toUpperCase(), color: PC.muted}] : []), fontSize: 7.4, bold: true, characterSpacing: 1.1, margin: [0, 10, 0, 6]}),
   kicker: t => ({text: t.toUpperCase(), style: "kicker"}),
   tiles(arr) {
     return {columns: arr.map(a => ({width: "*", table: {widths: ["*"], body: [[{stack: [
@@ -1670,10 +1830,14 @@ function buildDoc() {
     {k: T("Driftsoverskudd jordbruk"), v: kr(doD), s: ps("total.do_drift")}, {k: T("Nettoinntekt"), v: kr(V("total.netto")), s: ps("total.netto")}]));
   C.push(P.box(textFor("sammendrag"), T("Sammendrag")));
   if (prods.length) {
-    C.push(P.h2(T("Dekningsbidrag per produksjon")));
-    C.push(P.legend([{color: PC.s1, label: T("Uten tilskudd")}, {color: PC.s2, label: T("Med tilskudd")}]));
-    C.push(P.svg(barSvg(prods.map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".db_u"), V(p.key + ".db_m")]})), {series: [{color: PC.s1}, {color: PC.s2}], labelW: 110, bar: prods.length > 6 ? 7 : 10})));
+    C.push(P.ct(T("Dekningsbidrag per produksjon"), "kr"));
+    C.push(P.legend([{color: PC.s1, label: T("Uten tilskudd")}, {color: PC.hi, label: T("Med tilskudd")}]));
+    C.push(P.svg(barSvg(prods.map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".db_u"), V(p.key + ".db_m")]})), {series: [{color: PC.s1}, {color: PC.hi}], labelW: 110, bar: prods.length > 6 ? 6 : 8})));
   }
+  const mo = monthly();
+  if (mo) { C.push(P.ct(T("Driftsresultat hittil i år"), T("akkumulert")));
+    C.push(P.legend([{color: PC.hi, label: String(S.aar)}].concat(hasPrev() ? [{color: PC.muted, label: T("Fjorårets resultat")}] : [])));
+    C.push(P.svg(lineSvg(mo.cum, hasPrev() ? {ref: PV("total.do_skatt_rekneskap")} : {}))); }
   /* Oversikt */
   C.push(P.h1(T("Oversikt")));
   C.push(P.table([T("Produksjon"), T("Omfang"), T("DB uten tilskudd"), T("Tilskudd"), T("DB med tilskudd"), T("DB med tilskudd per enhet")],
@@ -1684,17 +1848,17 @@ function buildDoc() {
     {label: T("Andre inntekter"), v: V("total.andre_inn")}, {label: T("Variable kostnader"), v: -(V("total.sum_var") + V("total.andre_var"))},
     {label: T("Faste kostnader"), v: -V("total.faste")}, {label: T("Driftsoverskudd jordbruk"), v: doD, tot: true},
     {label: T("Renter"), v: V("total.renteinn") - V("total.renteut")}, {label: T("Nettoinntekt"), v: V("total.netto"), tot: true}].filter(b => b.v || b.tot);
-  C.push(P.h2(T("Fra produksjon til nettoinntekt")));
-  C.push(P.legend([{color: PC.s1, label: T("Inntekter")}, {color: PC.s2, label: T("Kostnader")}, {color: PC.accent, label: T("Resultat")}]));
-  C.push(P.svg(barSvg(bridge.map(b => ({label: b.label, values: [b.v], colors: [b.tot ? PC.accent : (b.v >= 0 ? PC.s1 : PC.s2)]})), {labelW: 130, bar: 12})));
+  C.push(P.ct(T("Fra produksjon til nettoinntekt"), "kr"));
+  C.push(P.legend([{color: PC.s1, label: T("Inntekter")}, {color: PC.s2, label: T("Kostnader")}, {color: PC.hi, label: T("Resultat")}]));
+  C.push(P.svg(barSvg(bridge.map(b => ({label: b.label, values: [b.v], colors: [b.tot ? PC.hi : (b.v >= 0 ? PC.s1 : PC.s2)], bold: b.tot})), {labelW: 130, bar: 10, boldTot: true})));
   const fItems = [["Maskinkostnader", "faste.maskin_sum"], ["Bygningskostnader", "faste.bygg_sum"], ["Andre faste kostnader", "faste.andre_sum"]]
     .map(([l, f]) => ({label: T(l), values: [V(f)]})).filter(x => x.values[0]);
   const tItems = prods.filter(p => V(p.key + ".db_m") > 0).map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".tilskot") / V(p.key + ".db_m") * 100]}));
   C.push({columns: [
-    {width: "*", stack: [P.h2(T("Faste kostnader") + ", kr"), P.svg(barSvg(fItems, {width: 250, labelW: 105}), 250)]},
-    {width: "*", stack: [P.h2(T("Tilskuddsandel av DB") + ", %"), tItems.length ? P.svg(barSvg(tItems, {width: 250, labelW: 80}), 250) : ""]}], columnGap: 15});
+    {width: "*", stack: [P.ct(T("Faste kostnader"), "kr"), P.svg(barSvg(fItems, {width: 250, labelW: 105, valW: 52}), 250)]},
+    {width: "*", stack: [P.ct(T("Tilskuddsandel av DB"), "%"), tItems.length ? P.svg(barSvg(tItems, {width: 250, labelW: 80, valW: 36, fmt: v => NF0.format(Math.round(v)) + " %"}), 250) : ""]}], columnGap: 15});
   const mItems = prods.map(p => ({label: SL(p, "sheet"), values: [V("faste.pct_" + p.key) * 100]})).concat(V("faste.pct_anna") > 0.0005 ? [{label: T("Annen bruk"), values: [V("faste.pct_anna") * 100]}] : []).filter(x => x.values[0] > 0.05);
-  if (mItems.length) C.push({unbreakable: true, stack: [P.h2(T("Maskinkostnader fordelt på produksjoner") + ", %"), P.svg(barSvg(mItems, {width: 250, labelW: 105, series: [{color: PC.accent}]}), 250)]});
+  if (mItems.length) C.push({unbreakable: true, stack: [P.ct(T("Maskinkostnader fordelt på produksjoner"), "%"), P.svg(barSvg(mItems, {width: 250, labelW: 105, valW: 36, series: [{color: PC.hi}], fmt: v => NF0.format(Math.round(v)) + " %"}), 250)]});
   /* 3. Nøkkeltal per produksjon */
   if (prods.length) {
     C.push(P.h1(T("Nøkkeltall per produksjon")));
@@ -1749,13 +1913,13 @@ function buildDoc() {
     C.push(P.h1(SL(p, "title"), true, fmt(n, "n") + " " + SL(p, "unit_label") + (g ? "   ·   " + V(k + ".k_gruppe") : "") + "   ·   " + T("Regnskapsår {a}", {a: S.aar})));
     const fixed = V(k + ".maskin") + (ROW[k + ".innmek"] ? V(k + ".innmek") : 0);
     const res = [{label: T("Inntekter"), v: d(V(k + ".inn_total")), c: PC.s1}, {label: T("Variable kostnader"), v: -d(V(k + ".kost_total")), c: PC.s2},
-      {label: T("DB uten tilskudd"), v: d(V(k + ".db_u")), c: PC.accent}, {label: T("Tilskudd"), v: d(V(k + ".tilskot")), c: PC.s1},
-      {label: T("DB med tilskudd"), v: d(V(k + ".db_m")), c: PC.accent}, {label: T("Maskin og innandørsmek."), v: -d(fixed), c: PC.s2},
-      {label: T("Igjen til bygg, arbeid, kapital"), v: d(V(k + ".db_etter")), c: PC.accent}].filter(x => Math.abs(x.v) > 0.005 || x.c === PC.accent);
+      {label: T("DB uten tilskudd"), v: d(V(k + ".db_u")), c: PC.hi}, {label: T("Tilskudd"), v: d(V(k + ".tilskot")), c: PC.s1},
+      {label: T("DB med tilskudd"), v: d(V(k + ".db_m")), c: PC.hi}, {label: T("Maskin og innandørsmek."), v: -d(fixed), c: PC.s2},
+      {label: T("Igjen til bygg, arbeid, kapital"), v: d(V(k + ".db_etter")), c: PC.hi}].filter(x => Math.abs(x.v) > 0.005 || x.c === PC.hi);
     const costItems = unitRows(p).filter(r => /Variable kostnader/i.test(r.sec) && !/^Sum/.test(r.label)).map(r => ({label: clean(LBL(r)), values: [V(k + "." + r.id)]})).filter(x => Math.abs(x.values[0]) > 0.005);
     C.push({columns: [
-      {width: "*", stack: [P.h2(T("Resultat") + " " + (n ? T("per") + " " + per : "") + ", kr"), P.svg(barSvg(res.map(x => ({label: x.label, values: [x.v], colors: [x.c]})), {width: 250, labelW: 112, bar: 6}), 250)]},
-      {width: "*", stack: costItems.length ? [P.h2(T("Variable kostnader") + " " + (n ? T("per") + " " + per : "") + ", kr"), P.svg(barSvg(costItems, {width: 250, labelW: 112, bar: 6, series: [{color: PC.s2}]}), 250)] : []}], columnGap: 15});
+      {width: "*", stack: [P.ct(T("Resultat") + (n ? " " + T("per") + " " + per : ""), "kr"), P.svg(barSvg(res.map(x => ({label: x.label, values: [x.v], colors: [x.c], bold: x.c === PC.hi})), {width: 250, labelW: 118, valW: 46, bar: 7}), 250)]},
+      {width: "*", stack: costItems.length ? [P.ct(T("Variable kostnader") + (n ? " " + T("per") + " " + per : ""), "kr"), P.svg(barSvg(costItems, {width: 250, labelW: 118, valW: 46, bar: 7, series: [{color: PC.s1}]}), 250)] : []}], columnGap: 15});
     const kp = kpiRows(p).filter(r => r.fmt !== "txt");
     C.push(P.tiles(kp.slice(0, 4).map(r => ({k: clean(LBL(r)), v: fmt(V(k + "." + r.id), r.fmt), s: unitTxt(r) + (hasPrev(k) ? "   " + T("I fjor") + " " + fmt(PV(k + "." + r.id), r.fmt) : "")}))));
     const tileIds = new Set(kp.slice(0, 4).map(r => r.id));
@@ -2025,6 +2189,16 @@ function formulaModal(full, done) {
   modal("", draw);
 }
 
+/* ================================================================ HOVER-TIPS FOR GRAFAR */
+(function () {
+  const tt = document.createElement("div"); tt.className = "tt"; tt.setAttribute("role", "tooltip"); document.body.appendChild(tt); let cur = null;
+  const place = e => { const r = tt.getBoundingClientRect(); let x = e.clientX + 14, y = e.clientY + 14;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14; if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14; tt.style.left = x + "px"; tt.style.top = y + "px"; };
+  document.addEventListener("mousemove", e => { const el = e.target.closest ? e.target.closest("[data-tt]") : null;
+    if (!el) { if (cur) { tt.classList.remove("on"); cur = null; } return; }
+    if (el !== cur) { cur = el; tt.innerHTML = el.dataset.tt; tt.classList.add("on"); } place(e); });
+  document.addEventListener("scroll", () => { tt.classList.remove("on"); cur = null; }, true);
+})();
 /* ================================================================ HENDINGAR */
 $("#btnPrev").onclick = () => go(S.node - 1);
 $("#btnNext").onclick = () => { if (S.node === NODES.length - 1) downloadPdf(); else go(S.node + 1); };
