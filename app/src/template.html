@@ -298,6 +298,17 @@ const NN = {
   "Mangler parentes etter": "Manglar parentes etter",
   "Parentesene går ikke opp": "Parentesane går ikkje opp",
   "Ukjent ledd": "Ukjent ledd",
+  "Inntekter og tilskudd": "Inntekter og tilskot", "For eksempel endringer i dyretall, priser eller investeringer. Vises i rapporten hvis feltet er fylt ut.": "Til dømes endringar i dyretal, prisar eller investeringar. Blir vist i rapporten om feltet er fylt ut.", "forventet endring neste år (valgfritt)": "forventa endring neste år (valfritt)", "Forventet endring": "Forventa endring",
+  "Fellespott areal": "Fellespott areal", "Fellespott grovfôr": "Fellespott grovfôr", "Fellespott husdyr": "Fellespott husdyr", "Fellespott tilskudd": "Fellespott tilskot", "Fellespott (automatisk gruppe)": "Fellespott (automatisk gruppe)",
+  "Arealkostnader og arealtilskudd": "Arealkostnader og arealtilskot", "Høstet grovfôr": "Hausta grovfôr", "Felles husdyrkostnader": "Felles husdyrkostnader", "Tilskudd uten egen kobling": "Tilskot utan eiga kopling",
+  "Areal (dekar)": "Areal (dekar)", "Vinterfôr (FEm)": "Vinterfôr (FEm)", "Direkte ført kraftfôr og veterinær (kr)": "Direkte ført kraftfôr og veterinær (kr)", "Direkte ført tilskudd (kr)": "Direkte ført tilskot (kr)", "Maskindekar": "Maskindekar", "Fôr innendørs (FEm)": "Fôr innandørs (FEm)",
+  "Annen bruk (ikke jordbruksproduksjon)": "Anna bruk (ikkje jordbruksproduksjon)", "Summerer ikke til {p} %": "Summerer ikkje til {p} %",
+  "Kontroller": "Kontrollar", "OK": "OK", "Sjekk": "Sjekk", "Feil": "Feil",
+  "Antall enheter mangler for {p}. Tall per enhet blir 0.": "Tal einingar manglar for {p}. Tal per eining blir 0.", "Alle aktive produksjoner har antall enheter.": "Alle aktive produksjonar har tal einingar.",
+  "Korrigert grovfôrareal er {a} dekar, mot {b} dekar arealbehov etter fôrnorm ({p}).": "Korrigert grovfôrareal er {a} dekar, mot {b} dekar arealbehov etter fôrnorm ({p}).",
+  "Kontroller areal, dyretall og fôrnormer.": "Kontroller areal, dyretal og fôrnormer.", "Fordelingsnøkler som ikke summerer riktig: {g}.": "Fordelingsnøklar som ikkje summerer rett: {g}.",
+  "Alle fordelingsnøkler summerer til 100 %.": "Alle fordelingsnøklar summerer til 100 %.", "Alle driftskontoer er med i analysen.": "Alle driftskontoar er med i analysen.",
+  "{b} kr er ikke med i analysen (inaktive produksjoner eller «Ikke med»).": "{b} kr er ikkje med i analysen (inaktive produksjonar eller «Ikkje med»).",
   "Formelen er ufullstendig – sjekk parenteser og ledd": "Formelen er ufullstendig – sjekk parentesar og ledd",
   "Eksporter innstillinger": "Eksporter innstillingar", "Importer innstillinger": "Importer innstillingar",
   "Fila er ikke en innstillingsfil.": "Fila er ikkje ei innstillingsfil.",
@@ -442,7 +453,17 @@ const NN = {
   "Korrigert grovfôrareal er {a} dekar, med {k} kuenheter. Det gir {d} dekar per kuenhet.": "Korrigert grovfôrareal er {a} dekar, med {k} kueiningar. Det gir {d} dekar per kueining.",
   "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.": "Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.",
 };
-const SPECIAL_LABEL = {POOL: "Fellespott (nøkkel)", FASTE: "Faste kostnader", INNMEK: "Innandørsmek. (nøkkel)", TOTAL: "Totaløkonomi (ikke fordelt)", NONE: "Ikke med"};
+const KEYGROUPS = [
+  {id: "areal", t: "POOL_AREAL", title: "Arealkostnader og arealtilskudd", basis: "Areal (dekar)", unit: "da", info: "Gjødsel, kalk, plantevern, såfrø og arealtilskudd. Husdyr får arealbehov etter fôrnorm, skalert til korrigert grovfôrareal."},
+  {id: "grovfor", t: "POOL_GF", title: "Høstet grovfôr", basis: "Vinterfôr (FEm)", unit: "FEm", info: "Plast, ensileringsmiddel, kjøpt grovfôr og lagerendring grovfôr."},
+  {id: "husdyr", t: "POOL_HUSDYR", title: "Felles husdyrkostnader", basis: "Direkte ført kraftfôr og veterinær (kr)", unit: "kr", info: "Kraftfôr, veterinær og inseminering som ikke er ført på produksjon. Uten direkte førte beløp brukes fôrnorm for kraftfôr."},
+  {id: "tilskudd", t: "POOL_TILSK", title: "Tilskudd uten egen kobling", basis: "Direkte ført tilskudd (kr)", unit: "kr", info: "Bunnfradrag, beitetilskudd og andre tilskudd fordeles etter tilskuddene som er ført direkte på produksjonene."},
+  {id: "maskin", title: "Maskinkostnader", basis: "Maskindekar", unit: "da", info: "Grovfôrbaserte husdyr: grovfôrareal for maskinkostnader fordelt etter arealbehov. Planteproduksjon: dekar, potet og grønnsaker teller dobbelt. Veksthus og kraftfôrbaserte husdyr: 0."},
+  {id: "innmek", title: "Innandørsmekanisering", basis: "Fôr innendørs (FEm)", unit: "FEm", info: "Vinterfôr og kraftfôr etter fôrnorm. Kraftfôrbaserte husdyr: kraftfôrkostnad delt på 4 kr per FEm."}];
+const KEYGROUP_OF = {}, POOL_T = {}; KEYGROUPS.forEach(g => { if (g.t) { KEYGROUP_OF[g.t] = g.id; POOL_T[g.id] = g.t; } });
+function poolGroupOf(nr) { const b = parseAcc(nr).base, h = SPEC.accountProd.find(([r, t]) => KEYGROUP_OF[t[0]] && inRule(b, r));
+  return h ? KEYGROUP_OF[h[1][0]] : (b >= 3400 && b <= 3499 ? "tilskudd" : b < 4000 ? "tilskudd" : "husdyr"); }
+const SPECIAL_LABEL = {POOL_AREAL: "Fellespott areal", POOL_GF: "Fellespott grovfôr", POOL_HUSDYR: "Fellespott husdyr", POOL_TILSK: "Fellespott tilskudd", POOL: "Fellespott (automatisk gruppe)", FASTE: "Faste kostnader", INNMEK: "Innandørsmek. (nøkkel)", TOTAL: "Totaløkonomi (ikke fordelt)", NONE: "Ikke med"};
 
 /* ================================================================ HJELPARAR */
 const $ = (s, el = document) => el.querySelector(s);
@@ -657,11 +678,11 @@ const DEMO = {
     "mjolk.n": 25, "mjolk.kvote": 190000, "mjolk.distrikt_mjolk": 21000, "oksar.n": 13, "oksar.tal_livs": 0,
     "sau.n": 70,
     "korn.n": 60, "korn.avling": 22000, "korn.sal_kg": 20000,
-    "grovfor.overflate": 40, "grovfor.fulldyrka": 420, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
+    "grovfor.overflate": 40, "grovfor.fulldyrka": 260, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
     "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
   },
   map: {"4021.20": {t1: "mjolk", t2: "oksar", p2: 15}, "4521.20": {t1: "mjolk", t2: "oksar", p2: 10},
-    "4050.20": {t1: "POOL", t2: "korn", p2: 12}, "4110.20": {t1: "POOL", t2: "korn", p2: 45}},
+  },
   lagerPris: {"1451.20.511": 18000, "1451.20.514": 14000, "1451.20.515": 7000, "1451.20.516": 16000, "1451.20.517": 7500,
     "1454.20.541": 2200, "1454.20.542": 2400, "1454.20.543": 1900},
   avskr: {"6000.20": {verdi: 2850000, levetid: 30}, "6010.20": {verdi: 2200000, levetid: 12}, "6030.20": {verdi: 450000, levetid: 15}},
@@ -682,10 +703,11 @@ function demoSaldobalanse() {
 const STORE = "jordbruksanalyse.prosjekt.v2", STORE_SET = "jordbruksanalyse.innstillinger.v1";
 function freshState() {
   return {hb: null, hbQty: true, node: 0, maxNode: 0, klient: "", aar: 2025, utarbeidd: "", sb: [], source: "", lager: {}, avskr: {}, moves: [],
-    overrides: {}, map: {}, prodInputs: {}, active: {}, poolKey: null, maskinKey: null, innmekKey: null, texts: {}, kontrollProd: null, filter: ""};
+    overrides: {}, map: {}, prodInputs: {}, active: {}, keys: {}, maskinAnna: 0, texts: {}, kontrollProd: null, filter: ""};
 }
 let S = freshState(), SET = {map: {}, avd: {}, acc: {}, formulas: {}, lang: "nb", theme: null, tab: "kontoplan"};
 try { const r = localStorage.getItem(STORE); if (r) S = Object.assign(freshState(), JSON.parse(r)); } catch (e) { /* ingen lagring */ }
+if (S.maskinKey || S.innmekKey) { S.keys = Object.assign({maskin: S.maskinKey || undefined, innmek: S.innmekKey || undefined}, S.keys); } delete S.poolKey; delete S.maskinKey; delete S.innmekKey;
 try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET, JSON.parse(r)); } catch (e) { /* ingen lagring */ }
 ["map", "avd", "acc", "formulas"].forEach(k => SET[k] = SET[k] || {});
 LANG = SET.lang || "nb";
@@ -736,7 +758,7 @@ function candidates(nr) {
 }
 function prodInputVal(full, derived) {
   if (S.prodInputs[full] != null && S.prodInputs[full] !== "") return num(S.prodInputs[full]);
-  return derived[full] ?? 0;
+  return derived[full] ?? (ROW[full] && ROW[full].kind === "norm" ? ROW[full].ex : 0);
 }
 function deriveInputs(A) {
   const D = {}, lag = {}; lagerRows().forEach(l => lag[l.r.nr] = l);
@@ -790,22 +812,17 @@ function compute() {
   let andreNaering = 0;
   Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr) && b >= 3000 && b <= 7999) andreNaering += -a.amt; });
   if (Object.values(A).some(a => !isJord(a.nr))) derived["total.do_andre"] = andreNaering;
-  for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info")) INP[full] = prodInputVal(full, derived);
+  for (const [full, r] of Object.entries(ROW)) if (r.t === "input" && (r.kind === "prod" || r.kind === "info" || r.kind === "norm")) INP[full] = prodInputVal(full, derived);
   INP["total.do_andre"] = prodInputVal("total.do_andre", derived);
+  // tal einingar frå dyretala i saldobalansen når produksjonstabellen manglar
+  const g0 = id => INP[id] || 0, NFALL = {mjolk: () => (g0("mjolk.kyr_ib") + g0("mjolk.kyr_ub")) / 2, ammekyr: () => (g0("ammekyr.kyr_ib") + g0("ammekyr.kyr_ub")) / 2,
+    sau: () => g0("sau.s1_ib") + g0("sau.s2_ib"), geit: () => (g0("geit.g1_ib") + g0("geit.g2_ib") + g0("geit.g1_ub") + g0("geit.g2_ub")) / 2};
+  Object.entries(NFALL).forEach(([k, f]) => { if (!INP[k + ".n"]) { const v = f(); if (v > 0) { INP[k + ".n"] = v; derived[k + ".n"] = v; } } });
   const firstAmt = {};
   Object.values(A).forEach(a => { if (!a.amt || !isJord(a.nr)) return; const m = mapFor(a.nr);
     const c = m ? [m.t1] : candidates(a.nr); if (c.some(x => SPECIAL_LABEL[x])) return; const p = c.find(isProd); if (p) firstAmt[p] = (firstAmt[p] || 0) + Math.abs(a.amt); });
   const active = new Set(PKEYS.filter(k => S.active[k] != null ? S.active[k] : (INP[k + ".n"] > 0 || (firstAmt[k] || 0) > 0)));
   const V0 = engine(INP, active), act = [...active];
-  const aP = {}, aM = {}, aI = {};
-  act.forEach(k => { const g = SHEET[k].group, ku = g === "grovfor" ? V0(k + ".kueiningar") : 0;
-    aP[k] = ku; aI[k] = g === "grovfor" ? ku : (g === "kraftfor" ? 5 : 0);
-    aM[k] = g === "grovfor" ? ku * 4 : (g === "plante" ? (k === "agurk" || k === "tomat" ? V0(k + ".n") / 2000 : V0(k + ".n") * 0.5) : 2); });
-  const poolKeys = act, innmekKeys = act.filter(k => SHEET[k].group !== "plante");
-  const autoP = normKey(aP, poolKeys), autoI = normKey(aI, innmekKeys), autoM = normKey(aM, act);
-  Object.keys(autoM).forEach(k => autoM[k] *= 0.95);
-  const pick = (store, auto, keys) => { const o = {}; keys.forEach(k => o[k] = store && store[k] != null && store[k] !== "" ? num(store[k]) : auto[k]); return o; };
-  const poolKey = pick(S.poolKey, autoP, poolKeys), innmekKey = pick(S.innmekKey, autoI, innmekKeys), maskinKey = pick(S.maskinKey, autoM, act);
   const contrib = {}, add = (full, nr, v) => { INP[full] = (INP[full] || 0) + v; (contrib[full] = contrib[full] || []).push({nr, v}); };
   const krRows = {}; SPEC.prods.forEach(p => krRows[p.key] = p.rows.filter(r => r.t === "input" && ["tilskot", "inn", "kost", "gf"].includes(r.kind)));
   const fasteRows = SHEET.faste.rows.filter(r => r.t === "input" && accFor("faste." + r.id));
@@ -823,8 +840,8 @@ function compute() {
     else add("total.andre_var", nr, amt); tadd("TOTAL", nr, amt); }
   const resolve = nr => { const c = candidates(nr), prodC = c.filter(isProd), hit = prodC.find(x => active.has(x));
     if (hit) return hit; const sp = c.find(x => SPECIAL_LABEL[x]); if (sp) return sp;
-    return prodC.length ? (active.size ? "POOL" : prodC[0]) : "NONE"; };
-  const alloc = {}; let innmekTotal = 0, ikkjeMed = 0, poolTotal = 0, poolCost = 0, poolInn = 0;
+    return prodC.length ? (active.size ? POOL_T[poolGroupOf(nr)] : prodC[0]) : "NONE"; };
+  const alloc = {}, deferred = []; let innmekTotal = 0, ikkjeMed = 0;
   Object.values(A).forEach(a => {
     if (!a.amt) return; const b = parseAcc(a.nr).base; if (b < 3000 || b > 8999) return;
     if (!isJord(a.nr)) { alloc[a.nr] = [{t: "ANDRE", s: 1}]; tadd("ANDRE", a.nr, a.amt); return; }
@@ -834,19 +851,50 @@ function compute() {
     alloc[a.nr] = parts;
     parts.forEach(({t, s}) => { const v = a.amt * s; if (!v) return;
       if (isProd(t)) { if (active.has(t)) toProd(t, a.nr, v); else { ikkjeMed += v; tadd("NONE", a.nr, v); } }
-      else if (t === "POOL") { poolTotal += v; if (v > 0) poolCost += v; else poolInn -= v; poolKeys.forEach(k => { const sh = (poolKey[k] || 0) / 100; if (sh) toProd(k, a.nr, v * sh); }); }
+      else if (KEYGROUP_OF[t] || t === "POOL") deferred.push({nr: a.nr, g: KEYGROUP_OF[t] || poolGroupOf(a.nr), v});
       else if (t === "FASTE") toFaste(a.nr, v);
       else if (t === "INNMEK") { innmekTotal += v; toFaste(a.nr, v); }
       else if (t === "TOTAL") toTotal(a.nr, v);
       else { if (b <= 7999) ikkjeMed += v; tadd("NONE", a.nr, v); } });
   });
-  innmekKeys.forEach(k => add("faste.innmek_" + k, "INNMEK", innmekTotal * (innmekKey[k] || 0) / 100));
+  /* Fordelingsnøklar: grunnlag per gruppe (etter at direkte førte beløp er på plass) */
+  const n = k => V0(k + ".n") || 0, fe = (k, f) => (ROW[k + ".fe_" + f] ? V0(k + ".fe_" + f) : 0), grp = k => SHEET[k].group;
+  const need = {}; act.filter(k => grp(k) === "grovfor").forEach(k => { need[k] = n(k) * (fe(k, "beite") / 625 + fe(k, "vinter") / 650) || V0(k + ".kueiningar") * 6; });
+  const sumNeed = Object.values(need).reduce((s, x) => s + x, 0), daVk = V0("grovfor.da_vk"), daMk = V0("grovfor.da_mk"), scale = sumNeed && daVk ? daVk / sumNeed : 1;
+  const VEKSTHUS = ["agurk", "tomat"], ARBEIDSKREVJANDE = ["potet", "fgront", "gulrot", "kalrot"], direct = (k, ids) => ids.reduce((s, id) => s + Math.max(0, INP[k + "." + id] || 0), 0);
+  const members = {
+    areal: act.filter(k => grp(k) === "plante" || grp(k) === "grovfor"), grovfor: act.filter(k => grp(k) === "grovfor" || k === "silofor" || k === "hoy"),
+    husdyr: act.filter(k => grp(k) !== "plante"), tilskudd: act, maskin: act, innmek: act.filter(k => grp(k) !== "plante")};
+  Object.keys(members).forEach(g => { if (!members[g].length) members[g] = act; });
+  const areaOf = k => grp(k) === "grovfor" ? need[k] * scale : (VEKSTHUS.includes(k) ? n(k) / 1000 : n(k));
+  const basis = {areal: {}, grovfor: {}, husdyr: {}, tilskudd: {}, maskin: {}, innmek: {}};
+  act.forEach(k => {
+    basis.areal[k] = areaOf(k);
+    basis.grovfor[k] = grp(k) === "grovfor" ? n(k) * fe(k, "vinter") : (k === "silofor" || k === "hoy" ? n(k) * 650 : 0);
+    basis.husdyr[k] = direct(k, ["kraftfor", "vet"]);
+    basis.tilskudd[k] = direct(k, ["tilskot"]);
+    basis.maskin[k] = grp(k) === "grovfor" ? (sumNeed ? daMk * need[k] / sumNeed : V0(k + ".kueiningar") * 4)
+      : grp(k) === "plante" ? (VEKSTHUS.includes(k) ? 0 : n(k) * (ARBEIDSKREVJANDE.includes(k) ? 2 : 1)) : 0;
+    basis.innmek[k] = grp(k) === "grovfor" ? n(k) * (fe(k, "vinter") + fe(k, "kraft")) : grp(k) === "kraftfor" ? direct(k, ["kraftfor"]) / 4 : 0;
+  });
+  // reserve: om ingen har direkte førte beløp, bruk fôrnorm / areal
+  if (!members.husdyr.some(k => basis.husdyr[k] > 0)) members.husdyr.forEach(k => basis.husdyr[k] = grp(k) === "grovfor" ? n(k) * fe(k, "kraft") : n(k));
+  if (!members.tilskudd.some(k => basis.tilskudd[k] > 0)) act.forEach(k => basis.tilskudd[k] = basis.areal[k]);
+  const annaPct = Math.min(100, Math.max(0, num(S.maskinAnna || 0)));
+  const autoKeys = {}, keys = {}; S.keys = S.keys || {};
+  KEYGROUPS.forEach(({id}) => { const ks = members[id], au = normKey(basis[id], ks); if (id === "maskin") Object.keys(au).forEach(k => au[k] *= (100 - annaPct) / 100);
+    autoKeys[id] = au; const st = S.keys[id]; keys[id] = {}; ks.forEach(k => keys[id][k] = st && st[k] != null && st[k] !== "" ? num(st[k]) : au[k]); });
+  const gTot = {}; KEYGROUPS.forEach(({id}) => gTot[id] = {cost: 0, inn: 0});
+  deferred.forEach(({nr, g, v}) => { if (v > 0) gTot[g].cost += v; else gTot[g].inn -= v; let used = 0;
+    members[g].forEach(k => { const sh = (keys[g][k] || 0) / 100; if (sh) { toProd(k, nr, v * sh); used += sh; } });
+    if (used < 0.9999) { ikkjeMed += v * (1 - used); tadd("NONE", nr, v * (1 - used)); } });
+  members.innmek.forEach(k => { if (SHEET.faste.rows.some(r => r.id === "innmek_" + k)) add("faste.innmek_" + k, "INNMEK", innmekTotal * (keys.innmek[k] || 0) / 100); });
   SPEC.prods.forEach(p => { if (!active.has(p.key)) return; p.rows.forEach(r => {
     if (r.t !== "input" || r.kind !== "info") return; const full = p.key + "." + r.id, rule = accFor(full);
     if (!rule || (S.prodInputs[full] != null && S.prodInputs[full] !== "")) return;
     let s = 0; Object.entries(contrib).forEach(([f, list]) => { if (f.startsWith(p.key + ".") && ROW[f].kind !== "tilskot") list.forEach(c => { if (/^\d{4}/.test(c.nr) && inRule(parseAcc(c.nr).base, rule)) s += c.v; }); });
     INP[full] = s; }); });
-  act.forEach(k => INP["faste.pct_" + k] = (maskinKey[k] || 0) / 100);
+  act.forEach(k => INP["faste.pct_" + k] = (keys.maskin[k] || 0) / 100);
   let doSkatt = 0, avskrS = 0, avskrD = 0, behS = 0, behD = 0;
   Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr)) return;
     if (b >= 3000 && b <= 7999) doSkatt += -a.orig;
@@ -854,8 +902,7 @@ function compute() {
     if (inRule(b, BEH_RULE)) { behS += -a.orig; behD += -a.amt; } });
   Object.assign(INP, {"total.avskr_skatt": avskrS, "total.beh_skatt": behS, "total.beh_drift": behD, "total.do_skatt_rekneskap": doSkatt});
   const V = engine(INP, active, {"total.avskr_drift": avskrD});
-  M = {A, INP, V, active, contrib, alloc, poolKey, maskinKey, innmekKey, poolKeys, innmekKeys, autoP, autoM, autoI,
-    poolTotal, poolCost, poolInn, innmekTotal, ikkjeMed, derived, resolve, tsum, prods: SPEC.prods.filter(p => active.has(p.key))};
+  M = {A, INP, V, active, contrib, alloc, keys, autoKeys, members, basis, gTot, need, scale, annaPct, innmekTotal, ikkjeMed, derived, resolve, tsum, prods: SPEC.prods.filter(p => active.has(p.key))};
   return M;
 }
 
@@ -864,9 +911,9 @@ const NODES = [
   {step: 0, id: "import", t: "Import av saldobalanse"}, {step: 1, id: "lager", t: "Driftsmessige verdier på varelager"},
   {step: 2, id: "avskr", t: "Driftsmessige avskrivninger"},
   {step: 3, id: "k_prod", t: "Produksjoner", d: "Velg hvilke produksjoner som skal være med i analysen."},
+  {step: 3, id: "k_flytt", t: "Flytt beløp", d: "Flytt beløp som er ført på feil konto."},
   {step: 3, id: "k_data", t: "Produksjonsdata", d: "Kontroller og fyll inn omfang og mengder for hver produksjon."},
   {step: 3, id: "k_nokkel", t: "Fordelingsnøkler", d: "Fordeling av fellespostene på produksjonene."},
-  {step: 3, id: "k_flytt", t: "Flytt beløp", d: "Flytt beløp som er ført på feil konto."},
   {step: 3, id: "k_kontroll", t: "Kontroll", d: "Kontroller tallene og overstyr ved behov."},
   {step: 4, id: "tekst", t: "Tekstinnhold", d: "Teksten genereres automatisk og kan redigeres før rapporten lages."},
   {step: 5, id: "rapport", t: "Rapport"},
@@ -1264,37 +1311,39 @@ function vData(m) {
   if (SPEC.grovforKeys.some(g => M.active.has(g)) || M.active.has("silofor") || M.active.has("hoy")) groups.push(["grovfor", T("Grovfôr og areal")]);
   groups.push(["total", T("Andre opplysninger")]);
   m.innerHTML = head() + (M.prods.length ? "" : `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>`) + groups.map(([k, t]) => {
-    const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info") && (k !== "total" || r.id === "do_andre"));
+    const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info" || r.kind === "norm") && (k !== "total" || r.id === "do_andre"));
     if (!rows.length) return "";
-    return `<div class="card"><h2>${esc(t)}</h2><div class="fields">${rows.map(r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full];
+    return `<div class="card"><h2>${esc(t)}</h2><div class="fields">${rows.map(r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full] ?? (r.kind === "norm" ? r.ex : undefined);
       return `<label class="field"><span>${esc(LBL(r))} <span class="unit">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</span></span>
         <input class="inp num" data-full="${full}" value="${has ? S.prodInputs[full] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" ${d != null && !has ? `title="${T("Hentet fra saldobalansen")}"` : ""}></label>`; }).join("")}</div></div>`; }).join("");
   bindSubs(m);
   $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.full]; else S.prodInputs[e.target.dataset.full] = num(v); save(); rerender(); });
 }
-function keyCard(title, keys, cur, auto, store, total, extraRow = "", note = "") {
-  const sum = keys.reduce((s, k) => s + (cur[k] || 0), 0);
-  const cols = [T("Produksjon"), T("Automatisk"), T("Brukt"), T("Beløp")];
-  return `<div class="card"><div class="card-head"><h2>${title}</h2><span class="grow"></span><span class="muted sm">${note || kr(total) + " kr"}</span></div>
-  <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]} %</th><th class="n">${cols[3]}</th></tr></thead><tbody>
-  ${keys.map(k => `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], pct(auto[k] / 100), "n muted")}
-    ${td(cols[2], `<input class="inp num" style="max-width:90px" data-store="${store}" data-k="${k}" value="${S[store] && S[store][k] != null ? S[store][k] : ""}" placeholder="${NF1.format(auto[k] || 0)}">`, "n")}
-    ${td(cols[3], kr(total * (cur[k] || 0) / 100), "n")}</tr>`).join("")}${extraRow}
-  <tr class="sum"><td>${T("Sum")}</td><td></td><td class="n">${NF1.format(sum)} %</td><td class="n">${kr(total * sum / 100)}</td></tr></tbody></table>
-  <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-reset="${store}">${T("Bruk automatisk nøkkel")}</button>
-  ${store !== "maskinKey" && Math.abs(sum - 100) > 0.05 ? `<span class="pill bad">${T("Summerer ikke til 100 %")}</span>` : ""}</div></div>`;
+function keyCard(g) {
+  const V = M.V, ks = M.members[g.id], cur = M.keys[g.id], auto = M.autoKeys[g.id], st = (S.keys || {})[g.id] || {};
+  const total = g.id === "maskin" ? V("faste.maskin_sum") : g.id === "innmek" ? M.innmekTotal : M.gTot[g.id].cost - M.gTot[g.id].inn;
+  if (!total && g.t) return "";
+  const sum = ks.reduce((s, k) => s + (cur[k] || 0), 0), cols = [T("Produksjon"), T(g.basis), T("Automatisk"), T("Brukt"), T("Beløp")];
+  const bfmt = v => g.unit === "kr" ? kr(v) : fmt(v, g.unit === "da" ? "n1" : "n");
+  const target = g.id === "maskin" ? 100 - M.annaPct : 100;
+  const anna = g.id === "maskin" ? `<tr>${td(cols[0], T("Annen bruk (ikke jordbruksproduksjon)"), "muted")}<td></td><td></td>${td(cols[3], `<input class="inp num" style="max-width:90px" id="maskinAnna" value="${S.maskinAnna || ""}" placeholder="0">`, "n")}${td(cols[4], kr(V("faste.maskin_anna")), "n muted")}</tr>` : "";
+  return `<div class="card"><div class="card-head"><h2>${T(g.title)}</h2><span class="grow"></span><span class="muted sm">${g.t ? `${T("Kostnader")} ${kr(M.gTot[g.id].cost)} kr · ${T("Inntekter og tilskudd")} ${kr(M.gTot[g.id].inn)} kr` : kr(total) + " kr"}</span></div>
+  <div class="muted sm" style="margin:-4px 0 10px">${T(g.info)}</div>
+  <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]}</th><th class="n">${cols[3]} %</th><th class="n">${cols[4]}</th></tr></thead><tbody>
+  ${ks.map(k => `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], bfmt(M.basis[g.id][k] || 0), "n muted")}${td(cols[2], pct(auto[k] / 100), "n muted")}
+    ${td(cols[3], `<input class="inp num" style="max-width:90px" data-g="${g.id}" data-k="${k}" value="${st[k] != null ? st[k] : ""}" placeholder="${NF1.format(auto[k] || 0)}">`, "n")}
+    ${td(cols[4], kr(total * (cur[k] || 0) / 100), "n")}</tr>`).join("")}${anna}
+  <tr class="sum"><td>${T("Sum")}</td><td></td><td></td><td class="n">${NF1.format(sum)} %</td><td class="n">${kr(total * sum / 100)}</td></tr></tbody></table>
+  <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-reset="${g.id}">${T("Bruk automatisk nøkkel")}</button>
+  ${Math.abs(sum - target) > 0.05 ? `<span class="pill bad">${T("Summerer ikke til {p} %", {p: NF1.format(target)})}</span>` : ""}</div></div>`;
 }
 function vNokkel(m) {
-  const V = M.V;
-  const anna = `<tr>${td(T("Produksjon"), T("Annen bruk"), "muted")}<td></td>${td(T("Brukt"), pct(V("faste.pct_anna")), "n muted")}${td(T("Beløp"), kr(V("faste.maskin_anna")), "n muted")}</tr>`;
-  m.innerHTML = head() + (!M.active.size ? `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>` :
-    keyCard(T("Fellespott"), M.poolKeys, M.poolKey, M.autoP, "poolKey", M.poolCost, "", `${T("Kostnader")} ${kr(M.poolCost)} kr · ${T("Tilskudd")} ${kr(M.poolInn)} kr`) +
-    keyCard(T("Maskinkostnader"), [...M.active], M.maskinKey, M.autoM, "maskinKey", V("faste.maskin_sum"), anna) +
-    (M.innmekKeys.length ? keyCard(T("Innandørsmekanisering"), M.innmekKeys, M.innmekKey, M.autoI, "innmekKey", M.innmekTotal) : ""));
+  m.innerHTML = head() + (!M.active.size ? `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>` : KEYGROUPS.map(keyCard).join(""));
   bindSubs(m);
-  $$("input[data-store]", m).forEach(i => i.onchange = e => { const st = e.target.dataset.store; S[st] = S[st] || {};
-    if (e.target.value.trim() === "") delete S[st][e.target.dataset.k]; else S[st][e.target.dataset.k] = num(e.target.value); save(); rerender(); });
-  $$("button[data-reset]", m).forEach(b => b.onclick = () => { S[b.dataset.reset] = null; save(); rerender(); });
+  $$("input[data-g]", m).forEach(i => i.onchange = e => { const g = e.target.dataset.g; S.keys = S.keys || {}; S.keys[g] = S.keys[g] || {};
+    if (e.target.value.trim() === "") delete S.keys[g][e.target.dataset.k]; else S.keys[g][e.target.dataset.k] = num(e.target.value); save(); rerender(); });
+  const ma = $("#maskinAnna", m); if (ma) ma.onchange = e => { S.maskinAnna = num(e.target.value) || 0; save(); rerender(); };
+  $$("button[data-reset]", m).forEach(b => b.onclick = () => { if (S.keys) delete S.keys[b.dataset.reset]; save(); rerender(); });
 }
 function accDatalist() {
   const list = new Set(Object.keys(M.A));
@@ -1317,6 +1366,18 @@ function vFlytt(m) {
   $$("button[data-del]", m).forEach(b => b.onclick = () => { S.moves.splice(+b.dataset.del, 1); save(); rerender(); });
 }
 function secTitle(r) { return clean(LBL(r)).replace(/^\d\.\s*(INPUT|OUTPUT|UTREKNING|BEREGNING)?(\/(UTREKNING|BEREGNING))?\s*[–-]?\s*/i, ""); }
+function checksCard() {
+  const V = M.V, out = [], ok = (good, txt) => out.push(`<tr>${td("", `<span class="pill ${good === true ? "good" : good === "warn" ? "warn" : "bad"}">${T(good === true ? "OK" : good === "warn" ? "Sjekk" : "Feil")}</span>`)}${td("", txt, "wide")}</tr>`);
+  const noN = M.prods.filter(p => !V(p.key + ".n"));
+  ok(!noN.length || "bad", noN.length ? T("Antall enheter mangler for {p}. Tall per enhet blir 0.", {p: noN.map(p => SL(p, "sheet")).join(", ")}) : T("Alle aktive produksjoner har antall enheter."));
+  if (SPEC.grovforKeys.some(k => M.active.has(k))) { const d = V("grovfor.k_arealdekning");
+    ok(d >= 0.8 && d <= 1.2 ? true : "warn", T("Korrigert grovfôrareal er {a} dekar, mot {b} dekar arealbehov etter fôrnorm ({p}).", {a: fmt(V("grovfor.da_vk"), "n1"), b: fmt(V("grovfor.areal_norm"), "n1"), p: pct(d)}) + (d < 0.8 || d > 1.2 ? " " + T("Kontroller areal, dyretall og fôrnormer.") : "")); }
+  const bad = KEYGROUPS.filter(g => { const ks = M.members[g.id], s = ks.reduce((x, k) => x + (M.keys[g.id][k] || 0), 0), tg = g.id === "maskin" ? 100 - M.annaPct : 100;
+    const used = g.id === "maskin" || (g.id === "innmek" ? M.innmekTotal : (M.gTot[g.id].cost || M.gTot[g.id].inn)); return used && Math.abs(s - tg) > 0.05; });
+  ok(!bad.length || "bad", bad.length ? T("Fordelingsnøkler som ikke summerer riktig: {g}.", {g: bad.map(g => T(g.title)).join(", ")}) : T("Alle fordelingsnøkler summerer til 100 %."));
+  ok(Math.abs(M.ikkjeMed) < 1 || "warn", Math.abs(M.ikkjeMed) < 1 ? T("Alle driftskontoer er med i analysen.") : T("{b} kr er ikke med i analysen (inaktive produksjoner eller «Ikke med»).", {b: kr(M.ikkjeMed)}));
+  return `<div class="card"><div class="card-head"><h2>${T("Kontroller")}</h2></div><table class="t"><tbody>${out.join("")}</tbody></table></div>`;
+}
 function vKontroll(m) {
   const V = M.V, avvik = V("total.avvik");
   const prods = M.prods, sel = prods.find(p => p.key === S.kontrollProd) ? S.kontrollProd : (prods[0] || {}).key;
@@ -1341,7 +1402,7 @@ function vKontroll(m) {
     <div class="tile"><div class="k">${T("Sum DB med tilskudd")}</div><div class="v">${kr(V("total.sum_db_m"))}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Driftsoverskudd")}</div><div class="v">${kr(V("total.do_drift"))}</div><div class="s">kr</div></div>
     <div class="tile"><div class="k">${T("Avstemming")}</div><div class="v">${Math.abs(avvik) < 1 ? `<span class="pill good">${T("Stemmer")}</span>` : kr(avvik)}</div><div class="s">${Math.abs(avvik) < 1 ? "&nbsp;" : T("Avvik")}</div></div>
-  </div>${Math.abs(avvik) >= 1 ? `<div class="notice warn">${T("Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.")}</div>` : ""}${body}`;
+  </div>${Math.abs(avvik) >= 1 ? `<div class="notice warn">${T("Analysen stemmer ikke med regnskapet. Sjekk koblinger til «Ikke med» og fordelingsnøkler.")}</div>` : ""}${checksCard()}${body}`;
   bindSubs(m);
   const sp = $("#selProd"); if (sp) sp.onchange = e => { S.kontrollProd = e.target.value; save(); rerender(); };
   $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.overrides[e.target.dataset.full]; else S.overrides[e.target.dataset.full] = num(v); save(); rerender(); });
@@ -1351,13 +1412,14 @@ function vKontroll(m) {
 function textKeys() {
   const k = ["innledning", "sammendrag", "total"];
   if (SPEC.grovforKeys.some(g => M.active.has(g))) k.push("grovfor");
-  return k.concat(M.prods.map(p => p.key));
+  return k.concat(...M.prods.map(p => [p.key, "forventet_" + p.key]));
 }
-function textTitle(k) { return k === "innledning" ? T("Innledning") : k === "sammendrag" ? T("Sammendrag") : k === "total" ? T("Totaløkonomi") : k === "grovfor" ? T("Grovfôr") : SL(SHEET[k], "title"); }
+function textTitle(k) { if (k.startsWith("forventet_")) return SL(SHEET[k.slice(10)], "sheet") + ": " + T("forventet endring neste år (valgfritt)"); return k === "innledning" ? T("Innledning") : k === "sammendrag" ? T("Sammendrag") : k === "total" ? T("Totaløkonomi") : k === "grovfor" ? T("Grovfôr") : SL(SHEET[k], "title"); }
 const lc = s => String(s).charAt(0).toLowerCase() + String(s).slice(1);
 function perTxt(p) { return SL(p, "per_label").replace(/^pr /, T("per") + " "); }
 function autoText(k) {
   const V = M.V, P = [];
+  if (k.startsWith("forventet_")) return "";
   if (k === "innledning") {
     const L = lagerRows().filter(l => Math.abs(l.korr) > 0.5), AV = avskrRows().filter(x => Math.abs(x.diff) > 0.5);
     const mv = S.moves.filter(x => x.fra && x.til && num(x.belop)), man = Object.keys(M.A).filter(nr => mapFor(nr)).length;
@@ -1415,11 +1477,11 @@ function textFor(k) { const t = S.texts[k]; return t && t.edited ? t.text : auto
 
 /* ================================================================ STEG 5: TEKST */
 function vTekst(m) {
-  m.innerHTML = head() + textKeys().map(k => { const ed = S.texts[k] && S.texts[k].edited;
+  m.innerHTML = head() + textKeys().map(k => { const ed = S.texts[k] && S.texts[k].edited, man = k.startsWith("forventet_");
     return `<div class="card textcard"><div class="card-head"><h2>${esc(textTitle(k))}</h2>
-      <span class="pill ${ed ? "warn" : "acc"}">${T(ed ? "Redigert" : "Automatisk tekst")}</span><span class="grow"></span>
-      ${ed ? `<button class="btn sm ghost" data-regen="${k}">${T("Lag ny tekst")}</button>` : ""}</div>
-      <textarea data-k="${k}" rows="4">${esc(textFor(k))}</textarea></div>`; }).join("");
+      ${man ? "" : `<span class="pill ${ed ? "warn" : "acc"}">${T(ed ? "Redigert" : "Automatisk tekst")}</span>`}<span class="grow"></span>
+      ${ed && !man ? `<button class="btn sm ghost" data-regen="${k}">${T("Lag ny tekst")}</button>` : ""}</div>
+      <textarea data-k="${k}" rows="${man ? 2 : 4}" ${man ? `placeholder="${T("For eksempel endringer i dyretall, priser eller investeringer. Vises i rapporten hvis feltet er fylt ut.")}"` : ""}>${esc(textFor(k))}</textarea></div>`; }).join("");
   const fit = t => { t.style.height = "auto"; t.style.height = t.scrollHeight + 4 + "px"; };
   $$("textarea", m).forEach(t => { fit(t); t.oninput = () => fit(t);
     t.onchange = e => { S.texts[e.target.dataset.k] = {edited: true, text: e.target.value}; save(); rerender(); }; });
@@ -1623,6 +1685,7 @@ function buildDoc() {
     const kp = kpiRows(p).filter(r => r.fmt !== "txt");
     C.push(P.tiles(kp.slice(0, 4).map(r => ({k: clean(LBL(r)), v: fmt(V(k + "." + r.id), r.fmt), s: unitTxt(r)}))));
     C.push(P.box(textFor(k), T("Vurdering")));
+    if (textFor("forventet_" + k).trim()) C.push(P.box(textFor("forventet_" + k), T("Forventet endring")));
     const ur = unitRows(p).filter(r => isSumLbl(r.label) || Math.abs(V(k + "." + r.id)) > 0.005);
     const unitTable = P.table([T("Resultat"), T("per") + " " + per, T("Totalt")], ur.map(r => ({cells: [clean(LBL(r)), fmt(V(k + "." + r.id), r.fmt), kr(V(k + "." + r.id) * n)], sum: isSumLbl(r.label)})), ["*", 52, 62], {tight: true, mb: 6});
     const kpiTable = P.table([T("Nøkkeltall"), T("Verdi"), ""], kpiRows(p).map(r => ({cells: [clean(LBL(r)), fmt(V(k + "." + r.id), r.fmt), unitTxt(r)]})), ["*", "auto", 22], {numFrom: 1, tight: true, mb: 6});
@@ -1659,8 +1722,9 @@ function buildDoc() {
   C.push(man.length ? P.table([T("Konto"), T("Kobling")], man.map(nr => { const x = mapFor(nr); return {cells: [nr + "  " + kontoNavn(nr), PN(x.t1) + (x.t2 ? ` ${100 - num(x.p2)} %  ·  ${PN(x.t2)} ${num(x.p2)} %` : "")]}; }), ["*", "*"], {numFrom: 9}) : P.none());
   const ov = Object.entries(S.overrides).filter(([f, v]) => v != null && v !== "" && ROW[f]);
   if (ov.length) { C.push(P.h2(T("Overstyrte tall"))); C.push(P.table(null, ov.map(([f, v]) => ({cells: [SL(SHEET[f.split(".")[0]], "sheet") + ": " + clean(LBL(ROW[f])), fmt(num(v), ROW[f].fmt)]})), ["*", 80])); }
-  if (prods.length) { C.push({unbreakable: true, stack: [P.h2(T("Fordelingsnøkler")), P.table([T("Produksjon"), T("Fellespott"), T("Maskinkostnader"), T("Innandørsmekanisering")],
-      prods.map(p => ({cells: [SL(p, "sheet"), pct((M.poolKey[p.key] || 0) / 100), pct((M.maskinKey[p.key] || 0) / 100), M.innmekKeys.includes(p.key) ? pct((M.innmekKey[p.key] || 0) / 100) : "–"]})), ["*", 80, 90, 110])]}); }
+  if (prods.length) { const KG = KEYGROUPS.filter(g => g.id === "maskin" || (g.id === "innmek" ? M.innmekTotal : (M.gTot[g.id].cost || M.gTot[g.id].inn)));
+    C.push({unbreakable: true, stack: [P.h2(T("Fordelingsnøkler")), P.table([T("Produksjon")].concat(KG.map(g => T(g.title))),
+      prods.map(p => ({cells: [SL(p, "sheet")].concat(KG.map(g => M.members[g.id].includes(p.key) ? pct((M.keys[g.id][p.key] || 0) / 100) : "–"))})), ["*"].concat(KG.map(() => 62)))]}); }
   return {
     pageSize: "A4", pageMargins: [40, 54, 40, 46], content: C,
     info: {title: T("Nøkkeltallsanalyse jordbruk") + " – " + (S.klient || ""), author: S.utarbeidd || ""},

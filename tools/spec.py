@@ -111,9 +111,13 @@ def per_unit(rows, n="n"):
 # ---------------------------------------------------------------- grovfôr-husdyr
 
 def grovfor_husdyr(key, sheet, title, dg, unit_label, per_label, prod_rows, inn_ids, inn_vals,
-                   info_rows, cost_vals, kpis, extra_calc=(), kueiningar=None, desc=""):
+                   info_rows, cost_vals, kpis, extra_calc=(), kueiningar=None, desc="", fe=(0, 0, 0)):
     rows = [H("1. INPUT – Produksjonsdata (frå produksjonstabell / teljingar)")]
     rows += prod_rows
+    fe_src = "Fôrnorm pr %s og år (jf. marginalanalysen). Brukt til arealbehov og fordelingsnøklar" % per_label.replace("pr ", "")
+    rows += [I("fe_beite", "Fôrnorm beite (FEm)", "FEm", fe[0], src=fe_src, kind="norm"),
+             I("fe_vinter", "Fôrnorm eige grovfôr vinter (FEm)", "FEm", fe[1], src=fe_src, kind="norm"),
+             I("fe_kraft", "Fôrnorm kraftfôr (FEm)", "FEm", fe[2], src=fe_src, kind="norm")]
     rows.append(H("2. INPUT – Rekneskapstal (kr) frå saldobalansen etter korrigeringar"))
     rows.append(I("tilskot", "Produksjonstilskot fordelt på produksjonen", "kr", inn_vals.get("tilskot", 0),
                   src=TILSKOT_SRC, kind="tilskot", acc=TILSKOT_ACC, sign=-1))
@@ -429,6 +433,7 @@ PRODS.append(grovfor_husdyr(
     extra_calc=[C("pasett", "Påsettprosent", "DIV((ung_o_ib+ung_o_ub+ung_u_ib+ung_u_ub)/2,kyr_ib+kyr_ub)", "%",
                   note="Snitt ungdyr / 2 delt på (kyr 1.1. + kyr 31.12.) – same oppsett som eksempelanalysen")],
     kueiningar="((kyr_ib+kyr_ub)+(ung_o_ib+ung_o_ub)/4+(ung_u_ib+ung_u_ub)/8)/2",
+    fe=(2000, 3500, 1800),
     desc="Mjølkeku med påsett (driftsgrein 6110–6113). Analysegruppe etter påsettprosent blir rekna ut automatisk."))
 
 # ---- OKSAR
@@ -461,6 +466,7 @@ PRODS.append(grovfor_husdyr(
      C("k_tap", "Tapsprosent", "MAX(0,DIV((o12_ib+u12_ib+tal_kjopt)-(o12_ub+u12_ub+tal_slakta+tal_livs),o12_ib+u12_ib+tal_kjopt))", "%", kpi=True,
        note="(Inngåande dyr + kjøpte) – (utgåande dyr + slakta + selde), delt på inngåande + kjøpte")],
     kueiningar="((u12_ib+u12_ub)/8+(o12_ib+o12_ub)/4)/2",
+    fe=(0, 1630, 1140),
     desc="Oksar/kastratar til slakt (driftsgrein 6120–6123)."))
 
 # ---- MELLOMKALV
@@ -492,6 +498,7 @@ PRODS.append(grovfor_husdyr(
      C("k_innmek", "Innandørsmekanisering pr kalv", "DIV(innmek,n)", "kr/eining", kpi=True),
      C("k_tap", "Tapsprosent", "MAX(0,DIV((o12_ib+u12_ib+tal_kjopt)-(o12_ub+u12_ub+tal_slakta+tal_livs),o12_ib+u12_ib+tal_kjopt))", "%", kpi=True)],
     kueiningar="((u12_ib+u12_ub)/8+(o12_ib+o12_ub)/4)/2",
+    fe=(0, 600, 400),
     desc="Mellomkalv (driftsgrein 6124)."))
 
 # ---- AMMEKYR  (eksempeltal 2025 frå vedlagt analyse)
@@ -531,6 +538,7 @@ PRODS.append(grovfor_husdyr(
     extra_calc=[C("pasett", "Påsettprosent", "DIV((okse_ib+okse_ub+o12_ib+o12_ub+u12_ib+u12_ub)/2,kyr_ib+kyr_ub)", "%",
                   note="Snitt av anna storfe / 2 delt på (ammekyr 1.1. + ammekyr 31.12.)")],
     kueiningar="((kyr_ib+kyr_ub+okse_ib+okse_ub)+(o12_ib+o12_ub)/3+(u12_ib+u12_ub)/4)/2",
+    fe=(2013, 2468, 605),
     desc="Ammeku med kalv (driftsgrein 6130–6132). Eksempeltal frå vedlagt analyse 2025."))
 
 # ---- SMÅGRIS / KOMBINERT
@@ -686,6 +694,7 @@ PRODS.append(grovfor_husdyr(
         C("pris3", "Prisendring pr dyr – sau/lam u. 12 md", "IF(s3_ib*s3_ub=0,0,s3_ub_kr/s3_ub-s3_ib_kr/s3_ib)", "kr/eining"),
         C("prisendring", "Endring i buskapsverdi grunna prisendring", "s1_ub*pris1+s2_ub*pris2+s3_ub*pris3")],
     kueiningar="(s1_ib+s2_ib+s3_ib+s1_ub+s2_ub+s3_ub)/2/6",
+    fe=(337, 195, 107),
     desc="Sauehald (driftsgrein 6300–6390). Eksempeltal frå vedlagt analyse 2025."))
 
 # ---- GEIT
@@ -715,6 +724,7 @@ PRODS.append(grovfor_husdyr(
      C("k_lev", "Levert mjølk pr geit (liter)", "DIV(liter,n)", "liter", "n", kpi=True),
      C("k_kvote", "Kvoteoppfylling", "DIV(liter,kvote)", "%", kpi=True)],
     kueiningar="(g1_ib+g2_ib+g1_ub+g2_ub)/2/7",
+    fe=(250, 350, 250),
     desc="Mjølkegeit (driftsgrein 6400–6419)."))
 
 # ---- EGG
@@ -896,6 +906,12 @@ def grovfor_sheet():
                   "+".join("%s.db_u*ACTIVE(%s)" % (k, k) for k in GROVFOR_KEYS)))
     rows.append(C("db_gp_m", "DB grovfôrbaserte husdyr m/tilskot",
                   "+".join("%s.db_m*ACTIVE(%s)" % (k, k) for k in GROVFOR_KEYS)))
+    rows.append(H("4b. UTREKNING – Arealbehov etter fôrnorm (kontroll av grovfôrbalansen)"))
+    for k in GROVFOR_KEYS:
+        rows.append(C("an_" + k, "Arealbehov etter fôrnorm – %s" % PNAME[k],
+                      "%s.n*(%s.fe_beite/625+%s.fe_vinter/650)*ACTIVE(%s)" % (k, k, k, k), "da", "n1",
+                      note="Beite 250 FEm/da delt på 2,5 og eige grovfôr 650 FEm/da – same omrekning som korrigert areal"))
+    rows.append(C("areal_norm", "Sum arealbehov etter fôrnorm", "+".join("an_" + k for k in GROVFOR_KEYS), "da", "n1"))
     rows.append(H("5. OUTPUT – Nøkkeltal grovfôr"))
     rows += [
         C("varkost_pr_da", "Variabel grovfôrkostnad pr korrigert dekar", "DIV(sum_vk_alle,da_vk)", "kr/eining", kpi=True),
@@ -906,6 +922,8 @@ def grovfor_sheet():
         C("fem_pr_ku", "FEm frå utmark pr «kueining»", "DIV(fem_utmark,sum_ku)", "FEm", "n", kpi=True),
         C("db_gp_u_da", "DB grovfôrbaserte husdyr u/tilskot pr korrigert dekar", "DIV(db_gp_u,da_vk)", "kr/eining", kpi=True),
         C("db_gp_m_da", "DB grovfôrbaserte husdyr m/tilskot pr korrigert dekar", "DIV(db_gp_m,da_vk)", "kr/eining", kpi=True),
+        C("k_arealdekning", "Korrigert grovfôrareal i % av arealbehov etter fôrnorm", "DIV(da_vk,areal_norm)", "%", kpi=True,
+          note="Under 100 % tyder på kjøpt fôr eller høge avlingar, over 100 % på overskot av areal"),
     ]
     return {"key": "grovfor", "sheet": "Grovfôr", "title": "Grovfôr – areal, kueiningar og grovfôrkostnad",
             "desc": "Felles grovfôrgrunnlag for mjølk, oksar, mellomkalv, ammekyr, sau og geit.",
@@ -980,7 +998,7 @@ SUFFIX_PROD = [
     ("521-526", ["ammekyr"]), ("531-534", ["smagris", "purkering"]), ("535-538", ["slaktegris", "smagris"]),
     ("541-543", ["sau"]), ("551-553", ["geit"]), ("561-562", ["egg"]), ("564-568", ["kylling"]),
     ("411-414", ["korn"]), ("421-423", ["korn"]), ("431", ["potet"]), ("441", ["fgront"]),
-    ("471", ["hoy", "POOL"]), ("472", ["silofor", "POOL"]), ("473", ["korn"]), ("482", ["mjolk", "geit"]),
+    ("471", ["hoy", "POOL_GF"]), ("472", ["silofor", "POOL_GF"]), ("473", ["korn"]), ("482", ["mjolk", "geit"]),
     ("484", ["sau"]), ("486", ["egg"]),
 ]
 ACCOUNT_PROD = [
@@ -1001,12 +1019,15 @@ ACCOUNT_PROD = [
     ("3045, 3055, 3075, 3079, 4130, 4650, 4695", ["geit"]),
     ("3076, 3097, 3456, 4026, 4046, 4526, 4536, 4136", ["egg", "kylling"]),
     ("3046, 3056, 4660, 4696", ["egg", "kylling"]),
-    # Fellespott (fordelast med nøkkel på grovfôr-/husdyrproduksjonane)
-    ("3413, 3430, 3457, 3460, 3470, 3490, 3499, 4001, 4020, 4030-4031, 4040, 4050, 4057, 4080, 4090, 4093-4095, 4098, 4110, 4120, 4140, 4191-4194, 4297, 4520, 4530, 4532, 4539, 4560-4569", ["POOL"]),
+    # Fellespottar (fordelast med kvar sin nøkkel, sjå Fordelingsnøklar i nettsida)
+    ("3413, 3430, 3460, 4001, 4050, 4057, 4095, 4110, 4191, 4560-4569", ["POOL_AREAL"]),
+    ("4030-4031, 4080, 4090, 4093, 4098, 4140, 4194, 4297", ["POOL_GF"]),
+    ("4020, 4040, 4094, 4120, 4192-4193, 4520, 4530, 4532, 4539", ["POOL_HUSDYR"]),
+    ("3457, 3470, 3490, 3499", ["POOL_TILSK"]),
     ("4550-4559", ["FASTE"]),
     ("3440-3442", ["FASTE"]),
     # Andre tilskot utan eigen kopling: fellespott (fordelast med nøkkel)
-    ("3400-3439, 3443-3499", ["POOL"]),
+    ("3400-3439, 3443-3499", ["POOL_TILSK"]),
     ("6030, 6541, 6563, 6640", ["INNMEK"]),
     ("6480", ["purkering", "FASTE"]),
     ("4570-4580, 5000-7999", ["FASTE"]),

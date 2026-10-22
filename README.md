@@ -34,6 +34,7 @@ python tools/build_html.py    # -> app/analyse.html (frå app/src/template.html)
 ## Merknader
 
 * Eksempeltala for silofôr, ammekyr, sau, grovfôrareal og faste kostnader i Excel-fila er henta frå vedlagt analyse 2025, og tala stemmer med den: DB pr vf. sau u/tilskot 315 kr, DB pr dekar grovfôr 430 kr, DB pr ammeku 6 457 kr, sum faste kostnader 789 296 kr, driftsoverskot jordbruk 228 496 kr og kontrollavvik −330 kr (same avvik som eksempelet). Dei andre produksjonane har fiktive eksempeltal og står som «N» (ikkje med i totalen) på fana Oversikt.
+* Fordelingsnøklar i nettsida (steg 4.4) har seks grupper med automatisk grunnlag: areal (gjødsel, kalk, plantevern, såfrø, arealtilskot – husdyr får arealbehov etter fôrnorm), hausta grovfôr (vinterfôr), felles husdyrkostnader og tilskot utan kopling (etter det som er ført direkte), maskin (maskindekar, med «anna bruk» som eiga linje) og innandørsmekanisering (fôr innandørs). Fôrnormene er henta frå marginalarka i eksempelet og kan endrast under Produksjonsdata. Alle nøklar kan overstyrast.
 * Innandørsmekanisering er ein herav-post av faste kostnader (som i eksempelet), ikkje eit tillegg. Purkeleige er variabel kostnad i purkeringen.
 * «Variabel grovfôrkostnad pr dekar» er utan rundballeplast, som i eksempelet (544 kr mot 542 kr i eksempelet; skilnaden er ein inkonsistens i eksempelfila).
 * Ikkje bygd om frå eksempelfila: marginalanalysane, «Fri»-arka, fleirårs- og samanlikningsstatistikk, normbasert grovfôr-/kraftfôrbehov og jordbrukskonto/skog/samdrift i totaløkonomien.

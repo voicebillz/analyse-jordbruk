@@ -352,7 +352,9 @@ for i, h in enumerate(["Type", "Kontoar / produktkode", "Produksjon(ar)"], 1):
     c.font = HEADF
     c.fill = HEADFILL
 r += 1
-NAMES = dict(spec.PNAME, POOL="Fellespott (fordelast med nøkkel)", FASTE="Faste kostnader", INNMEK="Innandørsmekanisering (nøkkel)",
+NAMES = dict(spec.PNAME, POOL="Fellespott (fordelast med nøkkel)", POOL_AREAL="Fellespott areal (nøkkel: areal / arealbehov)",
+             POOL_GF="Fellespott hausta grovfôr (nøkkel: vinterfôr)", POOL_HUSDYR="Fellespott husdyr (nøkkel: direkte førte husdyrkostnader)",
+             POOL_TILSK="Fellespott tilskot (nøkkel: direkte førte tilskot)", FASTE="Faste kostnader", INNMEK="Innandørsmekanisering (nøkkel)",
              TOTAL="Totaløkonomi (ikkje fordelt)")
 for suf, prods in spec.SUFFIX_PROD:
     ws.cell(row=r, column=1, value="Produktkode").font = BLACK
