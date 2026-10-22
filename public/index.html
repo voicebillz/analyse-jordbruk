@@ -228,6 +228,9 @@ details.grp .inner{padding:0 16px 14px}
 .savebar.dirty{color:var(--ink)}
 .savebar.dirty .dot{background:var(--warning)}
 .chips .chip[data-ei]{cursor:pointer}
+.tok.click,.expr.click{cursor:pointer}
+.tok.click:hover{border-color:var(--panel-border-hi);background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.expr.click:hover .tok{border-color:var(--panel-border-hi)}
 .alist{user-select:none;-webkit-user-select:none}
 .alist .arow.sel{background:color-mix(in srgb,var(--warning) 16%,transparent)}
 .chips .chip[data-ei]:hover{border-color:var(--panel-border-hi)}
@@ -488,7 +491,8 @@ const NN = {
   "Ingen kontoer er koblet til innandørsmekanisering": "Ingen kontoar er kopla til innandørsmekanisering", "Kontoer koblet til «Innandørsmek.» i kontoplanen": "Kontoar kopla til «Innandørsmek.» i kontoplanen",
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
-  "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.": "Klikk ein konto for å ta han med eller fjerne han. Hald inne og dra over fleire kontoar for å leggje inn eit intervall.", "Bytt ut": "Byt ut", "med": "med", "avbryt bytte": "avbryt bytet", "Bytt": "Byt", "Bytt til denne": "Byt til denne", "Ingen kontoer koblet": "Ingen kontoar kopla", "Kontoer i andre avdelinger enn jordbruk": "Kontoar i andre avdelingar enn jordbruk", "for alle produksjoner som er med": "for alle produksjonar som er med", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
+  "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.": "Klikk ein konto for å ta han med eller fjerne han. Hald inne og dra over fleire kontoar for å leggje inn eit intervall.", "Bytt ut": "Byt ut", "med": "med", "avbryt bytte": "avbryt bytet", "Bytt": "Byt", "Bytt til denne": "Byt til denne", "Ingen kontoer koblet": "Ingen kontoar kopla", "Kontoer i andre avdelinger enn jordbruk": "Kontoar i andre avdelingar enn jordbruk", "for alle produksjoner som er med": "for alle produksjonar som er med", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
   "Skjul utregning": "Skjul utrekning", "Vis utregning": "Vis utrekning",
   "Hver formel vises som et regnestykke med én rad per ledd. «Vis utregning» åpner leddet, helt ned til kontoene, fordelingsnøklene og produksjonsdataene som kan endres direkte.": "Kvar formel blir vist som eit reknestykke med éi rad per ledd. «Vis utrekning» opnar leddet, heilt ned til kontoane, fordelingsnøklane og produksjonsdataa som kan endrast direkte.",
   "Del andeler med": "Del delar med", "Legg til deling": "Legg til deling", "{a} går til {t}": "{a} går til {t}", "Delingene kan ikke overstige 100 %": "Delingane kan ikkje vere over 100 %",
@@ -2325,11 +2329,11 @@ function renderKontering(el, m) {
   const exprEd = full => { const key = full.split(".")[0], terms = flatTerms(fexpr(full)), pp = perProd(fexpr(full));
     if (pp) return `<div class="expr"><span class="eq">=</span><span class="opsym">Σ</span><span class="tok calc">${esc(LBL(ROW[pp.ks[0] + "." + pp.id]))}</span><span class="muted sm">${T("for alle produksjoner som er med")}${M ? ` (${pp.ks.filter(k => M.active.has(k)).length})` : ""}</span><button class="op pen" data-edit="${full}" title="${T("Skriv formelen")}" aria-label="${T("Skriv formelen")}">✎</button></div>`;
     if (!terms) { let h; try { h = fhtml(ftok(fexpr(full)), key); } catch (e) { h = `<span class="bad">${esc(e.message)}</span>`; }
-      return `<div class="expr"><span class="eq">=</span>${h}<button class="op pen" data-edit="${full}" title="${T("Skriv formelen")}" aria-label="${T("Skriv formelen")}">✎</button></div>`; }
+      return `<div class="expr click" data-fx="${full}" title="${T("Klikk for å endre formelen")}"><span class="eq">=</span>${h}<button class="op pen" data-edit="${full}" title="${T("Skriv formelen")}" aria-label="${T("Skriv formelen")}">✎</button></div>`; }
     return `<div class="expr" data-full="${full}"><span class="eq">=</span>${terms.map((t, i) => { let f = null; if (t.k === "id") { try { f = fullId(t.v, key); } catch (e) { f = null; } }
       const opb = (i || t.op === "-") ? `<button class="op ${t.op === "-" ? "minus" : ""}" data-op="${i}" title="${T("Klikk for å bytte regnetegn")}">${OPSYM[t.op || "+"]}</button>` : "";
       const body = t.k === "num" ? `<input class="numin" data-num="${i}" value="${esc(String(t.v).replace(".", ","))}" inputmode="decimal" aria-label="${T("Tall")}">`
-        : `<span class="tok ${f && ROW[f].t === "calc" ? "calc" : ""}">${f ? esc(LBL(ROW[f])) + sheetTag(f, key) : `<span class="bad">${esc(t.v)}</span>`}<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button></span>`;
+        : `<span class="tok click ${f && ROW[f].t === "calc" ? "calc" : ""}" data-ti="${i}" title="${T("Klikk for å endre leddet")}">${f ? esc(LBL(ROW[f])) + sheetTag(f, key) : `<span class="bad">${esc(t.v)}</span>`}<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button></span>`;
       return opb + body; }).join("")}<button class="tok add" data-addt="${full}">+ ${T("Ledd")}</button><button class="tok add" data-addn="${full}">+ ${T("Tall")}</button></div>`; };
   /* éi rad per ledd; ledd som er rekna ut viser sitt eige regnestykke og kan opnast */
   const inactiveRef = (full, f) => { if (!M) return false; const [sk, id] = f.split(".");
@@ -2364,7 +2368,37 @@ function renderKontering(el, m) {
   $$("[data-add]", el).forEach(b => b.onclick = () => accModal(b.dataset.add, redraw));
   $$(".chips[data-full] .chip[data-ei]", el).forEach(c => c.onclick = () => accModal(c.closest(".chips").dataset.full, redraw, +c.dataset.ei));
   $$("[data-racc]", el).forEach(b => b.onclick = () => { delete SET.acc[b.dataset.racc]; saveSet(); redraw(); });
-  $$("[data-edit]", el).forEach(b => b.onclick = () => formulaModal(b.dataset.edit, redraw));
+  $$("[data-edit]", el).forEach(b => b.onclick = e => { e.stopPropagation(); formulaModal(b.dataset.edit, redraw); });
+  $$(".expr[data-fx]", el).forEach(x => x.onclick = () => formulaModal(x.dataset.fx, redraw));
+  $$("[data-ti]", el).forEach(b => b.onclick = e => { if (e.target.closest(".x")) return; const [full, terms] = fl(b); termModal(full, terms, +b.dataset.ti); });
+  /* overlay for eitt ledd: regneteikn, byte post, kontoar, fjerne */
+  const termModal = (full, terms, i) => { const t = terms[i], key = full.split(".")[0]; let f = null; try { f = fullId(t.v, key); } catch (e) { f = null; }
+    const r = f ? ROW[f] : null, hasAcc = r && r.t === "input" && (["tilskot", "inn", "kost", "gf"].includes(r.kind) || (r.kind === "fast" && accFor(f)) || /\.andre_(inn|kost)$/.test(f));
+    const sheets = [...new Set([key, f ? f.split(".")[0] : key])];
+    const draw = d => { const q = (d.q || "").toLowerCase(), cur = d.op || t.op || "+";
+      const list = sheets.flatMap(sk => { const sh = SHEET[sk], secs = sectionOf(sh); return sh.rows.filter(x => x.id && (x.t === "input" || x.t === "calc") && sk + "." + x.id !== full && sk + "." + x.id !== f && !isDetailSec(secs[x.id]) && (!q || LBL(x).toLowerCase().includes(q))).map(x => [sk, x]); });
+      d.el.innerHTML = `${dHead(T("Ledd i") + " " + LBL(ROW[full]), r ? esc(LBL(r)) : esc(t.v))}<div class="dbody">
+        ${r ? `<div class="dsec"><div class="row" style="margin:0"><span class="muted sm">${T(r.t === "calc" ? "Beregnet" : "Verdi")}${f.split(".")[0] !== key ? " · " + esc(SL(SHEET[f.split(".")[0]], "sheet")) : ""}</span><span class="grow"></span><b>${M ? fmt(M.V(f), r.fmt) : ""}</b></div>
+          ${r.t === "calc" ? `<div class="expr" style="margin-top:8px"><span class="eq">=</span>${(() => { try { return fhtml(ftok(fexpr(f)), f.split(".")[0]); } catch (e) { return ""; } })()}</div>` : ""}</div>` : ""}
+        <div class="dsec"><div class="lbl">${T("Regnetegn")}</div><div class="seg" role="group">${(i ? ["+", "-", "*", "/"] : ["+", "-"]).map(o => `<button class="${cur === o ? "on" : ""}" data-o="${o}">${OPSYM[o]} ${T({"+": "Pluss", "-": "Minus", "*": "Ganger", "/": "Delt på"}[o])}</button>`).join("")}</div></div>
+        ${hasAcc ? `<div class="dsec"><div class="lbl">${T("Kontoer")}</div>${accChips(f)}</div>` : ""}
+        <div class="dsec"><div class="lbl">${T("Bytt til en annen post")}</div><input class="search" id="tq" placeholder="${T("Søk post")}" value="${esc(d.q || "")}" style="max-width:none;margin-bottom:10px">
+        <div class="alist" style="max-height:260px">${list.map(([sk, x]) => `<button class="arow" data-id="${sk === key ? x.id : sk + "." + x.id}"><span>${esc(LBL(x))}${sk !== key ? ` <span class="muted sm">${esc(SL(SHEET[sk], "sheet"))}</span>` : ""}</span><span class="grow"></span><span class="sm muted">${x.t === "calc" ? T("Beregnet") : (x.unit === "kr" ? T("Beløp") : esc(x.unit))}</span></button>`).join("") || `<div class="muted sm" style="padding:14px">${T("Ingen treff.")}</div>`}</div></div></div>
+        <div class="dfoot"><button class="btn ghost" id="tRm">${T("Fjern leddet")}</button><span class="grow"></span><button class="btn" id="tCancel">${T("Avbryt")}</button><button class="btn pri" id="tOk">${T("Ferdig")}</button></div>`;
+      $("#mClose", d.el).onclick = $("#tCancel", d.el).onclick = closeModal;
+      $$(".seg button", d.el).forEach(b => b.onclick = () => { d.op = b.dataset.o; draw(d); });
+      const tq = $("#tq", d.el); tq.oninput = e => { d.q = e.target.value; const p = e.target.selectionStart; draw(d); const n = $("#tq", d.el); n.focus(); n.setSelectionRange(p, p); };
+      const apply = () => { if (d.op) t.op = i === 0 && d.op === "+" ? null : d.op; closeModal(); setFlat(full, terms); };
+      $$(".arow", d.el).forEach(b => b.onclick = () => { t.v = b.dataset.id; t.k = "id"; apply(); });
+      $("#tOk", d.el).onclick = apply;
+      $("#tRm", d.el).onclick = () => { terms.splice(i, 1); if (i === 0 && terms[0] && terms[0].op !== "-") terms[0].op = null; closeModal(); setFlat(full, terms); };
+      $$(".chips[data-full] .chip[data-ei]", d.el).forEach(c => c.onclick = () => accModal(f, () => { redraw(); termModal(full, flatTerms(fexpr(full)), i); }, +c.dataset.ei));
+      $$(".chip .x", d.el).forEach(b => b.onclick = e => { e.stopPropagation(); const toks = accFor(f).split(",").map(x => x.trim()).filter(Boolean); toks.splice(+b.dataset.i, 1); SET.acc[f] = toks.join(", "); saveSet(); redraw(); draw(d); });
+      $$("[data-add]", d.el).forEach(b => b.onclick = () => accModal(f, () => { redraw(); termModal(full, flatTerms(fexpr(full)), i); }));
+      $$("[data-racc]", d.el).forEach(b => b.onclick = () => { delete SET.acc[f]; saveSet(); redraw(); draw(d); });
+    };
+    modal("", el2 => draw({el: el2}));
+  };
   $$("[data-fstd]", el).forEach(b => b.onclick = () => { delete SET.formulas[b.dataset.fstd]; saveSet(); redraw(); });
   $$("[data-op]", el).forEach(b => b.onclick = () => { const [full, terms] = fl(b), t2 = terms[+b.dataset.op]; t2.op = OPNEXT[t2.op || "+"]; if (+b.dataset.op === 0 && t2.op !== "-") t2.op = t2.op === "*" || t2.op === "/" ? null : t2.op; setFlat(full, terms); });
   $$("[data-rm]", el).forEach(b => b.onclick = e => { e.stopPropagation(); const [full, terms] = fl(b), i = +b.dataset.rm; terms.splice(i, 1); if (i === 0 && terms[0] && terms[0].op !== "-") terms[0].op = null; setFlat(full, terms); });
