@@ -24,6 +24,7 @@
   --tint:10%; --dialog-shadow:0 32px 80px -24px rgba(0,0,0,.9); --backdrop:rgba(0,0,0,.6);
   --ease-out:cubic-bezier(.22,1,.36,1); --ease-spring:cubic-bezier(.34,1.32,.52,1); --press:110ms; --transition:160ms cubic-bezier(.4,0,.2,1);
   --maxw:1240px;
+  --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a7a5a0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --chart-bar:rgba(243,242,239,.28); --chart-bar-2:rgba(243,242,239,.14); --chart-neg:rgba(220,38,38,.75);
   --sans:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; --serif:"Instrument Serif",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
@@ -35,6 +36,7 @@
   --danger:#c0264f; --success:#15803d; --warning:#9a4508; --info:#0369a1; --fin:#1d4ed8;
   --btn-primary-bg:#0a0a0a; --btn-primary-ink:#ffffff; --hover:rgba(15,17,21,.03);
   --dialog-shadow:0 30px 70px -24px rgba(15,17,21,.3); --backdrop:rgba(15,17,21,.35);
+  --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23474b54' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --chart-bar:#bcbec3; --chart-bar-2:#dcdde0; --chart-neg:rgba(192,38,79,.75);
 }
 *{box-sizing:border-box}
@@ -284,6 +286,60 @@ details.grp .inner{padding:0 16px 14px}
 .cols .c:hover{filter:brightness(1.2)}
 .share span{transition:filter var(--transition)}
 .share span:hover{filter:brightness(1.15)}
+/* nedtrekk: eigen pil, følgjer temaet */
+select.sel,.field select{appearance:none;-webkit-appearance:none;padding-right:36px;background-image:var(--chev);background-repeat:no-repeat;background-position:right 13px center;background-size:11px;cursor:pointer}
+select.sel:hover,.field select:hover{border-color:var(--panel-border-hi)}
+/* dialog */
+.dialog{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.dialog .dhead{padding:24px 26px 0;margin-bottom:14px}
+.dialog .dbody{padding:0 26px;overflow:auto;flex:1;min-height:0}
+.dialog .dfoot{margin:0;padding:16px 26px 20px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.xbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--field-border);background:var(--field);color:var(--ink-2);display:grid;place-items:center;cursor:pointer;font-size:16px;flex:none;transition:border-color var(--transition)}
+.xbtn:hover{border-color:var(--panel-border-hi);color:var(--ink)}
+.dsec{margin:0 0 18px}
+.dsec>.lbl{font:600 11.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt2{height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--field-border);background:var(--field);color:var(--ink-2);font:500 13px/1 var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color var(--transition)}
+.opt2:hover{border-color:var(--panel-border-hi);color:var(--ink)}
+.opt2.on{background:var(--btn-primary-bg);border-color:var(--btn-primary-bg);color:var(--btn-primary-ink);font-weight:600}
+.opt2 .dot2{width:6px;height:6px;border-radius:50%;background:var(--lime)}
+/* kontoplan */
+.kprow{display:grid;grid-template-columns:96px minmax(140px,1fr) 120px minmax(150px,auto) 20px;gap:12px;align-items:center;padding:10px 8px;margin:0 -8px;border-radius:10px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;transition:background var(--transition)}
+.kprow:last-child{border-bottom:0}
+.kprow:hover{background:var(--hover)}
+.kprow .nr{font:500 13px/1 var(--mono);color:var(--ink-2)}
+.kprow .am{font:500 13px/1 var(--mono);color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.kprow .chev{color:var(--ink-3)}
+.dest{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dest .to{padding:4px 10px;border-radius:999px;background:var(--field);border:1px solid var(--field-border);font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.dest .to.man{border-color:color-mix(in srgb,var(--lime) 50%,transparent);color:var(--ink);background:color-mix(in srgb,var(--lime) 10%,transparent)}
+.dest .to.off{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+/* konteringsoppsett: formel som uttrykk */
+.fx{background:var(--panel);border:1px solid var(--panel-border);border-radius:16px;padding:18px 20px;margin-bottom:12px;scroll-margin-top:130px}
+.fx.ovr{border-color:color-mix(in srgb,var(--warning) 45%,transparent)}
+.fx-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fx-h .nm{font-weight:600;font-size:15px}
+.fx-h .val{margin-left:auto;font:600 18px/1 var(--sans);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.expr{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 4px;font-size:14px}
+.expr .eq{font:400 22px/1 var(--serif);color:var(--ink-3);margin-right:2px}
+.op{width:24px;height:24px;border-radius:50%;border:1px solid var(--field-border);background:transparent;color:var(--ink-2);display:grid;place-items:center;cursor:pointer;font:600 14px/1 var(--sans);padding:0}
+.op:hover{border-color:var(--panel-border-hi);color:var(--ink)}
+.op.minus{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+.tok{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 4px 0 12px;border-radius:10px;border:1px solid var(--field-border);background:var(--field);font-size:13.5px;cursor:pointer;transition:border-color var(--transition)}
+.tok:hover{border-color:var(--panel-border-hi)}
+.tok.calc{border-style:dashed}
+.tok .x{border:0;background:none;color:var(--ink-3);cursor:pointer;width:22px;height:22px;border-radius:6px;font-size:14px;line-height:1}
+.tok .x:hover{color:var(--danger);background:var(--field)}
+.tok.add{color:var(--lime);border-style:dashed;border-color:color-mix(in srgb,var(--lime) 45%,transparent);padding-right:12px}
+.ftxt{font:500 13px/1.6 var(--mono);color:var(--ink-2);margin-top:10px;word-break:break-word}
+.posts{margin-top:12px;border-top:1px solid var(--line)}
+.post{display:grid;grid-template-columns:minmax(150px,240px) 1fr auto;gap:12px;align-items:start;padding:11px 0;border-bottom:1px solid var(--line)}
+.post:last-child{border-bottom:0}
+.post .pn{font-size:14px;color:var(--ink);padding-top:6px}
+.post .pv{font:500 13px/1 var(--mono);color:var(--ink-2);padding-top:8px;text-align:right;font-variant-numeric:tabular-nums}
+.post .chips{margin-top:0}
+.hint{font-size:13.5px;color:var(--ink-2);margin:0 0 16px;max-width:720px}
+@media (max-width:760px){.kprow{grid-template-columns:80px 1fr 20px}.kprow .am,.kprow .dest{grid-column:2/3}.post{grid-template-columns:1fr auto}.post .chips{grid-column:1/-1}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 @media (max-width:760px){
   .wrap{padding:22px 16px 110px}
@@ -400,6 +456,17 @@ const NN = {
   "Mangler parentes etter": "Manglar parentes etter",
   "Parentesene går ikke opp": "Parentesane går ikkje opp",
   "Ukjent ledd": "Ukjent ledd",
+  "Lukk": "Lukk", "Med i posten nå": "Med i posten no", "Legg til eller fjern": "Legg til eller fjern", "Klikk en konto for å ta den med eller fjerne den.": "Klikk ein konto for å ta han med eller fjerne han.",
+  "Rediger uttrykk": "Rediger uttrykk", "Skriv uttrykk": "Skriv uttrykk", "Uttrykk": "Uttrykk", "Betyr": "Tyder", "Sett inn post": "Set inn post", "Legg til ledd i": "Legg til ledd i", "Søk post": "Søk post",
+  "Pluss": "Pluss", "Minus": "Minus", "Beregnet": "Rekna ut", "Beløp": "Beløp", "Ingen treff.": "Ingen treff.", "Bytt fortegn": "Byt forteikn", "Ledd": "Ledd", "til": "til",
+  "Formelen må ha minst ett ledd.": "Formelen må ha minst eitt ledd.",
+  "Hver formel er et regnestykke: klikk + eller − for å bytte fortegn, × for å fjerne et ledd og + Ledd for å legge til. Under står kontoene som summeres i hver post.": "Kvar formel er eit reknestykke: klikk + eller − for å byte forteikn, × for å fjerne eit ledd og + Ledd for å leggje til. Under står kontoane som blir summerte i kvar post.",
+  "Søk konto, navn eller produksjon": "Søk konto, namn eller produksjon", "I saldobalansen": "I saldobalansen", "Alle": "Alle", "Endret": "Endra", "Auto": "Auto", "Avd.": "Avd.",
+  "Klikk på en konto for å velge hvor beløpet skal gå. «Auto» betyr at koblingen følger produktkoden i Tripletex.": "Klikk på ein konto for å velje kvar beløpet skal gå. «Auto» tyder at koplinga følgjer produktkoden i Tripletex.",
+  "Ingen kontoer passer filteret.": "Ingen kontoar passar filteret.", "Beløp i saldobalansen": "Beløp i saldobalansen", "Går nå til": "Går no til", "Går til": "Går til", "Produksjon": "Produksjon",
+  "Fellespost eller annet": "Fellespost eller anna", "Del en andel med": "Del ein del med", "Ingen deling": "Inga deling", "prosent av beløpet": "prosent av beløpet",
+  "Balansekonto: brukes til varelager og avskrivninger, ikke til fordeling.": "Balansekonto: blir brukt til varelager og avskrivingar, ikkje til fordeling.",
+  "Kontoer utenfor avdeling 10/20 regnes som andre næringer.": "Kontoar utanfor avdeling 10/20 blir rekna som andre næringar.", "Bruk automatisk": "Bruk automatisk",
   "Ingen tall å vise.": "Ingen tal å vise.", "For få punkter til å vise utvikling.": "For få punkt til å vise utvikling.", "Driftsresultat hittil i år": "Driftsresultat hittil i år", "akkumulert": "akkumulert",
   "Fjorårets resultat": "Fjorårets resultat", "Driftsinntekter per måned": "Driftsinntekter per månad", "Største kontogrupper": "Største kontogrupper", "Korrigering per konto": "Korrigering per konto",
   "driftsmessig minus skattemessig": "driftsmessig minus skattemessig", "Avskrivninger per konto": "Avskrivingar per konto", "Grovfôrareal mot fôrbehov": "Grovfôrareal mot fôrbehov",
@@ -1421,10 +1488,10 @@ function hbModal(nr) {
   const sum = rows.reduce((x, t) => [x[0] + t[4], x[1] + t[5], x[2] + t[6]], [0, 0, 0]);
   const cols = [T("Dato"), T("Bilag"), T("Tekst"), T("Beløp"), T("Mengde") + " 1", T("Mengde") + " 2"];
   modal("", el => {
-    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Hovedbok")}</div><h2>${esc(nr)} ${esc(kontoNavn(nr))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
+    el.innerHTML = `${dHead(T("Hovedbok"), esc(nr) + " " + esc(kontoNavn(nr)))}<div class="dbody" style="padding-bottom:20px">
       <table class="t"><thead><tr>${cols.map((c, i) => `<th class="${i > 2 ? "n" : ""}">${c}</th>`).join("")}</tr></thead><tbody>
       ${rows.map(t => `<tr>${td(cols[0], esc(t[0]))}${td(cols[1], esc(t[1]))}${td(cols[2], esc(t[3]), "wide")}${td(cols[3], kr(t[4]), "n")}${td(cols[4], fmt(t[5], "n"), "n")}${td(cols[5], fmt(t[6], "n"), "n")}</tr>`).join("")}
-      <tr class="sum"><td colspan="3">${T("Sum")} · ${rows.length} ${T("posteringer")}</td><td class="n">${kr(sum[0])}</td><td class="n">${fmt(sum[1], "n")}</td><td class="n">${fmt(sum[2], "n")}</td></tr></tbody></table>`;
+      <tr class="sum"><td colspan="3">${T("Sum")} · ${rows.length} ${T("posteringer")}</td><td class="n">${kr(sum[0])}</td><td class="n">${fmt(sum[1], "n")}</td><td class="n">${fmt(sum[2], "n")}</td></tr></tbody></table></div>`;
     $("#mClose", el).onclick = closeModal;
   });
 }
@@ -2017,43 +2084,65 @@ function avdOptions(sel, def) {
     Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("");
 }
 function renderKontoplan(el, m) {
-  const f = (SET.filter || "").toLowerCase(), onlyMan = !!SET.onlyManual, avdF = SET.avdFilter ?? "20";
-  const inSb = new Set(S.sb.map(r => r.nr));
+  const f = (SET.filter || "").toLowerCase(), avdF = SET.avdFilter ?? "20", inSb = new Set(S.sb.map(r => r.nr));
+  const view = ["sb", "all", "man"].includes(SET.kpView) ? SET.kpView : (S.sb.length ? "sb" : "all");
   const all = [...new Set([...KONTOPLAN.accounts.map(a => a[0]), ...inSb])].sort(byNr);
-  const target = nr => (mapFor(nr) ? mapFor(nr).t1 : autoTarget(nr));
+  const target = nr => (mapFor(nr) ? mapFor(nr).t1 : autoShown(nr));
   const isRes = nr => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; };
   const manual = nr => !!mapFor(nr) || (SET.avd[nr] != null && SET.avd[nr] !== "");
-  const shown = all.filter(nr => (!onlyMan || manual(nr)) && (avdF === "*" || effAvd(nr) === avdF || (avdF === "20" && effAvd(nr) === ""))
+  const amt = nr => { const a = M && M.A[nr]; return a ? -a.amt : null; };
+  const shown = all.filter(nr => (view !== "sb" || inSb.has(nr)) && (view !== "man" || manual(nr)) && (avdF === "*" || effAvd(nr) === avdF || (avdF === "20" && effAvd(nr) === ""))
     && (!f || nr.includes(f) || kontoNavn(nr).toLowerCase().includes(f) || (isRes(nr) && PN(target(nr)).toLowerCase().includes(f))));
   const groups = {}; shown.forEach(nr => { const g = String(parseAcc(nr).base).slice(0, 2); (groups[g] = groups[g] || []).push(nr); });
   const nMan = all.filter(manual).length;
+  const destHtml = nr => { if (!isRes(nr)) return `<span class="dest"><span class="to">${T("Balanse")}</span></span>`;
+    const x = mapFor(nr), t1 = target(nr), off = t1 === "NONE";
+    return `<span class="dest"><span class="to ${x ? "man" : ""} ${off ? "off" : ""}">${x ? "" : T("Auto") + " · "}${esc(PN(t1))}</span>${x && x.t2 ? `<span class="to man">${num(x.p2)} % ${esc(PN(x.t2))}</span>` : ""}${SET.avd[nr] ? `<span class="to man">${T("Avd.")} ${esc(SET.avd[nr])}</span>` : ""}</span>`; };
   el.innerHTML = `<div class="card"><div class="row">
-      <input class="search" id="sflt" placeholder="${T("Søk konto eller navn")}" value="${esc(SET.filter || "")}">
+      <input class="search" id="sflt" placeholder="${T("Søk konto, navn eller produksjon")}" value="${esc(SET.filter || "")}">
+      <div class="seg" role="group">${[["sb", T("I saldobalansen")], ["all", T("Alle")], ["man", T("Endret") + (nMan ? " " + nMan : "")]].map(([k, l]) => `<button data-v="${k}" class="${view === k ? "on" : ""}" ${k === "sb" && !S.sb.length ? "disabled" : ""}>${l}</button>`).join("")}</div>
       <select class="sel" id="avdF"><option value="*" ${avdF === "*" ? "selected" : ""}>${T("Alle avdelinger")}</option>${Object.keys(AVD).sort().map(k => `<option value="${k}" ${k === avdF ? "selected" : ""}>${k} ${esc(AVD[k])}</option>`).join("")}</select>
-      <label class="row sm"><input type="checkbox" id="onlyMan" ${onlyMan ? "checked" : ""}> ${T("Vis bare manuelle")}</label><span class="grow"></span>
-      <span class="pill acc">${nMan} ${T("manuelle")}</span><button class="btn sm ghost" id="resetMap">${T("Tilbakestill alle")}</button></div></div>
-    <div class="maprow mhead"><span>${T("Konto")}</span><span>${T("Navn")}</span><span>${T("Avdeling")}</span><span>${T("Kobling")}</span><span>${T("Del med")}</span><span>%</span></div>
-    ${Object.keys(groups).sort().map(g => `<details class="grp" data-g="${g}" ${f || onlyMan || (SET.openGroups || []).includes(g) ? "open" : ""}>
-      <summary>${g} ${esc(KONTOPLAN.groups[g] || "")} <span class="grow"></span><span class="muted sm">${groups[g].length}</span></summary><div class="inner"></div></details>`).join("")}`;
-  const fill = d => { const box = $(".inner", d);
-    box.innerHTML = groups[d.dataset.g].map(nr => { const x = mapFor(nr) || {}, res = isRes(nr), av = SET.avd[nr] || "", ad = avdDefault(nr);
-      return `<div class="maprow ${manual(nr) ? "manual" : ""}" data-nr="${esc(nr)}"><span class="nr acc">${esc(nr)}${inSb.has(nr) ? " •" : ""}</span><span>${esc(kontoNavn(nr))}</span>
-        <select class="sel ${av ? "ovr" : ""}" data-f="avd">${avdOptions(av, ad)}</select>
-        ${res ? `<select class="sel" data-f="t1">${targetOptions(x.t1 || "", autoShown(nr))}</select>
-        <select class="sel" data-f="t2"><option value="">${T("Del med")} …</option>${PKEYS.concat(Object.keys(SPECIAL_LABEL)).map(k => `<option value="${k}" ${k === x.t2 ? "selected" : ""}>${esc(PN(k))}</option>`).join("")}</select>
-        <input class="inp num" data-f="p2" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}>` : `<span class="muted sm">${T("Balanse")}</span><span></span><span></span>`}</div>`; }).join("");
-    $$("select, input", box).forEach(e2 => e2.onchange = e => { const nr = e.target.closest(".maprow").dataset.nr;
-      if (e.target.dataset.f === "avd") { if (e.target.value) SET.avd[nr] = e.target.value; else delete SET.avd[nr]; saveSet(); }
-      else setMap(nr, e.target.dataset.f, e.target.value);
-      if (S.sb.length) compute(); fill(d); renderChrome(); }); };
+      <span class="grow"></span>${nMan ? `<button class="btn sm ghost" id="resetMap">${T("Tilbakestill alle")}</button>` : ""}</div></div>
+    <p class="hint">${T("Klikk på en konto for å velge hvor beløpet skal gå. «Auto» betyr at koblingen følger produktkoden i Tripletex.")}</p>
+    ${Object.keys(groups).length ? Object.keys(groups).sort().map(g => `<details class="grp" data-g="${g}" ${f || view === "man" || (view === "sb" && +g >= 30) || (SET.openGroups || []).includes(g) ? "open" : ""}>
+      <summary>${g} ${esc(KONTOPLAN.groups[g] || "")} <span class="grow"></span><span class="muted sm">${groups[g].length}</span></summary><div class="inner"></div></details>`).join("") : `<div class="card muted">${T("Ingen kontoer passer filteret.")}</div>`}`;
+  const fill = d => { $(".inner", d).innerHTML = groups[d.dataset.g].map(nr => `<div class="kprow" data-nr="${esc(nr)}" tabindex="0" role="button">
+      <span class="nr">${esc(nr)}</span><span>${esc(kontoNavn(nr))}</span><span class="am">${amt(nr) != null ? kr(amt(nr)) : ""}</span>${destHtml(nr)}<span class="chev">›</span></div>`).join("");
+    $$(".kprow", d).forEach(r => { const open = () => kpModal(r.dataset.nr, () => renderKontoplan(el, m)); r.onclick = open; r.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }; }); };
   $$("details.grp", el).forEach(d => { if (d.open) fill(d); d.ontoggle = () => { if (d.open) fill(d);
     const o = new Set(SET.openGroups || []); d.open ? o.add(d.dataset.g) : o.delete(d.dataset.g); SET.openGroups = [...o]; saveSet(); }; });
   $("#sflt").oninput = e => { SET.filter = e.target.value; const pos = e.target.selectionStart; renderKontoplan(el, m); const n = $("#sflt"); n.focus(); n.setSelectionRange(pos, pos); };
+  $$(".seg button[data-v]", el).forEach(b => b.onclick = () => { SET.kpView = b.dataset.v; saveSet(); renderKontoplan(el, m); });
   $("#avdF").onchange = e => { SET.avdFilter = e.target.value; saveSet(); renderKontoplan(el, m); };
-  $("#onlyMan").onchange = e => { SET.onlyManual = e.target.checked; saveSet(); renderKontoplan(el, m); };
-  $("#resetMap").onclick = () => { if (confirm(T("Vil du fjerne alle manuelle koblinger?"))) { SET.map = {}; SET.avd = {}; saveSet(); render(); } };
+  const rm = $("#resetMap"); if (rm) rm.onclick = () => { if (confirm(T("Vil du fjerne alle manuelle koblinger?"))) { SET.map = {}; SET.avd = {}; saveSet(); render(); } };
 }
-
+/* kopling for éin konto */
+function kpModal(nr, done) {
+  const isRes = (() => { const b = parseAcc(nr).base; return b >= 3000 && b <= 8999; })();
+  const draw = el => { const x = mapFor(nr) || {}, auto = autoShown(nr), ad = avdDefault(nr), av = SET.avd[nr] || "", a = M && M.A[nr];
+    const prodOpts = PKEYS.map(k => [k, PN(k), M && M.active.has(k)]), special = Object.keys(SPECIAL_LABEL).filter(k => k !== "POOL").map(k => [k, PN(k)]);
+    const btn = (k, l, on, extra = "") => `<button class="opt2 ${on ? "on" : ""}" data-t1="${k}">${extra}${esc(l)}</button>`;
+    el.innerHTML = `${dHead(esc(nr), esc(kontoNavn(nr)))}<div class="dbody">
+      ${a ? `<div class="tiles" style="grid-template-columns:repeat(2,1fr)"><div class="tile"><div class="k">${T("Beløp i saldobalansen")}</div><div class="v" style="font-size:22px">${kr(-a.amt)}</div></div>
+        <div class="tile"><div class="k">${T("Går nå til")}</div><div class="v" style="font-size:18px">${esc(PN(x.t1 || auto))}</div></div></div>` : ""}
+      ${isRes ? `<div class="dsec"><div class="lbl">${T("Går til")}</div><div class="opts">${btn("", T("Automatisk") + " · " + PN(auto), !x.t1)}</div></div>
+      <div class="dsec"><div class="lbl">${T("Produksjon")}</div><div class="opts">${prodOpts.map(([k, l, act]) => btn(k, l, x.t1 === k, act ? '<span class="dot2"></span>' : "")).join("")}</div></div>
+      <div class="dsec"><div class="lbl">${T("Fellespost eller annet")}</div><div class="opts">${special.map(([k, l]) => btn(k, l, x.t1 === k)).join("")}</div></div>
+      <div class="dsec"><div class="lbl">${T("Del en andel med")}</div><div class="row"><select class="sel" id="kT2" style="min-width:220px"><option value="">${T("Ingen deling")}</option>${PKEYS.concat(Object.keys(SPECIAL_LABEL).filter(k => k !== "POOL")).map(k => `<option value="${k}" ${k === x.t2 ? "selected" : ""}>${esc(PN(k))}</option>`).join("")}</select>
+        <input class="inp num" id="kP2" style="max-width:110px" value="${x.t2 ? num(x.p2) : ""}" placeholder="%" ${x.t2 ? "" : "disabled"}><span class="muted sm">${T("prosent av beløpet")}</span></div></div>` : `<p class="hint">${T("Balansekonto: brukes til varelager og avskrivninger, ikke til fordeling.")}</p>`}
+      <div class="dsec"><div class="lbl">${T("Avdeling")}</div><select class="sel" id="kAvd" style="min-width:260px">${avdOptions(av, ad)}</select>
+        <div class="muted sm" style="margin-top:6px">${T("Kontoer utenfor avdeling 10/20 regnes som andre næringer.")}</div></div></div>
+      <div class="dfoot"><button class="btn sm ghost" id="kAuto">${T("Bruk automatisk")}</button><span class="grow"></span><button class="btn pri" id="kOk">${T("Ferdig")}</button></div>`;
+    const upd = () => { if (S.sb.length) compute(); draw(el); };
+    $("#mClose", el).onclick = $("#kOk", el).onclick = () => { closeModal(); done(); };
+    $$(".opt2[data-t1]", el).forEach(b => b.onclick = () => { setMap(nr, "t1", b.dataset.t1); upd(); });
+    const t2 = $("#kT2", el); if (t2) t2.onchange = e => { setMap(nr, "t2", e.target.value); upd(); };
+    const p2 = $("#kP2", el); if (p2) p2.onchange = e => { const v = Math.min(100, Math.max(0, num(e.target.value))); setMap(nr, "p2", v); upd(); };
+    $("#kAvd", el).onchange = e => { if (e.target.value) SET.avd[nr] = e.target.value; else delete SET.avd[nr]; saveSet(); upd(); };
+    $("#kAuto", el).onclick = () => { setMap(nr, "t1", ""); delete SET.avd[nr]; saveSet(); upd(); };
+  };
+  modal("", draw);
+}
 /* ---------- Konteringsoppsett ---------- */
 const KSHEETS = () => [...SPEC.prods.map(p => p.key), "faste", "total"];
 function simpleTerms(expr) {
@@ -2072,7 +2161,7 @@ function accChips(full) {
   const r = ROW[full], acc = accFor(full), toks = acc.split(",").map(x => x.trim()).filter(Boolean), ov = SET.acc[full] != null;
   if (!["tilskot", "inn", "kost", "gf", "fast"].includes(r.kind) && !(r.kind === "info" && (r.acc || ov))) return `<div class="chips"><span class="chip muted">${T(r.kind === "info" ? "Fylles inn manuelt" : "Produksjonsdata")}</span></div>`;
   if (r.acc == null && !ov && !acc && !/\.andre_(inn|kost)$/.test(full)) return `<div class="chips"><span class="chip muted">${T("Fordeles med nøkkel")}</span></div>`;
-  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" title="${esc(chipTitle(t))}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
+  return `<div class="chips" data-full="${full}">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}" data-tt="${esc(`<b>${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}</b><div>${esc(chipTitle(t))}</div>`)}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}" aria-label="${T("Fjern")}">×</button></span>`).join("")}
     ${!toks.length && /andre_(inn|kost)$/.test(full) ? `<span class="chip muted">${T(full.endsWith("andre_inn") ? "Øvrige 3xxx-kontoer" : "Øvrige 4xxx-kontoer")}</span>` : ""}
     <button class="chip add" data-add="${full}">+ ${T("Konto")}</button>${ov ? `<button class="btn sm ghost" data-racc="${full}">${T("Standard")}</button>` : ""}</div>`;
 }
@@ -2085,28 +2174,46 @@ function renderKontering(el, m) {
   const secs = sectionOf(sh), V = S.sb.length && M ? M.V : null;
   const calcs = sh.rows.filter(r => r.t === "calc"), main = calcs.filter(r => !isDetailSec(secs[r.id])), rest = calcs.filter(r => isDetailSec(secs[r.id]));
   const nOv = Object.keys(SET.acc).length + Object.keys(SET.formulas).length;
-  const val = full => V ? `<span class="fval">${fmt(V(full), ROW[full].fmt)}</span>` : "";
-  const fcard = r => { const full = sel + "." + r.id, expr = fexpr(full), terms = simpleTerms(expr), ov = !!SET.formulas[full];
-    return `<div class="fcard ${ov ? "ovr" : ""}"><div class="fhead"><b>${esc(LBL(r))}</b>${val(full)}<span class="grow"></span>
-      ${ov ? `<span class="pill warn">${T("Endret")}</span>` : ""}<button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>
-      ${terms ? `<div class="terms">${terms.map(t => { let f; try { f = fullId(t.id, sel); } catch (e) { return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><span class="bad">${esc(t.id)}</span></div>`; }
-        const rr = ROW[f]; return `<div class="term"><span class="sg">${t.sign < 0 ? "−" : "+"}</span><div class="tb"><div class="tl">${esc(LBL(rr))}${f.split(".")[0] !== sel ? ` <span class="muted sm">${esc(SL(SHEET[f.split(".")[0]], "sheet"))}</span>` : ""}${val(f)}</div>
-          ${rr.t === "input" ? accChips(f) : `<div class="chips"><span class="chip muted">${T("Formel")}</span></div>`}</div></div>`; }).join("")}</div>`
-      : `<div class="ftext">= ${esc(ftext(full))}</div>`}</div>`; };
-  el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
+  const vtxt = full => (V ? fmt(V(full), ROW[full].fmt) : "");
+  const contribTip = full => { const c = (M && M.contrib[full]) || []; if (!c.length) return "";
+    return `<b>${esc(LBL(ROW[full]))}</b>` + c.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, 8).map(x => `<div class="tr2"><span>${esc(x.nr)} ${esc(x.nr === "INNMEK" ? "" : kontoNavn(x.nr))}</span><span class="tv">${kr(x.v)}</span></div>`).join("") + (c.length > 8 ? `<div class="muted">+ ${c.length - 8} ${T("til")}</div>` : ""); };
+  const exprHtml = (full, editable) => { const expr = fexpr(full), terms = simpleTerms(expr);
+    if (!terms) return `<div class="ftxt">= ${esc(ftext(full))}</div>`;
+    return `<div class="expr" data-full="${full}"><span class="eq">=</span>${terms.map((t, i) => { let f; try { f = fullId(t.id, sel); } catch (e) { f = null; }
+      const rr = f && ROW[f], lab = rr ? LBL(rr) + (f.split(".")[0] !== sel ? " (" + SL(SHEET[f.split(".")[0]], "sheet") + ")" : "") : t.id;
+      return `${i || t.sign < 0 ? `<button class="op ${t.sign < 0 ? "minus" : ""}" data-op="${i}" ${editable ? "" : "disabled"} title="${T("Bytt fortegn")}">${t.sign < 0 ? "−" : "+"}</button>` : ""}
+        <span class="tok ${rr && rr.t === "calc" ? "calc" : ""}" ${rr && rr.t === "calc" && f.split(".")[0] === sel ? `data-go="${rr.id}"` : ""} data-tt="${esc(`<b>${esc(lab)}</b>${V && rr ? `<div class="tv">${vtxt(f)}</div>` : ""}`)}">${esc(lab)}${editable ? `<button class="x" data-rm="${i}" aria-label="${T("Fjern")}">×</button>` : ""}</span>`; }).join("")}
+      ${editable ? `<button class="tok add" data-addt="${full}">+ ${T("Ledd")}</button>` : ""}</div>`; };
+  const postsHtml = full => { const terms = simpleTerms(fexpr(full)); if (!terms) return "";
+    const rows = terms.map(t => { try { return fullId(t.id, sel); } catch (e) { return null; } }).filter(f => f && ROW[f] && ROW[f].t === "input" && f.split(".")[0] === sel);
+    if (!rows.length) return "";
+    return `<div class="posts">${rows.map(f => `<div class="post"><span class="pn">${esc(LBL(ROW[f]))}</span>${accChips(f)}<span class="pv" ${contribTip(f) ? `data-tt="${esc(contribTip(f))}"` : ""}>${vtxt(f)}</span></div>`).join("")}</div>`; };
+  const card = (r, detail) => { const full = sel + "." + r.id, ov = !!SET.formulas[full], simple = !!simpleTerms(fexpr(full));
+    return `<div class="fx ${ov ? "ovr" : ""}" id="fx-${r.id}"><div class="fx-h"><span class="nm">${esc(LBL(r))}</span>${ov ? `<span class="pill warn">${T("Endret")}</span>` : ""}
+      ${ov ? `<button class="btn sm ghost" data-fstd="${full}">${T("Standard")}</button>` : ""}<button class="btn sm ghost" data-edit="${full}">${T(simple ? "Skriv uttrykk" : "Rediger uttrykk")}</button><span class="val">${vtxt(full)}</span></div>
+      ${exprHtml(full, true)}${detail ? "" : postsHtml(full)}</div>`; };
+  el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel" style="min-width:240px">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
       <span class="grow"></span>${nOv ? `<span class="pill warn">${nOv} ${T("endringer")}</span>` : ""}<button class="btn sm" id="resetStd">${T("Tilbakestill standard")}</button></div></div>
-    ${main.map(fcard).join("")}
-    <details class="grp"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">
-      ${rest.map(r => { const full = sel + "." + r.id, ov = !!SET.formulas[full];
-        return `<div class="frow ${ov ? "ovr" : ""}"><div><b>${esc(LBL(r))}</b>${val(full)}<div class="ftext">= ${esc(ftext(full))}</div></div><button class="btn sm" data-edit="${full}">${T("Endre formel")}</button></div>`; }).join("")}</div></details>`;
-  $("#kSel").onchange = e => { SET.kSheet = e.target.value; saveSet(); renderKontering(el, m); };
-  $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); if (S.sb.length) compute(); renderKontering(el, m); } };
+    <p class="hint">${T("Hver formel er et regnestykke: klikk + eller − for å bytte fortegn, × for å fjerne et ledd og + Ledd for å legge til. Under står kontoene som summeres i hver post.")}</p>
+    ${main.map(r => card(r, false)).join("")}
+    <details class="grp"><summary>${T("Nøkkeltall og tall per enhet")} <span class="grow"></span><span class="muted sm">${rest.length}</span></summary><div class="inner">${rest.map(r => card(r, true)).join("")}</div></details>`;
   const redraw = () => { if (S.sb.length) compute(); renderKontering(el, m); };
-  $$(".chip .x", el).forEach(b => b.onclick = () => { const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
+  const setTerms = (full, terms) => { const r = ROW[full], e2 = termsToExpr(terms);
+    if (!terms.length) { alert(T("Formelen må ha minst ett ledd.")); return; }
+    if (formulaCycle(full, e2)) { alert(T("Formelen viser tilbake til seg selv (sirkelreferanse)")); return; }
+    if (e2 === r.expr) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); redraw(); };
+  $("#kSel").onchange = e => { SET.kSheet = e.target.value; saveSet(); renderKontering(el, m); };
+  $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); redraw(); } };
+  $$(".chip .x", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
     toks.splice(+b.dataset.i, 1); SET.acc[full] = toks.join(", "); saveSet(); redraw(); });
   $$("[data-add]", el).forEach(b => b.onclick = () => accModal(b.dataset.add, redraw));
   $$("[data-racc]", el).forEach(b => b.onclick = () => { delete SET.acc[b.dataset.racc]; saveSet(); redraw(); });
   $$("[data-edit]", el).forEach(b => b.onclick = () => formulaModal(b.dataset.edit, redraw));
+  $$("[data-fstd]", el).forEach(b => b.onclick = () => { delete SET.formulas[b.dataset.fstd]; saveSet(); redraw(); });
+  $$("[data-op]", el).forEach(b => b.onclick = () => { const full = b.closest(".expr").dataset.full, terms = simpleTerms(fexpr(full)); terms[+b.dataset.op].sign *= -1; setTerms(full, terms); });
+  $$("[data-rm]", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".expr").dataset.full, terms = simpleTerms(fexpr(full)); terms.splice(+b.dataset.rm, 1); setTerms(full, terms); });
+  $$("[data-addt]", el).forEach(b => b.onclick = () => { const full = b.dataset.addt; termPicker(full, (id, sign) => { const terms = simpleTerms(fexpr(full)) || []; terms.push({sign, id}); setTerms(full, terms); }); });
+  $$("[data-go]", el).forEach(t2 => t2.onclick = () => { const c = $("#fx-" + t2.dataset.go); if (!c) return; const d = c.closest("details"); if (d) d.open = true; c.scrollIntoView({behavior: "smooth", block: "start"}); });
 }
 /* ---------- overlay ---------- */
 function modal(html, onMount) {
@@ -2116,7 +2223,9 @@ function modal(html, onMount) {
   o.addEventListener("mousedown", e => { if (e.target === o) closeModal(); });
   document.body.appendChild(o); document.body.style.overflow = "hidden";
   onMount($(".dialog", o));
+  const f = $(".dialog input:not([type=hidden]), .dialog select, .dialog button", o); if (f) f.focus({preventScroll: true});
 }
+const dHead = (kicker, title) => `<div class="dhead"><div><div class="k">${kicker}</div><h2>${title}</h2></div><button class="xbtn" id="mClose" aria-label="${T("Lukk")}">✕</button></div>`;
 function closeModal() { const o = $("#overlay"); if (o) o.remove(); document.body.style.overflow = ""; }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 function baseAccounts() {
@@ -2128,14 +2237,14 @@ function accModal(full, done) {
   const r = ROW[full];
   const draw = d => { const toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean), q = (d.q || "").toLowerCase();
     const list = baseAccounts().filter(([b, n]) => !q || b.includes(q) || n.toLowerCase().includes(q)).slice(0, 80);
-    d.el.innerHTML = `<div class="dhead"><div><div class="k">${T("Kontoer i posten")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
-      <div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div>
-      <div class="row" style="margin:14px 0 8px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
+    d.el.innerHTML = `${dHead(T("Kontoer i posten"), esc(LBL(r)))}<div class="dbody">
+      <div class="dsec"><div class="lbl">${T("Med i posten nå")}</div><div class="chips big">${toks.map((t, i) => `<span class="chip ${t.startsWith("!") ? "neg" : ""}">${esc(t.startsWith("!") ? T("unntatt") + " " + t.slice(1) : t)}<button class="x" data-i="${i}">×</button></span>`).join("") || `<span class="muted sm">${T("Ingen kontoer")}</span>`}</div></div>
+      <div class="dsec"><div class="lbl">${T("Legg til eller fjern")}</div><div class="row" style="margin:0 0 10px"><input class="search" id="mq" placeholder="${T("Søk konto eller navn")}" value="${esc(d.q || "")}">
         <input class="inp" id="mRange" placeholder="${T("Intervall, f.eks. 4020-4029")}" style="width:190px"><button class="btn sm" id="mAddR">+ ${T("Legg til")}</button>
         <button class="btn sm" id="mExR" title="${T("Unnta kontoene fra posten")}">− ${T("Unnta")}</button></div>
       <div class="alist">${list.map(([b, n]) => { const has = toks.some(t => !t.startsWith("!") && inRule(+b, t));
-        return `<button class="arow ${has ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has ? "" : "muted"}">${has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div>
-      <div class="row dfoot"><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
+        return `<button class="arow ${has ? "on" : ""}" data-b="${b}"><span class="acc">${b}</span><span>${esc(n)}</span><span class="grow"></span><span class="sm ${has ? "" : "muted"}">${has ? "✓ " + T("Med") : "+ " + T("Legg til")}</span></button>`; }).join("")}</div></div></div>
+      <div class="dfoot"><span class="muted sm">${T("Klikk en konto for å ta den med eller fjerne den.")}</span><span class="grow"></span><button class="btn pri" id="mOk">${T("Ferdig")}</button></div>`;
     const setToks = t => { SET.acc[full] = t.join(", "); saveSet(); draw(d); };
     $$(".chip .x", d.el).forEach(b => b.onclick = () => { toks.splice(+b.dataset.i, 1); setToks(toks); });
     $$(".arow", d.el).forEach(b => b.onclick = () => { const v = b.dataset.b;
@@ -2155,40 +2264,46 @@ function formulaCycle(full, expr) {
 }
 function formulaModal(full, done) {
   const r = ROW[full], key = r.sheet, sh = SHEET[key];
-  const st = {expr: fexpr(full)}; st.terms = simpleTerms(st.expr); st.adv = !st.terms;
-  const opts = sel => sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc")).map(x => `<option value="${x.id}" ${x.id === sel ? "selected" : ""}>${esc(LBL(x))}</option>`).join("");
+  const st = {expr: fexpr(full)};
+  const opts = sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc")).map(x => `<option value="${x.id}">${esc(LBL(x))}</option>`).join("");
   const draw = el => {
-    const expr = st.adv ? st.expr : termsToExpr(st.terms || []);
     let err = "", txt = "", val = "";
-    try { frender(ftok(expr), key, "js"); try { compileExpr(expr, key); } catch (e2) { throw new Error(T("Formelen er ufullstendig – sjekk parenteser og ledd")); } if (formulaCycle(full, expr)) throw new Error(T("Formelen viser tilbake til seg selv (sirkelreferanse)")); txt = ftext(full, expr);
-      if (S.sb.length) { const old = SET.formulas[full]; SET.formulas[full] = expr; compute(); val = fmt(M.V(full), r.fmt); if (old == null) delete SET.formulas[full]; else SET.formulas[full] = old; compute(); }
+    try { frender(ftok(st.expr), key, "js"); try { compileExpr(st.expr, key); } catch (e2) { throw new Error(T("Formelen er ufullstendig – sjekk parenteser og ledd")); }
+      if (formulaCycle(full, st.expr)) throw new Error(T("Formelen viser tilbake til seg selv (sirkelreferanse)")); txt = ftext(full, st.expr);
+      if (S.sb.length) { const old = SET.formulas[full]; SET.formulas[full] = st.expr; compute(); val = fmt(M.V(full), r.fmt); if (old == null) delete SET.formulas[full]; else SET.formulas[full] = old; compute(); }
     } catch (e) { err = e.message; }
-    el.innerHTML = `<div class="dhead"><div><div class="k">${T("Endre formel")}</div><h2>${esc(LBL(r))}</h2></div><button class="btn sm ghost" id="mClose">✕</button></div>
-      ${st.adv ? `<textarea class="fedit" id="fx" spellcheck="false">${esc(st.expr)}</textarea>
-        <div class="row" style="margin-top:8px"><select class="sel" id="ins"><option value="">${T("Sett inn ledd")} …</option>${opts("")}</select>
-        <span class="muted sm">DIV(a,b) · IF(a&lt;b,x,y) · MAX · MIN · ROUND</span></div>`
-      : `<div class="tedit">${(st.terms || []).map((t, i) => `<div class="trow" data-i="${i}"><select class="sel sg2" data-f="sign"><option value="1" ${t.sign > 0 ? "selected" : ""}>+</option><option value="-1" ${t.sign < 0 ? "selected" : ""}>−</option></select>
-          <select class="sel" data-f="id">${opts(t.id)}</select><button class="btn sm ghost" data-del="${i}" aria-label="${T("Fjern")}">×</button></div>`).join("")}
-        <button class="btn sm" id="addT">+ ${T("Legg til ledd")}</button></div>`}
-      <div class="fprev ${err ? "bad" : ""}">${err ? esc(err) : `= ${esc(txt)}${val ? `<div class="sm muted" style="margin-top:4px">${T("Resultat")}: <b>${val}</b></div>` : ""}`}</div>
-      <div class="row dfoot"><button class="btn sm ghost" id="toggleAdv">${T(st.adv ? "Enkel redigering" : "Avansert redigering")}</button>
-        <button class="btn sm ghost" id="fStd">${T("Tilbakestill standard")}</button><span class="grow"></span>
+    el.innerHTML = `${dHead(T("Rediger uttrykk"), esc(LBL(r)))}<div class="dbody">
+      <div class="dsec"><div class="lbl">${T("Uttrykk")}</div><textarea class="fedit" id="fx" spellcheck="false">${esc(st.expr)}</textarea>
+        <div class="row" style="margin-top:10px"><select class="sel" id="ins" style="max-width:340px"><option value="">${T("Sett inn post")} …</option>${opts}</select>
+        <span class="muted sm">DIV(a,b) · IF(a&lt;b,x,y) · MAX · MIN · ROUND</span></div></div>
+      <div class="dsec"><div class="lbl">${T("Betyr")}</div><div class="fprev ${err ? "bad" : ""}">${err ? esc(err) : `= ${esc(txt)}${val ? `<div class="sm muted" style="margin-top:6px">${T("Resultat")}: <b>${val}</b></div>` : ""}`}</div></div></div>
+      <div class="dfoot"><button class="btn sm ghost" id="fStd">${T("Tilbakestill standard")}</button><span class="grow"></span>
         <button class="btn" id="fCancel">${T("Avbryt")}</button><button class="btn pri" id="fSave" ${err ? "disabled" : ""}>${T("Lagre")}</button></div>`;
     $("#mClose", el).onclick = $("#fCancel", el).onclick = closeModal;
-    $("#toggleAdv", el).onclick = () => { if (st.adv) { const t = simpleTerms(st.expr); if (!t) { alert(T("Formelen er for sammensatt for enkel redigering.")); return; } st.terms = t; st.adv = false; } else { st.expr = termsToExpr(st.terms || []); st.adv = true; } draw(el); };
-    $("#fStd", el).onclick = () => { st.expr = r.expr; st.terms = simpleTerms(r.expr); st.adv = !st.terms; draw(el); };
-    $("#fSave", el).onclick = () => { const e2 = st.adv ? st.expr : termsToExpr(st.terms); if (e2 === r.expr) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); closeModal(); done(); };
-    if (st.adv) { const fx = $("#fx", el); fx.onchange = e => { st.expr = e.target.value; draw(el); };
-      $("#ins", el).onchange = e => { if (!e.target.value) return; st.expr = (fx.value.trim() ? fx.value.trim() + "+" : "") + e.target.value; draw(el); }; }
-    else {
-      $$(".trow select", el).forEach(s2 => s2.onchange = e => { const t = st.terms[+e.target.closest(".trow").dataset.i]; if (e.target.dataset.f === "sign") t.sign = +e.target.value; else t.id = e.target.value; draw(el); });
-      $$("[data-del]", el).forEach(b => b.onclick = () => { st.terms.splice(+b.dataset.del, 1); draw(el); });
-      $("#addT", el).onclick = () => { st.terms = st.terms || []; st.terms.push({sign: 1, id: sh.rows.find(x => x.t === "input").id}); draw(el); };
-    }
+    $("#fStd", el).onclick = () => { st.expr = r.expr; draw(el); };
+    $("#fSave", el).onclick = () => { if (st.expr === r.expr) delete SET.formulas[full]; else SET.formulas[full] = st.expr; saveSet(); closeModal(); done(); };
+    const fx = $("#fx", el); fx.onchange = e => { st.expr = e.target.value; draw(el); };
+    $("#ins", el).onchange = e => { if (!e.target.value) return; st.expr = (fx.value.trim() ? fx.value.trim() + "+" : "") + e.target.value; draw(el); };
   };
   modal("", draw);
 }
-
+/* vel ein post å leggje til i eit uttrykk */
+function termPicker(full, done) {
+  const r = ROW[full], key = r.sheet, sh = SHEET[key], secs = sectionOf(sh);
+  const draw = d => { const q = (d.q || "").toLowerCase();
+    const list = sh.rows.filter(x => x.id && x.id !== r.id && (x.t === "input" || x.t === "calc") && !isDetailSec(secs[x.id]) && (!q || LBL(x).toLowerCase().includes(q)));
+    d.el.innerHTML = `${dHead(T("Legg til ledd i"), esc(LBL(r)))}<div class="dbody">
+      <div class="row" style="margin:0 0 10px"><input class="search" id="tq" placeholder="${T("Søk post")}" value="${esc(d.q || "")}" style="max-width:none">
+        <div class="seg" role="group"><button class="${d.sign < 0 ? "" : "on"}" data-s="1">+ ${T("Pluss")}</button><button class="${d.sign < 0 ? "on" : ""}" data-s="-1">− ${T("Minus")}</button></div></div>
+      <div class="alist" style="max-height:380px">${list.map(x => `<button class="arow" data-id="${x.id}"><span>${esc(LBL(x))}</span><span class="grow"></span><span class="sm muted">${x.t === "calc" ? T("Beregnet") : (x.unit === "kr" ? T("Beløp") : esc(x.unit))}</span></button>`).join("") || `<div class="muted sm" style="padding:14px">${T("Ingen treff.")}</div>`}</div></div>
+      <div class="dfoot"><span class="grow"></span><button class="btn" id="tCancel">${T("Avbryt")}</button></div>`;
+    $("#mClose", d.el).onclick = $("#tCancel", d.el).onclick = closeModal;
+    $$(".seg button", d.el).forEach(b => b.onclick = () => { d.sign = +b.dataset.s; draw(d); });
+    const tq = $("#tq", d.el); tq.oninput = e => { d.q = e.target.value; const p = e.target.selectionStart; draw(d); const n = $("#tq", d.el); n.focus(); n.setSelectionRange(p, p); };
+    $$(".arow", d.el).forEach(b => b.onclick = () => { closeModal(); done(b.dataset.id, d.sign < 0 ? -1 : 1); });
+  };
+  modal("", el => draw({el, sign: 1}));
+}
 /* ================================================================ HOVER-TIPS FOR GRAFAR */
 (function () {
   const tt = document.createElement("div"); tt.className = "tt"; tt.setAttribute("role", "tooltip"); document.body.appendChild(tt); let cur = null;
