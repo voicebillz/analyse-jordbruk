@@ -136,6 +136,18 @@ h1,h2,h3{font-weight:400;margin:0}
 .inp::placeholder,.search::placeholder,textarea::placeholder{color:var(--ink-3)}
 .inp.num:not(:placeholder-shown){border-color:color-mix(in srgb,var(--warning) 45%,transparent)}
 select option{background:var(--panel-solid);color:var(--ink)}
+.kused{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.fsec{margin-top:6px}
+.fsec + .fsec{margin-top:18px}
+.fsec-h{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
+.fsec.autobox{background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+.fsec.autobox .inp.num{background:color-mix(in srgb,var(--ink) 3%,var(--field))}
+.flbl{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.badge{flex:none;font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:2px 7px;border-radius:999px;border:1px solid var(--line);white-space:nowrap;line-height:1.5;background:transparent;color:var(--ink-3)}
+.badge.auto{color:var(--lime);border-color:color-mix(in srgb,var(--lime) 40%,transparent);background:color-mix(in srgb,var(--lime) 10%,transparent)}
+.badge.man{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
+.badge.miss,.badge.need{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 40%,transparent);background:color-mix(in srgb,var(--warning) 10%,transparent)}
+.badge.reset{cursor:pointer;color:var(--lime);border-color:color-mix(in srgb,var(--lime) 40%,transparent)}
 .fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 18px}
 .fields .field .unit{font-weight:400;color:var(--ink-3)}
 .fields .field .inp.num{max-width:none;height:49px;border-radius:13px;font-size:15px}
@@ -492,7 +504,13 @@ const NN = {
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
   "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
-  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Maskinkostnader fordelt": "Maskinkostnader fordelte", "Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.": "Klikk ein konto for å ta han med eller fjerne han. Hald inne og dra over fleire kontoar for å leggje inn eit intervall.", "Bytt ut": "Byt ut", "med": "med", "avbryt bytte": "avbryt bytet", "Bytt": "Byt", "Bytt til denne": "Byt til denne", "Ingen kontoer koblet": "Ingen kontoar kopla", "Kontoer i andre avdelinger enn jordbruk": "Kontoar i andre avdelingar enn jordbruk", "for alle produksjoner som er med": "for alle produksjonar som er med", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "åpen nå": "open no", "Slett standardverdiene for kunden": "Slett standardverdiane for kunden",
+  "Importer en saldobalanse for en kunde først. Fordelingsnøklene du setter i analysen lagres her som standard for kunden.": "Importer ein saldobalanse for ein kunde først. Fordelingsnøklane du set i analysen blir lagra her som standard for kunden.",
+  "Tomme felt bruker automatisk nøkkel. Verdiene du setter her brukes for kunden i analysen, og endringer på steget Fordelingsnøkler lagres her automatisk.": "Tomme felt brukar automatisk nøkkel. Verdiane du set her blir brukte for kunden i analysen, og endringar på steget Fordelingsnøklar blir lagra her automatisk.",
+  "Vil du slette standardverdiene for {k}?": "Vil du slette standardverdiane for {k}?", "auto": "auto", "Åpne innstillinger": "Opne innstillingar",
+  "Endringer her lagres også som standard for {k} under Innstillinger → Fordelingsnøkler, og brukes neste gang du analyserer denne kunden.": "Endringar her blir òg lagra som standard for {k} under Innstillingar → Fordelingsnøklar, og blir brukte neste gong du analyserer denne kunden.", "Hentet automatisk fra regnskapet": "Henta automatisk frå rekneskapen", "Auto · Tripletex": "Auto · Tripletex", "Manuelt": "Manuelt", "Bruk tallet fra Tripletex": "Bruk talet frå Tripletex",
+  "Fant ikke tallet i regnskapet – fyll inn": "Fann ikkje talet i rekneskapen – fyll inn", "Ikke funnet": "Ikkje funne", "Fyll inn": "Fyll inn", "Fylles inn manuelt": "Fyllast inn manuelt",
+  "Fôrnormer – standardverdier som kan endres": "Fôrnormer – standardverdiar som kan endrast", "Hentet automatisk fra Tripletex": "Henta automatisk frå Tripletex", "Skriv inn et tall for å overstyre": "Skriv inn eit tal for å overstyre", "Maskinkostnader fordelt": "Maskinkostnader fordelte", "Klikk en konto for å ta den med eller fjerne den. Hold inne og dra over flere kontoer for å legge inn et intervall.": "Klikk ein konto for å ta han med eller fjerne han. Hald inne og dra over fleire kontoar for å leggje inn eit intervall.", "Bytt ut": "Byt ut", "med": "med", "avbryt bytte": "avbryt bytet", "Bytt": "Byt", "Bytt til denne": "Byt til denne", "Ingen kontoer koblet": "Ingen kontoar kopla", "Kontoer i andre avdelinger enn jordbruk": "Kontoar i andre avdelingar enn jordbruk", "for alle produksjoner som er med": "for alle produksjonar som er med", "Sum av kontoer uten egen post": "Sum av kontoar utan eigen post", "Fôrnorm": "Fôrnorm",
   "Skjul utregning": "Skjul utrekning", "Vis utregning": "Vis utrekning",
   "Hver formel vises som et regnestykke med én rad per ledd. «Vis utregning» åpner leddet, helt ned til kontoene, fordelingsnøklene og produksjonsdataene som kan endres direkte.": "Kvar formel blir vist som eit reknestykke med éi rad per ledd. «Vis utrekning» opnar leddet, heilt ned til kontoane, fordelingsnøklane og produksjonsdataa som kan endrast direkte.",
   "Del andeler med": "Del delar med", "Legg til deling": "Legg til deling", "{a} går til {t}": "{a} går til {t}", "Delingene kan ikke overstige 100 %": "Delingane kan ikkje vere over 100 %",
@@ -862,6 +880,9 @@ const DERIVE_MONTH = [
   ["sau.selde_arslam", [3044, 3054], "543", 5, 12, "m1"], ["sau.kjopte_lam", [4640], "543", 5, 12, "m1"],
   ["sau.selde_jul_des", [3044, 3054], "541-543", 7, 12, "m1"],
 ];
+/* felt som normalt blir henta frå regnskapet */
+const AUTO_CAP = new Set([...DERIVE.map(d => d[0]), ...DERIVE_MONTH.map(d => d[0]), "mjolk.n", "ammekyr.n", "sau.n", "geit.n", "total.do_andre",
+  ...SPEC.prods.filter(p => p.rows.some(r => r.id === "sal_kg")).map(p => p.key + ".sal_kg")]);
 /* ================================================================ FIKTIV SALDOBALANSE (eksempelgård) */
 const DEMO = {
   klient: "TestKunde", aar: 2025,
@@ -897,7 +918,7 @@ const DEMO = {
   prodInputs: {
     "mjolk.n": 26, "mjolk.kvote": 250000, "oksar.n": 13, "oksar.tal_livs": 0,
     "sau.n": 70,
-    "korn.n": 60, "korn.avling": 22000, "korn.sal_kg": 20000,
+    "korn.n": 60, "korn.avling": 22000,
     "grovfor.overflate": 40, "grovfor.fulldyrka": 260, "grovfor.kulturbeite": 150, "grovfor.kb_utleigd": 0,
     "grovfor.utm_sau": 70, "grovfor.utm_lam": 110, "grovfor.utm_kyr": 0, "grovfor.utm_ungdyr": 0,
   },
@@ -933,8 +954,21 @@ try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET,
 LANG = SET.lang || "nb";
 let VIEW = "wizard";
 /* Innstillingar blir redigerte som kladd: endringane gjeld med ein gong i visninga, men blir først lagra når ein trykkjer Lagre */
-const DRAFT_SET = ["map", "avd", "acc", "formulas"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
+const DRAFT_SET = ["map", "avd", "acc", "formulas", "clientKeys"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
 let DRAFT = null;
+/* Fordelingsnøklar: standardverdiar per kunde ligg i innstillingane (SET.clientKeys) og blir brukte når prosjektet ikkje har eigne */
+const cid = () => String(S.klient || "").trim().toLowerCase();
+const clientStd = (create) => { SET.clientKeys = SET.clientKeys || {}; const c = cid(); if (!c) return null;
+  if (!SET.clientKeys[c] && create) SET.clientKeys[c] = {navn: S.klient, keys: {}}; return SET.clientKeys[c] || null; };
+const isSet = v => v != null && v !== "";
+function keyManual(g, k) { const a = ((S.keys || {})[g] || {})[k]; if (isSet(a)) return a; const c = clientStd(); const b = c && c.keys && c.keys[g] ? c.keys[g][k] : null; return isSet(b) ? b : null; }
+function setKey(g, k, v) { S.keys = S.keys || {}; S.keys[g] = S.keys[g] || {}; const c = clientStd(isSet(v));
+  if (!isSet(v)) { delete S.keys[g][k]; if (c && c.keys[g]) delete c.keys[g][k]; }
+  else { S.keys[g][k] = num(v); c.keys[g] = c.keys[g] || {}; c.keys[g][k] = num(v); }
+  save(); saveSet(); }
+function resetKeyGroup(g) { if (S.keys) delete S.keys[g]; const c = clientStd(); if (c) delete c.keys[g]; if (g === "maskin") setAnna(""); save(); saveSet(); }
+function annaVal() { if (isSet(S.maskinAnna) && S.maskinAnna !== 0) return num(S.maskinAnna); const c = clientStd(); return c && isSet(c.maskinAnna) ? num(c.maskinAnna) : 0; }
+function setAnna(v) { const c = clientStd(isSet(v)); if (isSet(v)) { S.maskinAnna = num(v); c.maskinAnna = num(v); } else { delete S.maskinAnna; if (c) delete c.maskinAnna; } save(); saveSet(); }
 const pick = (o, ks) => JSON.parse(JSON.stringify(ks.reduce((a, k) => (a[k] = o[k], a), {})));
 function save() { try { localStorage.setItem(STORE, JSON.stringify(DRAFT ? Object.assign({}, S, DRAFT.s) : S)); } catch (e) { /* ignorer */ } updSaveBar(); }
 function saveSet() { try { localStorage.setItem(STORE_SET, JSON.stringify(DRAFT ? Object.assign({}, SET, DRAFT.set) : SET)); } catch (e) { /* ignorer */ } updSaveBar(); }
@@ -1116,10 +1150,10 @@ function compute() {
   // reserve: om ingen har direkte førte beløp, bruk fôrnorm / areal
   if (!members.husdyr.some(k => basis.husdyr[k] > 0)) members.husdyr.forEach(k => basis.husdyr[k] = grp(k) === "grovfor" ? n(k) * fe(k, "kraft") : n(k));
   if (!members.tilskudd.some(k => basis.tilskudd[k] > 0)) act.forEach(k => basis.tilskudd[k] = basis.areal[k]);
-  const annaPct = Math.min(100, Math.max(0, num(S.maskinAnna || 0)));
+  const annaPct = Math.min(100, Math.max(0, annaVal()));
   const autoKeys = {}, keys = {}; S.keys = S.keys || {};
   KEYGROUPS.forEach(({id}) => { const ks = members[id], au = normKey(basis[id], ks); if (id === "maskin") Object.keys(au).forEach(k => au[k] *= (100 - annaPct) / 100);
-    autoKeys[id] = au; const st = S.keys[id]; keys[id] = {}; ks.forEach(k => keys[id][k] = st && st[k] != null && st[k] !== "" ? num(st[k]) : au[k]); });
+    autoKeys[id] = au; keys[id] = {}; ks.forEach(k => { const mv = keyManual(id, k); keys[id][k] = mv != null ? num(mv) : au[k]; }); });
   const gTot = {}; KEYGROUPS.forEach(({id}) => gTot[id] = {cost: 0, inn: 0});
   deferred.forEach(({nr, g, v}) => { if (v > 0) gTot[g].cost += v; else gTot[g].inn -= v; let used = 0;
     members[g].forEach(k => { const sh = (keys[g][k] || 0) / 100; if (sh) { toProd(k, nr, v * sh); used += sh; } });
@@ -1131,6 +1165,10 @@ function compute() {
     if (!rule || (S.prodInputs[full] != null && S.prodInputs[full] !== "")) return;
     let s = 0; Object.entries(contrib).forEach(([f, list]) => { if (f.startsWith(p.key + ".") && ROW[f].kind !== "tilskot") list.forEach(c => { if (/^\d{4}/.test(c.nr) && inRule(parseAcc(c.nr).base, rule)) s += c.v; }); });
     INP[full] = s; }); });
+  /* seld mengd for planteproduksjonar: mengda som står på salskontoane som er førte til posten */
+  SPEC.prods.forEach(p => { const full = p.key + ".sal_kg"; if (!active.has(p.key) || !ROW[full]) return; let q = 0, hit = false;
+    (contrib[p.key + ".sal"] || []).forEach(c => { const a = A[c.nr]; if (!a || !a.amt) return; const qty = Math.abs(a.m2 || a.m1 || 0); if (qty) { q += qty * Math.abs(c.v / a.amt); hit = true; } });
+    if (hit) { derived[full] = q; if (S.prodInputs[full] == null || S.prodInputs[full] === "") INP[full] = q; } });
   act.forEach(k => INP["faste.pct_" + k] = (keys.maskin[k] || 0) / 100);
   let doSkatt = 0, avskrS = 0, avskrD = 0, behS = 0, behD = 0;
   Object.values(A).forEach(a => { const b = parseAcc(a.nr).base; if (!isJord(a.nr)) return;
@@ -1634,38 +1672,55 @@ function vData(m) {
   m.innerHTML = head() + arealChart + (M.prods.length ? "" : `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>`) + groups.map(([k, t]) => {
     const rows = SHEET[k].rows.filter(r => r.t === "input" && (r.kind === "prod" || r.kind === "info" || r.kind === "norm") && (k !== "total" || r.id === "do_andre"));
     if (!rows.length) return "";
-    return `<div class="card"><h2>${esc(t)}</h2><div class="fields">${rows.map(r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full] ?? (r.kind === "norm" ? r.ex : undefined);
-      return `<label class="field"><span>${esc(LBL(r))} <span class="unit">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</span></span>
-        <input class="inp num" data-full="${full}" value="${has ? S.prodInputs[full] : ""}" placeholder="${d != null ? fmt(d, r.fmt) : "0"}" ${d != null && !has ? `title="${T("Hentet fra saldobalansen")}"` : ""}></label>`; }).join("")}</div></div>`; }).join("");
+    const st = r => { const full = k + "." + r.id, has = S.prodInputs[full] != null && S.prodInputs[full] !== "", d = M.derived[full];
+      const accAuto = r.kind === "info" && !!accFor(full), autoNow = !has && (d != null || accAuto);
+      return {r, full, has, d, accAuto, grp: autoNow ? "auto" : (!has && r.kind === "norm") ? "norm" : "man", canAuto: AUTO_CAP.has(full) || accAuto || d != null}; };
+    const all = rows.map(st), by = g => all.filter(x => x.grp === g);
+    const field = x => { const {r, full, has, d} = x, ph = d != null ? fmt(d, r.fmt) : (r.kind === "norm" ? fmt(r.ex, r.fmt) : (x.accAuto ? fmt(M.V(full), r.fmt) : "0"));
+      const badge = x.grp === "auto" ? `<span class="badge auto" title="${T("Hentet automatisk fra regnskapet")}">${T("Auto · Tripletex")}</span>`
+        : x.grp === "norm" ? `<span class="badge norm">${T("Standard")}</span>`
+        : has ? `<span class="badge man">${T("Manuelt")}</span>${x.canAuto && (d != null || x.accAuto) ? `<button class="badge reset" data-clr="${full}" title="${T("Bruk tallet fra Tripletex")}">↺ Tripletex</button>` : ""}`
+        : x.canAuto ? `<span class="badge miss" title="${T("Fant ikke tallet i regnskapet – fyll inn")}">${T("Ikke funnet")}</span>` : `<span class="badge need">${T("Fyll inn")}</span>`;
+      return `<label class="field"><span class="flbl"><span>${esc(LBL(r))} <span class="unit">${esc(r.unit === "kr/eining" ? "kr" : r.unit)}</span></span>${badge}</span>
+        <input class="inp num" data-full="${full}" value="${has ? S.prodInputs[full] : ""}" placeholder="${ph}"></label>`; };
+    const man = by("man"), norm = by("norm"), auto = by("auto");
+    return `<div class="card"><h2>${esc(t)}</h2>
+      ${man.length ? `<div class="fsec"><div class="fsec-h">${T("Fylles inn manuelt")}<span class="muted sm">${man.length}</span></div><div class="fields">${man.map(field).join("")}</div></div>` : ""}
+      ${norm.length ? `<div class="fsec"><div class="fsec-h">${T("Fôrnormer – standardverdier som kan endres")}<span class="muted sm">${norm.length}</span></div><div class="fields">${norm.map(field).join("")}</div></div>` : ""}
+      ${auto.length ? `<div class="fsec autobox"><div class="fsec-h">${T("Hentet automatisk fra Tripletex")}<span class="muted sm">${auto.length}</span><span class="grow"></span><span class="muted sm">${T("Skriv inn et tall for å overstyre")}</span></div><div class="fields">${auto.map(field).join("")}</div></div>` : ""}</div>`; }).join("");
   bindSubs(m);
   $$("input[data-full]", m).forEach(i => i.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.full]; else S.prodInputs[e.target.dataset.full] = num(v); save(); rerender(); });
+  $$("[data-clr]", m).forEach(b => b.onclick = e => { e.preventDefault(); delete S.prodInputs[b.dataset.clr]; save(); rerender(); });
 }
 function keyCard(g) {
-  const V = M.V, ks = M.members[g.id], cur = M.keys[g.id], auto = M.autoKeys[g.id], st = (S.keys || {})[g.id] || {};
+  const V = M.V, ks = M.members[g.id], cur = M.keys[g.id], auto = M.autoKeys[g.id];
   const total = g.id === "maskin" ? V("faste.maskin_sum") : g.id === "innmek" ? M.innmekTotal : M.gTot[g.id].cost - M.gTot[g.id].inn;
   if (!total && g.t) return "";
-  const sum = ks.reduce((s, k) => s + (cur[k] || 0), 0), cols = [T("Produksjon"), T(g.basis), T("Automatisk"), T("Brukt"), T("Beløp")];
+  const sum = ks.reduce((s, k) => s + (cur[k] || 0), 0), cols = [T("Produksjon"), T(g.basis), T("Brukt"), T("Beløp")];
   const bfmt = v => g.unit === "kr" ? kr(v) : fmt(v, g.unit === "da" ? "n1" : "n");
   const target = g.id === "maskin" ? 100 - M.annaPct : 100;
-  const anna = g.id === "maskin" ? `<tr>${td(cols[0], T("Annen bruk (ikke jordbruksproduksjon)"), "muted")}<td></td><td></td>${td(cols[3], `<input class="inp num" style="max-width:90px" id="maskinAnna" value="${S.maskinAnna || ""}" placeholder="0">`, "n")}${td(cols[4], kr(V("faste.maskin_anna")), "n muted")}</tr>` : "";
+  const badge = man => man ? `<span class="badge man">${T("Manuelt")}</span>` : `<span class="badge auto">${T("Automatisk")}</span>`;
+  const used = (attrs, v, ph, man) => `<span class="kused">${badge(man)}<input class="inp num" style="max-width:90px" ${attrs} value="${man ? esc(String(v)) : ""}" placeholder="${ph}"></span>`;
+  const anna = g.id === "maskin" ? `<tr>${td(cols[0], T("Annen bruk (ikke jordbruksproduksjon)"), "muted")}<td></td>${td(cols[2], used('id="maskinAnna"', annaVal(), "0", annaVal() !== 0), "n")}${td(cols[3], kr(V("faste.maskin_anna")), "n muted")}</tr>` : "";
   return `<div class="card"><div class="card-head"><h2>${T(g.title)}</h2><span class="grow"></span><span class="muted sm">${g.t ? `${T("Kostnader")} ${kr(M.gTot[g.id].cost)} kr · ${T("Inntekter og tilskudd")} ${kr(M.gTot[g.id].inn)} kr` : kr(total) + " kr"}</span></div>
   <div class="muted sm" style="margin:-4px 0 12px">${T(g.info)}</div>
   ${CH.share(ks.map(k => ({label: PN(k), v: cur[k] || 0})))}
-  <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]}</th><th class="n">${cols[3]} %</th><th class="n">${cols[4]}</th></tr></thead><tbody>
-  ${ks.map(k => `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], bfmt(M.basis[g.id][k] || 0), "n muted")}${td(cols[2], pct(auto[k] / 100), "n muted")}
-    ${td(cols[3], `<input class="inp num" style="max-width:90px" data-g="${g.id}" data-k="${k}" value="${st[k] != null ? st[k] : ""}" placeholder="${NF1.format(auto[k] || 0)}">`, "n")}
-    ${td(cols[4], kr(total * (cur[k] || 0) / 100), "n")}</tr>`).join("")}${anna}
-  <tr class="sum"><td>${T("Sum")}</td><td></td><td></td><td class="n">${NF1.format(sum)} %</td><td class="n">${kr(total * sum / 100)}</td></tr></tbody></table>
+  <table class="t"><thead><tr><th>${cols[0]}</th><th class="n">${cols[1]}</th><th class="n">${cols[2]} %</th><th class="n">${cols[3]}</th></tr></thead><tbody>
+  ${ks.map(k => { const mv = keyManual(g.id, k); return `<tr>${td(cols[0], esc(PN(k)))}${td(cols[1], bfmt(M.basis[g.id][k] || 0), "n muted")}
+    ${td(cols[2], used(`data-g="${g.id}" data-k="${k}"`, mv, NF1.format(auto[k] || 0), mv != null), "n")}
+    ${td(cols[3], kr(total * (cur[k] || 0) / 100), "n")}</tr>`; }).join("")}${anna}
+  <tr class="sum"><td>${T("Sum")}</td><td></td><td class="n">${NF1.format(sum)} %</td><td class="n">${kr(total * sum / 100)}</td></tr></tbody></table>
   <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-reset="${g.id}">${T("Bruk automatisk nøkkel")}</button>
   ${Math.abs(sum - target) > 0.05 ? `<span class="pill bad">${T("Summerer ikke til {p} %", {p: NF1.format(target)})}</span>` : ""}</div></div>`;
 }
 function vNokkel(m) {
-  m.innerHTML = head() + (!M.active.size ? `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>` : KEYGROUPS.map(keyCard).join(""));
+  const kn = S.klient ? `<div class="notice">${T("Endringer her lagres også som standard for {k} under Innstillinger → Fordelingsnøkler, og brukes neste gang du analyserer denne kunden.", {k: esc(S.klient)})} <button class="btn sm ghost" id="goKeySet">${T("Åpne innstillinger")}</button></div>` : "";
+  m.innerHTML = head() + kn + (!M.active.size ? `<div class="notice warn">${T("Ingen aktive produksjoner.")}</div>` : KEYGROUPS.map(keyCard).join(""));
   bindSubs(m);
-  $$("input[data-g]", m).forEach(i => i.onchange = e => { const g = e.target.dataset.g; S.keys = S.keys || {}; S.keys[g] = S.keys[g] || {};
-    if (e.target.value.trim() === "") delete S.keys[g][e.target.dataset.k]; else S.keys[g][e.target.dataset.k] = num(e.target.value); save(); rerender(); });
-  const ma = $("#maskinAnna", m); if (ma) ma.onchange = e => { S.maskinAnna = num(e.target.value) || 0; save(); rerender(); };
-  $$("button[data-reset]", m).forEach(b => b.onclick = () => { if (S.keys) delete S.keys[b.dataset.reset]; save(); rerender(); });
+  $$("input[data-g]", m).forEach(i => i.onchange = e => { setKey(e.target.dataset.g, e.target.dataset.k, e.target.value.trim()); rerender(); });
+  const ma = $("#maskinAnna", m); if (ma) ma.onchange = e => { setAnna(e.target.value.trim()); rerender(); };
+  $$("button[data-reset]", m).forEach(b => b.onclick = () => { resetKeyGroup(b.dataset.reset); rerender(); });
+  const gk = $("#goKeySet", m); if (gk) gk.onclick = () => { SET.tab = "nokler"; VIEW = "settings"; render(); window.scrollTo({top: 0}); };
 }
 function accDatalist() {
   const list = new Set(Object.keys(M.A));
@@ -2122,10 +2177,11 @@ function buildDoc() {
 
 /* ================================================================ INNSTILLINGER */
 function renderSettings(m) {
-  const tab = SET.tab === "kontering" ? "kontering" : "kontoplan";
-  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T(tab === "kontering" ? "Konteringsoppsett" : "Kontoplan")}</h1></div></div>
+  const tab = ["kontering", "nokler"].includes(SET.tab) ? SET.tab : "kontoplan";
+  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T({kontoplan: "Kontoplan", kontering: "Konteringsoppsett", nokler: "Fordelingsnøkler"}[tab])}</h1></div></div>
     <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
     <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button>
+    <button class="tab ${tab === "nokler" ? "on" : ""}" data-tab="nokler">${T("Fordelingsnøkler")}</button>
     <span class="grow"></span><button class="btn sm ghost" id="setExp">${T("Eksporter innstillinger")}</button><button class="btn sm ghost" id="setImp">${T("Importer innstillinger")}</button>
     <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>
     <div class="savebar" id="saveBar"><span class="dot"></span><span id="sbTxt"></span><span class="grow"></span><button class="btn sm ghost" id="sbUndo">${T("Forkast endringer")}</button><button class="btn sm pri" id="sbSave">${T("Lagre")}</button></div>`;
@@ -2133,16 +2189,42 @@ function renderSettings(m) {
   $("#sbUndo", m).onclick = () => { if (confirm(T("Vil du forkaste endringene siden sist du lagret?"))) { draftDiscard(); draftBegin(); render(); } };
   setTimeout(updSaveBar);
   $$(".tabs .tab", m).forEach(b => b.onclick = () => { SET.tab = b.dataset.tab; saveSet(); renderSettings(m); });
-  $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas};
+  $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas, clientKeys: SET.clientKeys || {}};
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], {type: "application/json"})); a.download = "innstillinger_jordbruksanalyse.json"; a.click(); };
   $("#setImp", m).onclick = () => $("#setFile", m).click();
   $("#setFile", m).onchange = e => { const f = e.target.files[0]; if (!f) return;
     f.text().then(txt => { let d; try { d = JSON.parse(txt); } catch (err) { d = null; }
       if (!d || d.type !== "jordbruksanalyse-innstillinger") { alert(T("Fila er ikke en innstillingsfil.")); return; }
       const replace = confirm(T("Trykk OK for å erstatte innstillingene dine med fila, eller Avbryt for å slå dem sammen (fila går foran ved like kontoer)."));
-      ["map", "avd", "acc", "formulas"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
+      ["map", "avd", "acc", "formulas", "clientKeys"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
       saveSet(); render(); }); };
-  (tab === "kontering" ? renderKontering : renderKontoplan)($("#setBody"), m);
+  ({kontering: renderKontering, nokler: renderNokler, kontoplan: renderKontoplan})[tab]($("#setBody"), m);
+}
+/* standard fordelingsnøklar per kunde */
+function renderNokler(el) {
+  SET.clientKeys = SET.clientKeys || {}; const cur = cid();
+  const ids = [...new Set([...(cur ? [cur] : []), ...Object.keys(SET.clientKeys)])].sort((a, b) => (a === cur ? -1 : b === cur ? 1 : a.localeCompare(b)));
+  const sel = ids.includes(SET.nkSel) ? SET.nkSel : ids[0], isCur = sel === cur && !!M, c = SET.clientKeys[sel] || {navn: S.klient, keys: {}};
+  if (!sel) { el.innerHTML = `<div class="card"><p class="muted">${T("Importer en saldobalanse for en kunde først. Fordelingsnøklene du setter i analysen lagres her som standard for kunden.")}</p></div>`; return; }
+  const name = id => (SET.clientKeys[id] && SET.clientKeys[id].navn) || (id === cur ? S.klient : id);
+  const val = (g, k) => { if (isCur) return keyManual(g, k); const v = c.keys && c.keys[g] ? c.keys[g][k] : null; return isSet(v) ? v : null; };
+  const prodsOf = g => isCur ? M.members[g.id] : Object.keys((c.keys || {})[g.id] || {});
+  el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="nkSel" style="min-width:260px">${ids.map(id => `<option value="${esc(id)}" ${id === sel ? "selected" : ""}>${esc(name(id))}${id === cur ? " · " + T("åpen nå") : ""}</option>`).join("")}</select>
+      <span class="grow"></span>${SET.clientKeys[sel] ? `<button class="btn sm ghost" id="nkDel">${T("Slett standardverdiene for kunden")}</button>` : ""}</div>
+      <p class="hint" style="margin:12px 0 0">${T("Tomme felt bruker automatisk nøkkel. Verdiene du setter her brukes for kunden i analysen, og endringer på steget Fordelingsnøkler lagres her automatisk.")}</p></div>
+    ${KEYGROUPS.map(g => { const ks = prodsOf(g); if (!ks.length && !(g.id === "maskin" && isSet(c.maskinAnna))) return "";
+      const rows = ks.map(k => { const v = val(g.id, k), au = isCur ? M.autoKeys[g.id][k] : null;
+        return `<tr>${td(T("Produksjon"), esc(PN(k)))}${td(T("Brukt"), `<span class="kused">${v != null ? `<span class="badge man">${T("Manuelt")}</span>` : `<span class="badge auto">${T("Automatisk")}</span>`}<input class="inp num" style="max-width:90px" data-ng="${g.id}" data-nk="${k}" value="${v != null ? esc(String(v)) : ""}" placeholder="${au != null ? NF1.format(au) : T("auto")}"></span>`, "n")}</tr>`; }).join("");
+      const anna = g.id === "maskin" ? `<tr>${td(T("Produksjon"), T("Annen bruk (ikke jordbruksproduksjon)"), "muted")}${td(T("Brukt"), `<span class="kused"><input class="inp num" style="max-width:90px" id="nkAnna" value="${isSet(isCur ? (annaVal() || "") : c.maskinAnna) ? esc(String(isCur ? annaVal() : c.maskinAnna)) : ""}" placeholder="0"></span>`, "n")}</tr>` : "";
+      return `<div class="card"><div class="card-head"><h2>${T(g.title)}</h2><span class="grow"></span><span class="muted sm">${T(g.basis)}</span></div>
+        <table class="t"><thead><tr><th>${T("Produksjon")}</th><th class="n">${T("Brukt")} %</th></tr></thead><tbody>${rows}${anna}</tbody></table></div>`; }).join("")}`;
+  const redraw = () => { if (S.sb.length) compute(); renderNokler(el); };
+  $("#nkSel", el).onchange = e => { SET.nkSel = e.target.value; saveSet(); renderNokler(el); };
+  const del = $("#nkDel", el); if (del) del.onclick = () => { if (!confirm(T("Vil du slette standardverdiene for {k}?", {k: name(sel)}))) return; delete SET.clientKeys[sel]; if (sel === cur) { S.keys = {}; delete S.maskinAnna; save(); } saveSet(); redraw(); };
+  $$("[data-ng]", el).forEach(i => i.onchange = e => { const g = e.target.dataset.ng, k = e.target.dataset.nk, v = e.target.value.trim();
+    if (isCur) setKey(g, k, v); else { const cc = SET.clientKeys[sel]; cc.keys[g] = cc.keys[g] || {}; if (v === "") delete cc.keys[g][k]; else cc.keys[g][k] = num(v); saveSet(); }
+    redraw(); });
+  const an = $("#nkAnna", el); if (an) an.onchange = e => { const v = e.target.value.trim(); if (isCur) setAnna(v); else { const cc = SET.clientKeys[sel]; if (v === "") delete cc.maskinAnna; else cc.maskinAnna = num(v); saveSet(); } redraw(); };
 }
 function avdOptions(sel, def) {
   return `<option value="" ${!sel ? "selected" : ""}>${def ? def + " " + esc(AVD[def] || "") : T("Ingen avdeling")}</option>` +
@@ -2296,11 +2378,11 @@ function contribChips(full, empty) {
 }
 /* fordelingsnøkkel for éin produksjon: grunnlag og del, delen kan endrast her */
 function keySrc(g, k) {
-  const G = KEYGROUPS.find(x => x.id === g), st = (S.keys || {})[g] || {}, on = M && M.members[g].includes(k);
+  const G = KEYGROUPS.find(x => x.id === g), mv = keyManual(g, k), on = M && M.members[g].includes(k);
   const bfmt = v => (G.unit === "kr" ? kr(v) + " kr" : fmt(v, G.unit === "da" ? "n1" : "n") + " " + G.unit);
-  const tot = on ? M.members[g].reduce((s, x) => s + (M.basis[g][x] || 0), 0) : 0, man = st[k] != null && st[k] !== "";
+  const tot = on ? M.members[g].reduce((s, x) => s + (M.basis[g][x] || 0), 0) : 0, man = mv != null;
   return `<span class="dest"><span class="to">${T("Nøkkel")}: ${esc(T(G.basis))}</span></span>${on ? `<span class="muted sm">${bfmt(M.basis[g][k] || 0)} ${T("av")} ${bfmt(tot)}</span>
-    <input class="inp num" style="max-width:80px" data-kg="${g}" data-kk="${k}" value="${man ? st[k] : ""}" placeholder="${NF1.format(M.autoKeys[g][k] || 0)}" aria-label="${T("Andel")} %"><span class="muted sm">% · ${T(man ? "manuelt" : "automatisk")}</span>` : `<span class="muted sm">${T("Produksjonen er ikke med")}</span>`}`;
+    <input class="inp num" style="max-width:80px" data-kg="${g}" data-kk="${k}" value="${man ? mv : ""}" placeholder="${NF1.format(M.autoKeys[g][k] || 0)}" aria-label="${T("Andel")} %"><span class="muted sm">% · ${T(man ? "manuelt" : "automatisk")}</span>` : `<span class="muted sm">${T("Produksjonen er ikke med")}</span>`}`;
 }
 /* «k.post*ACTIVE(k)+…» = same post summert over produksjonane som er med */
 function perProd(expr) { const parts = String(expr).replace(/\s/g, "").split("+"), out = {id: null, ks: []};
@@ -2410,8 +2492,7 @@ function renderKontering(el, m) {
   $$("[data-pi]", el).forEach(i2 => i2.onchange = e => { const v = e.target.value.trim(); if (v === "") delete S.prodInputs[e.target.dataset.pi]; else S.prodInputs[e.target.dataset.pi] = num(v); save(); redraw(); });
   $$("[data-gonode]", el).forEach(b => b.onclick = () => { VIEW = "wizard"; go(NODES.findIndex(n => n.id === b.dataset.gonode)); window.scrollTo({top: 0}); });
   $$("[data-gotab]", el).forEach(b => b.onclick = () => { const t = document.querySelector(`.tab[data-tab="${b.dataset.gotab}"]`); if (t) t.click(); });
-  $$("[data-kg]", el).forEach(i2 => i2.onchange = e => { const g = e.target.dataset.kg, k = e.target.dataset.kk; S.keys = S.keys || {}; S.keys[g] = S.keys[g] || {};
-    if (e.target.value.trim() === "") delete S.keys[g][k]; else S.keys[g][k] = num(e.target.value); save(); redraw(); });
+  $$("[data-kg]", el).forEach(i2 => i2.onchange = e => { setKey(e.target.dataset.kg, e.target.dataset.kk, e.target.value.trim()); redraw(); });
 }
 /* ---------- overlay ---------- */
 function modal(html, onMount) {
