@@ -504,7 +504,11 @@ const NN = {
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
   "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
-  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Igjen til bygg, arbeid og kapital": "Att til bygg, arbeid og kapital", "Hent fra Tripletex": "Hent frå Tripletex", "Eksempelgård": "Eksempelgard", "Prøv med eksempelgård": "Prøv med eksempelgard", "Koble til Tripletex": "Kople til Tripletex",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Statistikk": "Statistikk", "Sammenligningstall": "Samanlikningstal", "Høyeste 30 %": "Høgaste 30 %", "Middel": "Middel", "Denne analysen": "Denne analysen", "Statistikkår": "Statistikkår", "År": "År",
+  "Analysegruppe": "Analysegruppe", "Alle": "Alle", "Antall analyser i gruppen": "Tal analysar i gruppa", "Kilde (vises i rapporten)": "Kjelde (blir vist i rapporten)", "F.eks. analyser fra regnskapskontorene i regionen": "T.d. analysar frå rekneskapskontora i regionen",
+  "Slett statistikkåret": "Slett statistikkåret", "Legg til et statistikkår for å begynne.": "Legg til eit statistikkår for å byrje.", "Tall per enhet": "Tal per eining", "Hvilket år er statistikken fra?": "Kva år er statistikken frå?",
+  "Vil du slette all statistikk for {y}?": "Vil du slette all statistikk for {y}?", "Sammenligningstall fra {y}": "Samanlikningstal frå {y}", "{n} analyser": "{n} analysar",
+  "Legg inn statistikk for «høyeste 30 %» og «middel» per år, produksjon og analysegruppe. Rapporten bruker siste statistikkår som ikke er nyere enn regnskapsåret, og viser tallene ved siden av nøkkeltallene.": "Legg inn statistikk for «høgaste 30 %» og «middel» per år, produksjon og analysegruppe. Rapporten brukar siste statistikkår som ikkje er nyare enn rekneskapsåret, og viser tala ved sida av nøkkeltala.", "Igjen til bygg, arbeid og kapital": "Att til bygg, arbeid og kapital", "Hent fra Tripletex": "Hent frå Tripletex", "Eksempelgård": "Eksempelgard", "Prøv med eksempelgård": "Prøv med eksempelgard", "Koble til Tripletex": "Kople til Tripletex",
   "Henter saldobalanse, hovedbok og mengder direkte fra Tripletex med API-nøklene dine.": "Hentar saldobalanse, hovudbok og mengder direkte frå Tripletex med API-nøklane dine.",
   "Legg inn API-nøklene under Innstillinger → Tripletex for å hente tallene direkte.": "Legg inn API-nøklane under Innstillingar → Tripletex for å hente tala direkte.",
   "Henting fra Tripletex virker bare på nettsiden, ikke i den nedlastede fila.": "Henting frå Tripletex verkar berre på nettsida, ikkje i den nedlasta fila.", "Fikk ikke kontakt med tjenesten": "Fekk ikkje kontakt med tenesta",
@@ -963,7 +967,7 @@ try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET,
 LANG = SET.lang || "nb";
 let VIEW = "wizard";
 /* Innstillingar blir redigerte som kladd: endringane gjeld med ein gong i visninga, men blir først lagra når ein trykkjer Lagre */
-const DRAFT_SET = ["map", "avd", "acc", "formulas", "clientKeys", "tx"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
+const DRAFT_SET = ["map", "avd", "acc", "formulas", "clientKeys", "tx", "stats"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
 let DRAFT = null;
 /* Fordelingsnøklar: standardverdiar per kunde ligg i innstillingane (SET.clientKeys) og blir brukte når prosjektet ikkje har eigne */
 const cid = () => String(S.klient || "").trim().toLowerCase();
@@ -2249,15 +2253,20 @@ function buildDoc() {
     const extra = [["n", SL(p, "unit_label")], ["kvote", null], ["inn_total", T("Produksjonsinntekter i alt")], ["kost_total", T("Variable kostnader i alt")], ["db_u", T("Samlet DB uten tilskudd")], ["db_m", T("Samlet DB med tilskudd")], ["maskin", T("Maskinkostnader") + " " + lc(SL(p, "sheet"))], ["db_etter", T("Igjen til bygg, arbeid og kapital")]]
       .filter(([id]) => ROW[k + "." + id] && (!big || !["inn_total", "kost_total", "db_etter"].includes(id)) && (Math.abs(V(k + "." + id)) > 0.5 || (pv && Math.abs(PV(k + "." + id)) > 0.5)))
       .map(([id, l]) => ({cells: [id === "n" ? T("Omfang") + " (" + l + ")" : (l || clean(LBL(ROW[k + "." + id])))].concat(kv(k + "." + id, ROW[k + "." + id].fmt)), sum: ["db_u", "db_m", "db_etter"].includes(id)}));
-    const kRows = kr0.map(r => ({cells: [clean(LBL(r)) + (unitTxt(r) && unitTxt(r) !== "kr" && r.fmt !== "pct" ? " (" + unitTxt(r) + ")" : "")].concat(kv(k + "." + r.id, r.fmt))})).concat(extra);
+    const st = statsFor(k), sv = (id, fm) => { if (!st) return []; const x = st.get(id); return [isSet(x.topp) ? fmt(x.topp, fm) : "", isSet(x.snitt) ? fmt(x.snitt, fm) : ""]; };
+    const kRows = kr0.map(r => ({cells: [clean(LBL(r)) + (unitTxt(r) && unitTxt(r) !== "kr" && r.fmt !== "pct" ? " (" + unitTxt(r) + ")" : "")].concat(kv(k + "." + r.id, r.fmt), sv(r.id, r.fmt))}))
+      .concat(st && big ? [] : extra.map(x => (st ? Object.assign(x, {cells: x.cells.concat(["", ""])}) : x)));
     const kw = pv ? ["*", 46, 46] : ["*", 56], half = Math.ceil(kRows.length / 2);
-    out.push(kRows.length > 10 ? {columns: [{width: "*", stack: [P.table([T("Nøkkeltall")].concat(PY), kRows.slice(0, half), kw, {tight: true, mb: 8})]},
+    if (st) { out.push(P.table([T("Nøkkeltall")].concat(PY, [T("Høyeste 30 %"), T("Middel")]), kRows, ["*"].concat(PY.map(() => 52), [56, 52]), {tight: true, mb: 3}));
+      out.push({text: T("Sammenligningstall fra {y}", {y: st.aar}) + (st.gruppe !== STAT_ALL ? " · " + st.gruppe : "") + (isSet(st.n) ? " · " + T("{n} analyser", {n: st.n}) : "") + (st.kilde ? " · " + st.kilde : ""), style: "small", margin: [0, 0, 0, 8]}); }
+    else out.push(kRows.length > 10 ? {columns: [{width: "*", stack: [P.table([T("Nøkkeltall")].concat(PY), kRows.slice(0, half), kw, {tight: true, mb: 8})]},
       {width: "*", stack: [P.table([T("Nøkkeltall")].concat(PY), kRows.slice(half), kw, {tight: true, mb: 8})]}], columnGap: 16}
       : P.table([T("Nøkkeltall")].concat(PY), kRows, kw, {tight: true, mb: 8}));
     const yy = (pv ? [{label: String(S.prev.aar), f: PV}] : []).concat([{label: String(S.aar), f: V}]);
     const comm = [textFor(k), textFor("forventet_" + k)].filter(x => String(x || "").trim()).join("\n\n");
     if (!big) { const own = [S.texts[k] && S.texts[k].edited ? S.texts[k].text : "", textFor("forventet_" + k)].filter(x => String(x || "").trim()).join("\n\n");
       if (own.trim()) out.push(P.box(own, T("Kommentarer"))); }
+    else if (st) { if (comm.trim()) out.push(P.box(comm, T("Kommentarer"))); }
     else out.push({columns: [
       {width: 235, stack: [P.ct(T("Dekningsbidrag"), "kr"), P.legend([{color: PC.accent, label: T("DB uten tilskudd")}, {color: PC.hi, label: T("Tilskudd")}, {color: PC.s1, label: T("Maskinkostnader")}]),
         P.svg(colSvg(yy.map(y => ({label: y.label, values: [y.f(k + ".db_u"), y.f(k + tilId(k)), y.f(k + ".maskin")]})), {series: [{color: PC.accent}, {color: PC.hi}, {color: PC.s1}], width: 235, height: 100}), 235)]},
@@ -2265,11 +2274,10 @@ function buildDoc() {
     const ur = unitRows(p).filter(r => isSumLbl(r.label) || Math.abs(V(k + "." + r.id)) > 0.005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.005));
     const uRow = r => ({cells: [clean(LBL(r))].concat(kv(k + "." + r.id, r.fmt)), sum: isSumLbl(r.label), sub: !isSumLbl(r.label)});
     const secOf = re => ur.filter(r => re.test(r.sec)), secT = re => { const r = ur.find(x => re.test(x.sec)); return r ? clean(r.sec) : ""; };
-    const uw = pv ? ["*", 46, 46] : ["*", 56], uh = [T("Per") + " " + per].concat(PY);
+    const uw = pv ? ["*", 46, 46] : ["*", 56], uh = [T("Dekningsbidrag per") + " " + per].concat(PY);
     const left = [{cells: [secT(/inntekter/i)].concat(PY.map(() => "")), head: true}].concat(secOf(/inntekter/i).map(uRow), [{cells: [secT(/Resultat/i)].concat(PY.map(() => "")), head: true}], secOf(/Resultat/i).map(uRow));
     const right = [{cells: [secT(/Variable kostnader/i)].concat(PY.map(() => "")), head: true}].concat(secOf(/Variable kostnader/i).map(uRow));
-    if (big) { out.push(P.h2(T("Dekningsbidrag per") + " " + per));
-      out.push({columns: [{width: "*", stack: [P.table(uh, left, uw, {tight: true, mb: 6})]}, {width: "*", stack: [P.table(uh, right, uw, {tight: true, mb: 6})]}], columnGap: 16}); }
+    if (big) { out.push({columns: [{width: "*", stack: [P.table(uh, left, uw, {tight: true, mb: 6})]}, {width: "*", stack: [P.table(uh, right, uw, {tight: true, mb: 6})]}], columnGap: 16}); }
     if (big) C.push(...out); else { if (firstSmall) C.push({text: "", pageBreak: "before"}); C.push({stack: out, unbreakable: true, margin: [0, firstSmall ? 0 : 10, 0, 0]}); firstSmall = false; }
   });
   /* 7. Rekneskapstal */
@@ -2331,11 +2339,12 @@ function buildDoc() {
 
 /* ================================================================ INNSTILLINGER */
 function renderSettings(m) {
-  const tab = ["kontering", "nokler", "tripletex"].includes(SET.tab) ? SET.tab : "kontoplan";
-  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T({kontoplan: "Kontoplan", kontering: "Konteringsoppsett", nokler: "Fordelingsnøkler", tripletex: "Tripletex"}[tab])}</h1></div></div>
+  const tab = ["kontering", "nokler", "tripletex", "statistikk"].includes(SET.tab) ? SET.tab : "kontoplan";
+  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T({kontoplan: "Kontoplan", kontering: "Konteringsoppsett", nokler: "Fordelingsnøkler", tripletex: "Tripletex", statistikk: "Statistikk"}[tab])}</h1></div></div>
     <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
     <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button>
     <button class="tab ${tab === "nokler" ? "on" : ""}" data-tab="nokler">${T("Fordelingsnøkler")}</button>
+    <button class="tab ${tab === "statistikk" ? "on" : ""}" data-tab="statistikk">${T("Statistikk")}</button>
     <button class="tab ${tab === "tripletex" ? "on" : ""}" data-tab="tripletex">Tripletex</button>
     <span class="grow"></span><button class="btn sm ghost" id="setExp">${T("Eksporter innstillinger")}</button><button class="btn sm ghost" id="setImp">${T("Importer innstillinger")}</button>
     <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>
@@ -2344,16 +2353,71 @@ function renderSettings(m) {
   $("#sbUndo", m).onclick = () => { if (confirm(T("Vil du forkaste endringene siden sist du lagret?"))) { draftDiscard(); draftBegin(); render(); } };
   setTimeout(updSaveBar);
   $$(".tabs .tab", m).forEach(b => b.onclick = () => { SET.tab = b.dataset.tab; saveSet(); renderSettings(m); });
-  $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas, clientKeys: SET.clientKeys || {}};
+  $("#setExp", m).onclick = () => { const d = {type: "jordbruksanalyse-innstillinger", versjon: 1, eksportert: new Date().toISOString().slice(0, 10), map: SET.map, avd: SET.avd, acc: SET.acc, formulas: SET.formulas, clientKeys: SET.clientKeys || {}, stats: SET.stats || {}};
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], {type: "application/json"})); a.download = "innstillinger_jordbruksanalyse.json"; a.click(); };
   $("#setImp", m).onclick = () => $("#setFile", m).click();
   $("#setFile", m).onchange = e => { const f = e.target.files[0]; if (!f) return;
     f.text().then(txt => { let d; try { d = JSON.parse(txt); } catch (err) { d = null; }
       if (!d || d.type !== "jordbruksanalyse-innstillinger") { alert(T("Fila er ikke en innstillingsfil.")); return; }
       const replace = confirm(T("Trykk OK for å erstatte innstillingene dine med fila, eller Avbryt for å slå dem sammen (fila går foran ved like kontoer)."));
-      ["map", "avd", "acc", "formulas", "clientKeys"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
+      ["map", "avd", "acc", "formulas", "clientKeys", "stats"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
       saveSet(); render(); }); };
-  ({kontering: renderKontering, nokler: renderNokler, kontoplan: renderKontoplan, tripletex: renderTripletex})[tab]($("#setBody"), m);
+  ({kontering: renderKontering, nokler: renderNokler, kontoplan: renderKontoplan, tripletex: renderTripletex, statistikk: renderStats})[tab]($("#setBody"), m);
+}
+/* ---------- Sammenligningstal (statistikk) ----------
+   SET.stats = {år: {meta: {kilde}, prod: {gruppe: {felt: {topp, snitt}, _n: tal analysar}}}}
+   Tala blir lagde inn manuelt no; strukturen er laga slik at appen seinare kan fylle dei frå eigne analysar. */
+const STAT_ALL = "alle";
+function statGroups(k) { const r = ROW[k + ".k_gruppe"]; if (!r) return [STAT_ALL]; const g = (String(fexpr(k + ".k_gruppe")).match(/"([^"]+)"/g) || []).map(x => x.slice(1, -1)); return g.length ? g : [STAT_ALL]; }
+function statYearFor(aar) { const ys = Object.keys(SET.stats || {}).map(Number).filter(Boolean).sort((a, b) => b - a); return ys.find(y => y <= aar) || ys[ys.length - 1] || null; }
+/* sammenligningstal for ein produksjon i analysen: {år, kilde, gruppe, get(id) -> {topp, snitt}} eller null */
+function statsFor(k) {
+  const y = statYearFor(S.aar); if (!y || !M) return null; const yr = SET.stats[y] || {}, P0 = yr[k]; if (!P0) return null;
+  const gs = statGroups(k), g = gs.length > 1 && ROW[k + ".k_gruppe"] ? String(M.V(k + ".k_gruppe")) : STAT_ALL, G = P0[g] || P0[STAT_ALL];
+  if (!G || !Object.keys(G).some(id => id !== "_n" && G[id] && (isSet(G[id].topp) || isSet(G[id].snitt)))) return null;
+  return {aar: y, kilde: (yr.meta || {}).kilde || "", gruppe: g, n: G._n, get: id => G[id] || {}};
+}
+function renderStats(el) {
+  SET.stats = SET.stats || {};
+  const years = Object.keys(SET.stats).sort((a, b) => b - a), y = years.includes(String(SET.stY)) ? String(SET.stY) : years[0];
+  const prods = SPEC.prods, pk = prods.some(p => p.key === SET.stP) ? SET.stP : (M && M.prods[0] ? M.prods[0].key : prods[0].key);
+  const gs = statGroups(pk), g = gs.includes(SET.stG) ? SET.stG : gs[0], sh = SHEET[pk];
+  const yr = y ? SET.stats[y] : null, G = yr && yr[pk] && yr[pk][g] ? yr[pk][g] : {};
+  const isPct = id => ROW[pk + "." + id] && ROW[pk + "." + id].fmt === "pct";
+  const val = (id, f) => (G[id] && isSet(G[id][f]) ? esc(String(isPct(id) ? +(G[id][f] * 100).toFixed(4) : G[id][f]).replace(".", ",")) : "");
+  const filled = (yy, k) => { const P0 = (SET.stats[yy] || {})[k]; return P0 ? Object.values(P0).reduce((n, GG) => n + Object.keys(GG).filter(i => i !== "_n" && GG[i] && (isSet(GG[i].topp) || isSet(GG[i].snitt))).length, 0) : 0; };
+  const rowsKpi = kpiRows(sh).filter(r => r.fmt !== "txt"), rowsUnit = unitRows(sh);
+  const line = r => `<tr>${td(T("Nøkkeltall"), esc(clean(LBL(r))) + (unitTxt(r) && r.fmt !== "pct" ? ` <span class="muted sm">${esc(unitTxt(r))}</span>` : ""), "wide")}
+    ${td(T("Høyeste 30 %"), `<input class="inp num" style="max-width:110px" data-sid="${r.id}" data-sf="topp" value="${val(r.id, "topp")}" placeholder="${r.fmt === "pct" ? "%" : "–"}" ${y ? "" : "disabled"}>`, "n")}
+    ${td(T("Middel"), `<input class="inp num" style="max-width:110px" data-sid="${r.id}" data-sf="snitt" value="${val(r.id, "snitt")}" placeholder="${r.fmt === "pct" ? "%" : "–"}" ${y ? "" : "disabled"}>`, "n")}
+    ${td(T("Denne analysen"), M && M.active.has(pk) ? fmt(M.V(pk + "." + r.id), r.fmt) : "–", "n muted")}</tr>`;
+  el.innerHTML = `<div class="card"><h2>${T("Sammenligningstall")}</h2>
+    <p class="hint" style="margin-top:0">${T("Legg inn statistikk for «høyeste 30 %» og «middel» per år, produksjon og analysegruppe. Rapporten bruker siste statistikkår som ikke er nyere enn regnskapsåret, og viser tallene ved siden av nøkkeltallene.")}</p>
+    <div class="fields">
+      <label class="field">${T("Statistikkår")}<div class="row" style="margin:0;flex-wrap:nowrap"><select class="sel" id="stY" ${years.length ? "" : "disabled"}>${years.map(x => `<option ${x === y ? "selected" : ""}>${x}</option>`).join("") || `<option>–</option>`}</select><button class="btn sm" id="stAddY">+ ${T("År")}</button></div></label>
+      <label class="field">${T("Produksjon")}<select class="sel" id="stP">${prods.map(p => `<option value="${p.key}" ${p.key === pk ? "selected" : ""}>${esc(SL(p, "sheet"))}${y && filled(y, p.key) ? " •" : ""}</option>`).join("")}</select></label>
+      <label class="field">${T("Analysegruppe")}<select class="sel" id="stG" ${gs.length > 1 ? "" : "disabled"}>${gs.map(x => `<option value="${esc(x)}" ${x === g ? "selected" : ""}>${esc(x === STAT_ALL ? T("Alle") : x)}</option>`).join("")}</select></label>
+      <label class="field">${T("Antall analyser i gruppen")}<input class="inp num" id="stN" value="${isSet(G._n) ? esc(String(G._n)) : ""}" placeholder="–" ${y ? "" : "disabled"}></label>
+    </div>
+    ${y ? `<label class="field" style="margin-top:14px">${T("Kilde (vises i rapporten)")}<input class="inp" id="stKilde" value="${esc((yr.meta || {}).kilde || "")}" placeholder="${T("F.eks. analyser fra regnskapskontorene i regionen")}"></label>
+    <div class="row" style="margin-top:12px"><span class="grow"></span><button class="btn sm ghost" id="stDelY">${T("Slett statistikkåret")}</button></div>` : `<div class="notice" style="margin-top:14px">${T("Legg til et statistikkår for å begynne.")}</div>`}</div>
+    ${y ? `<div class="card"><h2>${T("Nøkkeltall")} – ${esc(SL(sh, "sheet"))}${gs.length > 1 ? " · " + esc(g) : ""}</h2>
+      <table class="t"><thead><tr><th>${T("Nøkkeltall")}</th><th class="n">${T("Høyeste 30 %")}</th><th class="n">${T("Middel")}</th><th class="n">${T("Denne analysen")}</th></tr></thead><tbody>${rowsKpi.map(line).join("")}</tbody></table></div>
+      <details class="grp" ${SET.stUnitOpen ? "open" : ""} id="stUnit"><summary>${T("Tall per enhet")} <span class="grow"></span><span class="muted sm">${rowsUnit.length}</span></summary><div class="inner">
+      <table class="t"><thead><tr><th>${T("Post")}</th><th class="n">${T("Høyeste 30 %")}</th><th class="n">${T("Middel")}</th><th class="n">${T("Denne analysen")}</th></tr></thead><tbody>${rowsUnit.map(line).join("")}</tbody></table></div></details>` : ""}`;
+  const redraw = () => renderStats(el), cell = () => { const yy = SET.stats[y]; yy[pk] = yy[pk] || {}; yy[pk][g] = yy[pk][g] || {}; return yy[pk][g]; };
+  $("#stP", el).onchange = e => { SET.stP = e.target.value; saveSet(); redraw(); };
+  $("#stG", el).onchange = e => { SET.stG = e.target.value; saveSet(); redraw(); };
+  if (years.length) $("#stY", el).onchange = e => { SET.stY = e.target.value; saveSet(); redraw(); };
+  $("#stAddY", el).onclick = () => { const v = parseInt(prompt(T("Hvilket år er statistikken fra?"), String((S.aar || new Date().getFullYear()) - 2)), 10); if (!(v > 1990 && v < 2100)) return;
+    SET.stats[v] = SET.stats[v] || {meta: {kilde: ""}}; SET.stY = String(v); saveSet(); redraw(); };
+  if (!y) return;
+  $("#stKilde", el).onchange = e => { SET.stats[y].meta = Object.assign({}, SET.stats[y].meta, {kilde: e.target.value.trim()}); saveSet(); };
+  $("#stN", el).onchange = e => { const c = cell(), v = e.target.value.trim(); if (v === "") delete c._n; else c._n = num(v); saveSet(); };
+  $("#stDelY", el).onclick = () => { if (confirm(T("Vil du slette all statistikk for {y}?", {y}))) { delete SET.stats[y]; saveSet(); redraw(); } };
+  $("#stUnit", el).ontoggle = e => { SET.stUnitOpen = e.target.open; saveSet(); };
+  $$("[data-sid]", el).forEach(i => i.onchange = e => { const c = cell(), id = e.target.dataset.sid, f = e.target.dataset.sf, v = e.target.value.trim();
+    c[id] = c[id] || {}; if (v === "") delete c[id][f]; else c[id][f] = isPct(id) ? num(v) / 100 : num(v); if (!Object.keys(c[id]).length) delete c[id]; saveSet(); });
 }
 /* standard fordelingsnøklar per kunde */
 function renderNokler(el) {

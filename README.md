@@ -50,3 +50,7 @@ python tools/build_html.py    # -> app/analyse.html (frå app/src/template.html)
 ## Bokføringsoppdrag i Teams
 
 Mappen [`spfx-oppdrag/`](spfx-oppdrag/) inneholder en SharePoint-app (SPFx) med en felles oppdragsliste som vises i Teams. Se [spfx-oppdrag/README.md](spfx-oppdrag/README.md) for installasjon.
+
+### Samanlikningstal (statistikk)
+
+Under **Innstillingar → Statistikk** kan ein leggje inn «høgaste 30 %» og «middel» per statistikkår, produksjon og analysegruppe (påsettgruppe for mjølk og ammeku, oppdrettsgruppe for smågris og purkering), med kjelde og tal analysar. Rapporten brukar siste statistikkår som ikkje er nyare enn rekneskapsåret og viser tala ved sida av nøkkeltala. Datamodellen (`SET.stats[år][produksjon][gruppe][felt] = {topp, snitt}`) er laga slik at appen seinare kan fylle han frå eigne analysar.
