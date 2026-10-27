@@ -23,6 +23,10 @@ Etter endringar i `tools/` eller `app/src/`: køyr byggeskripta under og commit 
 
 Arbeid og innstillingar blir lagra i nettlesaren til kvar brukar (localStorage). Bruk «Lagre prosjekt» og **Innstillingar → Eksporter/Importer innstillingar** for å dele mellom maskiner og kollegaer.
 
+### Henting frå Tripletex (API)
+
+`api/tripletex.js` er ein Vercel-funksjon som hentar saldobalanse, hovudbok (med mengder og avdelingar) og dyretal ved årsstart frå Tripletex. Nøklane (consumer token og employee token) blir lagde inn under **Innstillingar → Tripletex**. Dei blir berre lagra i nettlesaren og sende med kvar førespurnad, ikkje lagra på serveren. Funksjonen tillèt berre lesing mot eit fast utval endepunkt. Henting verkar berre på nettsida, ikkje i den nedlasta HTML-fila.
+
 ## Bygg på nytt
 
 ```bash

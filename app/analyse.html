@@ -504,7 +504,16 @@ const NN = {
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
   "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
-  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "åpen nå": "open no", "Slett standardverdiene for kunden": "Slett standardverdiane for kunden",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Hent fra Tripletex": "Hent frå Tripletex", "Eksempelgård": "Eksempelgard", "Prøv med eksempelgård": "Prøv med eksempelgard", "Koble til Tripletex": "Kople til Tripletex",
+  "Henter saldobalanse, hovedbok og mengder direkte fra Tripletex med API-nøklene dine.": "Hentar saldobalanse, hovudbok og mengder direkte frå Tripletex med API-nøklane dine.",
+  "Legg inn API-nøklene under Innstillinger → Tripletex for å hente tallene direkte.": "Legg inn API-nøklane under Innstillingar → Tripletex for å hente tala direkte.",
+  "Henting fra Tripletex virker bare på nettsiden, ikke i den nedlastede fila.": "Henting frå Tripletex verkar berre på nettsida, ikkje i den nedlasta fila.", "Fikk ikke kontakt med tjenesten": "Fekk ikkje kontakt med tenesta",
+  "Henter saldobalanse …": "Hentar saldobalanse …", "Henter hovedbok …": "Hentar hovudbok …", "Henter dyretall ved årets start …": "Hentar dyretal ved starten av året …",
+  "Velg selskap og regnskapsår": "Vel selskap og rekneskapsår", "Selskap": "Selskap", "Henter selskaper …": "Hentar selskap …", "Henter saldobalanse, hovedbok med mengder og avdelinger.": "Hentar saldobalanse, hovudbok med mengder og avdelingar.",
+  "Henter …": "Hentar …", "Hent": "Hent", "Fant ingen posteringer for {y}.": "Fann ingen posteringar for {y}.", "Hovedboken var for stor til å hentes helt. Last opp saldobalansen som fil i tillegg.": "Hovudboka var for stor til å hentast heilt. Last opp saldobalansen som fil i tillegg.",
+  "Fant ingen selskaper": "Fann ingen selskap", "Tilkobling til Tripletex": "Kopling til Tripletex",
+  "Consumer token får du fra Tripletex for integrasjonen. Employee token lager brukeren selv i Tripletex under Min profil → API-tilgang. Nøklene lagres bare i denne nettleseren og sendes kryptert til Tripletex når du henter data.": "Consumer token får du frå Tripletex for integrasjonen. Employee token lagar brukaren sjølv i Tripletex under Min profil → API-tilgang. Nøklane blir berre lagra i denne nettlesaren og blir sende kryptert til Tripletex når du hentar data.",
+  "Miljø": "Miljø", "Produksjon (tripletex.no)": "Produksjon (tripletex.no)", "Test (api-test.tripletex.tech)": "Test (api-test.tripletex.tech)", "Test tilkoblingen": "Test koplinga", "Fjern nøklene": "Fjern nøklane", "Tester …": "Testar …", "Koblet til {c} som {n}": "Kopla til {c} som {n}", "åpen nå": "open no", "Slett standardverdiene for kunden": "Slett standardverdiane for kunden",
   "Importer en saldobalanse for en kunde først. Fordelingsnøklene du setter i analysen lagres her som standard for kunden.": "Importer ein saldobalanse for ein kunde først. Fordelingsnøklane du set i analysen blir lagra her som standard for kunden.",
   "Tomme felt bruker automatisk nøkkel. Verdiene du setter her brukes for kunden i analysen, og endringer på steget Fordelingsnøkler lagres her automatisk.": "Tomme felt brukar automatisk nøkkel. Verdiane du set her blir brukte for kunden i analysen, og endringar på steget Fordelingsnøklar blir lagra her automatisk.",
   "Vil du slette standardverdiene for {k}?": "Vil du slette standardverdiane for {k}?", "auto": "auto", "Åpne innstillinger": "Opne innstillingar",
@@ -954,7 +963,7 @@ try { const r = localStorage.getItem(STORE_SET); if (r) SET = Object.assign(SET,
 LANG = SET.lang || "nb";
 let VIEW = "wizard";
 /* Innstillingar blir redigerte som kladd: endringane gjeld med ein gong i visninga, men blir først lagra når ein trykkjer Lagre */
-const DRAFT_SET = ["map", "avd", "acc", "formulas", "clientKeys"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
+const DRAFT_SET = ["map", "avd", "acc", "formulas", "clientKeys", "tx"], DRAFT_S = ["keys", "prodInputs", "map", "maskinAnna"];
 let DRAFT = null;
 /* Fordelingsnøklar: standardverdiar per kunde ligg i innstillingane (SET.clientKeys) og blir brukte når prosjektet ikkje har eigne */
 const cid = () => String(S.klient || "").trim().toLowerCase();
@@ -1356,10 +1365,11 @@ function vImport(m) {
   const compact = S.sb.length > 0;
   m.innerHTML = head() + `
   ${compact ? `<div class="card row" style="gap:12px"><div class="grow"><div class="muted sm">${T("Datakilde")}</div><div style="font-weight:600">${esc(S.source)}${S.hb ? " · " + T("Hovedbok") : ""}</div></div>
-    <button class="btn sm" id="btnTx">${T("Importer fra Tripletex")}</button><button class="btn sm" id="btnFile">${T("Ny saldobalanse")}</button><button class="btn sm" id="btnHb">${T("Hovedbok")}</button>
+    <button class="btn sm pri" data-api="1">${T("Hent fra Tripletex")}</button><button class="btn sm ghost" id="btnTx">${T("Eksempelgård")}</button><button class="btn sm" id="btnFile">${T("Ny saldobalanse")}</button><button class="btn sm" id="btnHb">${T("Hovedbok")}</button>
     <input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>` : ""}
   <div class="choice ${compact ? "hidden" : ""}" style="margin-bottom:16px">
-    <div class="opt"><h3>${T("Importer fra Tripletex")}</h3><p>${T("Fiktive tall for en eksempelgård inntil Tripletex-koblingen er aktivert.")}</p><button class="btn pri" id="btnTx">${T("Importer fra Tripletex")}</button></div>
+    <div class="opt"><h3>${T("Hent fra Tripletex")}</h3><p>${T(txReady() ? "Henter saldobalanse, hovedbok og mengder direkte fra Tripletex med API-nøklene dine." : "Legg inn API-nøklene under Innstillinger → Tripletex for å hente tallene direkte.")}</p>
+      <div class="row" style="margin:0"><button class="btn pri" data-api="1">${T(txReady() ? "Hent fra Tripletex" : "Koble til Tripletex")}</button><button class="btn ghost" id="btnTx">${T("Prøv med eksempelgård")}</button></div></div>
     <div class="opt"><h3>${T("Last opp saldobalanse")}</h3><p>${T("Excel- eller CSV-eksport av saldobalansen.")}</p><button class="btn" id="btnFile">${T("Velg fil")}</button><input type="file" id="fileSb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
     <div class="opt"><h3>${T("Last opp hovedbok")}</h3><p>${T("Gir mengder per konto og tall per måned. Kan brukes alene eller sammen med saldobalansen.")}</p><button class="btn" id="btnHb">${T("Velg fil")}</button><input type="file" id="fileHb" accept=".csv,.xlsx,.xls,.txt" class="hidden"></div>
   </div>
@@ -1398,6 +1408,7 @@ function vImport(m) {
     S.prev = demoPrev();
     save(); render();
   };
+  $$("[data-api]", m).forEach(b => b.onclick = () => { if (txReady()) txImportDialog(); else { SET.tab = "tripletex"; VIEW = "settings"; render(); window.scrollTo({top: 0}); } });
   $("#btnFile").onclick = () => $("#fileSb").click();
   $("#fileSb").onchange = e => importFile(e.target.files[0]);
   $("#btnHb").onclick = () => $("#fileHb").click();
@@ -1487,6 +1498,95 @@ function importFile(file) {
     const keep = {klient: S.klient, utarbeidd: S.utarbeidd, aar: S.aar, hb: S.hb, hbQty: S.hbQty, prev: S.prev};
     S = freshState(); Object.assign(S, keep); S.sb = sb.sort((a, b) => byNr(a.nr, b.nr)); S.source = file.name; S.sbSkipped = skipped; save(); render();
   }).catch(() => alert(T("Kunne ikke lese fila.")));
+}
+/* ---------- Tripletex API ---------- */
+const txReady = () => !!(SET.tx && SET.tx.consumer && SET.tx.employee);
+async function txCall(requests, companyId) {
+  if (location.protocol === "file:") throw new Error(T("Henting fra Tripletex virker bare på nettsiden, ikke i den nedlastede fila."));
+  const r = await fetch("/api/tripletex", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({consumerToken: SET.tx.consumer, employeeToken: SET.tx.employee, env: SET.tx.env || "prod", companyId: companyId || 0, requests})});
+  let j = null; try { j = await r.json(); } catch (e) { /* ikkje json */ }
+  if (!r.ok || !j) throw new Error((j && (j.error + (j.detail ? ": " + j.detail : ""))) || T("Fikk ikke kontakt med tjenesten") + " (" + r.status + ")");
+  return j.results;
+}
+const TX_POST = ["date", "voucher.number", "account.number", "account.name", "department.number", "amount", "description", "quantityAmount1", "quantityAmount2"];
+async function txFetchYear(year, companyId, progress) {
+  const d0 = year + "-01-01", d1 = (year + 1) + "-01-01";
+  progress(T("Henter saldobalanse …"));
+  const [bs] = await txCall([{path: "/balanceSheet", query: {dateFrom: d0, dateTo: d1, accountNumberFrom: 1000, accountNumberTo: 2999, fields: "account(number,name),balanceIn,balanceOut"}, pick: ["account.number", "account.name", "balanceIn", "balanceOut"]}], companyId);
+  if (bs.error) throw new Error(bs.error + (bs.detail ? ": " + bs.detail : ""));
+  progress(T("Henter hovedbok …"));
+  let fields = "date,voucher(number),account(number,name),department(number),amount,description,quantityAmount1,quantityAmount2", pk = TX_POST, qty = true;
+  let [hb] = await txCall([{path: "/ledger/posting", query: {dateFrom: d0, dateTo: d1, fields}, pick: pk}], companyId);
+  if (hb.error && hb.status === 400) { qty = false; fields = "date,voucher(number),account(number,name),department(number),amount,description"; pk = TX_POST.slice(0, 7);
+    [hb] = await txCall([{path: "/ledger/posting", query: {dateFrom: d0, dateTo: d1, fields}, pick: pk}], companyId); }
+  if (hb.error) throw new Error(hb.error + (hb.detail ? ": " + hb.detail : ""));
+  let ibq = {values: []};
+  if (qty) { progress(T("Henter dyretall ved årets start …"));
+    [ibq] = await txCall([{path: "/ledger/posting", query: {dateFrom: "1990-01-01", dateTo: d0, accountNumberFrom: 1400, accountNumberTo: 1499, fields: "account(number,name),department(number),quantityAmount1"}, pick: ["account.number", "account.name", "department.number", "quantityAmount1"]}], companyId);
+    if (ibq.error) ibq = {values: []}; }
+  return {bs: bs.values, hb: hb.values, ibq: ibq.values, qty, truncated: !!hb.truncated};
+}
+function txApply(data, year, company) {
+  const nrOf = (n, name, dept) => resolveAcc(String(n), name || "", dept != null ? String(dept) : "");
+  const rows = data.hb.filter(p => p[2] != null).map(p => [p[0] || "", String(p[1] ?? ""), nrOf(p[2], p[3], p[4]), String(p[6] || "").slice(0, 80), +p[5] || 0, +p[7] || 0, +p[8] || 0, p[4] != null ? String(p[4]) : ""]);
+  const sb = {}, get = (nr, name) => sb[nr] || (sb[nr] = parseAcc(nr).base >= 3000 ? {nr, navn: name || kontoNavn(nr), ib: 0, ub: 0, m1: 0, m2: 0} : {nr, navn: name || kontoNavn(nr), ib: 0, ub: 0, m1ib: 0, m1ub: 0, m1: 0, m2: 0});
+  data.hb.forEach((p, i) => { const r = rows[i]; if (!r || parseAcc(r[2]).base < 3000) return; const o = get(r[2], p[3]); o.ub += r[4]; o.m1 += r[5]; o.m2 += r[6]; });
+  data.bs.forEach(([n, name, ib, ub]) => { if (n == null || (!ib && !ub)) return; const o = get(nrOf(n, name, ""), name); o.ib += +ib || 0; o.ub += +ub || 0; });
+  const qib = {}; data.ibq.forEach(([n, name, dept, q]) => { const nr = nrOf(n, name, dept); qib[nr] = (qib[nr] || 0) + (+q || 0); });
+  const qyr = {}; rows.forEach(r => { if (parseAcc(r[2]).base < 3000) qyr[r[2]] = (qyr[r[2]] || 0) + r[5]; });
+  [...new Set([...Object.keys(qib), ...Object.keys(qyr)])].forEach(nr => { if (parseAcc(nr).base >= 3000) return; const o = get(nr); o.m1ib = qib[nr] || 0; o.m1ub = (qib[nr] || 0) + (qyr[nr] || 0); });
+  const keep = {utarbeidd: S.utarbeidd, prev: S.prev && S.prev.aar === year - 1 ? S.prev : null};
+  S = freshState(); Object.assign(S, keep);
+  S.sb = Object.values(sb).filter(r => r.ub || r.ib || r.m1ib || r.m1ub).sort((a, b) => byNr(a.nr, b.nr));
+  S.source = "Tripletex API · " + company; S.klient = company; S.aar = year;
+  S.hb = {file: "Tripletex API", rows, qty: data.qty, skipped: 0, map: {}, H: []}; S.hbQty = data.qty;
+  HBC = null; save(); render();
+}
+function txImportDialog() {
+  const draw = async d => {
+    d.el.innerHTML = `${dHead(T("Hent fra Tripletex"), T("Velg selskap og regnskapsår"))}<div class="dbody">
+      <div class="fields"><label class="field">${T("Selskap")}<select class="sel" id="txCo">${d.cos ? d.cos.map(c => `<option value="${c.id}" ${String(c.id) === String(SET.tx.lastCo || "") ? "selected" : ""}>${esc(c.name)}${c.org ? " · " + esc(c.org) : ""}</option>`).join("") : `<option>${T("Henter selskaper …")}</option>`}</select></label>
+      <label class="field">${T("Regnskapsår")}<input class="inp" id="txYear" type="number" value="${d.year}"></label></div>
+      <div class="muted sm" id="txMsg" style="margin-top:14px">${esc(d.msg || "")}</div>
+      ${d.err ? `<div class="notice warn" style="margin-top:12px">${esc(d.err)}</div>` : ""}</div>
+      <div class="dfoot"><span class="muted sm">${T("Henter saldobalanse, hovedbok med mengder og avdelinger.")}</span><span class="grow"></span><button class="btn" id="txCancel">${T("Avbryt")}</button><button class="btn pri" id="txGo" ${d.busy || !d.cos ? "disabled" : ""}>${T(d.busy ? "Henter …" : "Hent")}</button></div>`;
+    $("#mClose", d.el).onclick = $("#txCancel", d.el).onclick = closeModal;
+    $("#txGo", d.el).onclick = async () => {
+      const co = d.cos.find(c => String(c.id) === $("#txCo", d.el).value) || d.cos[0], year = parseInt($("#txYear", d.el).value, 10);
+      if (!(year > 1990)) return; d.year = year; d.busy = true; d.err = ""; SET.tx.lastCo = co.id; saveSet(); draw(d);
+      try { const data = await txFetchYear(year, co.self ? 0 : co.id, msg => { const e = $("#txMsg", d.el); if (e) e.textContent = msg; });
+        if (!data.hb.length) throw new Error(T("Fant ingen posteringer for {y}.", {y: year}));
+        closeModal(); txApply(data, year, co.name);
+        if (data.truncated) alert(T("Hovedboken var for stor til å hentes helt. Last opp saldobalansen som fil i tillegg."));
+      } catch (e) { d.busy = false; d.err = e.message; draw(d); }
+    };
+  };
+  const d = {year: S.aar && S.sb.length ? S.aar : new Date().getFullYear() - 1, msg: ""};
+  modal("", el => { d.el = el; draw(d);
+    txCall([{path: "/token/session/>whoAmI", query: {fields: "company(id,name,organizationNumber)"}, paged: false, pick: ["company.id", "company.name", "company.organizationNumber"]},
+      {path: "/company/>withLoginAccess", query: {fields: "id,name,organizationNumber"}, pick: ["id", "name", "organizationNumber"]}])
+      .then(([me, acc]) => { const cos = []; if (me.value) cos.push({id: me.value[0], name: me.value[1], org: me.value[2], self: true});
+        (acc.values || []).forEach(([id, name, org]) => { if (!cos.some(c => String(c.id) === String(id))) cos.push({id, name, org}); });
+        if (!cos.length) throw new Error(me.error || acc.error || T("Fant ingen selskaper")); d.cos = cos; draw(d); })
+      .catch(e => { d.err = e.message; d.cos = null; draw(d); }); });
+}
+function renderTripletex(el) {
+  const tx = SET.tx = SET.tx || {};
+  el.innerHTML = `<div class="card"><h2>${T("Tilkobling til Tripletex")}</h2>
+    <p class="hint" style="margin-top:0">${T("Consumer token får du fra Tripletex for integrasjonen. Employee token lager brukeren selv i Tripletex under Min profil → API-tilgang. Nøklene lagres bare i denne nettleseren og sendes kryptert til Tripletex når du henter data.")}</p>
+    <div class="fields"><label class="field">${T("Consumer token")}<input class="inp" id="txCons" type="password" autocomplete="off" value="${esc(tx.consumer || "")}"></label>
+    <label class="field">${T("Employee token")}<input class="inp" id="txEmp" type="password" autocomplete="off" value="${esc(tx.employee || "")}"></label>
+    <label class="field">${T("Miljø")}<select class="sel" id="txEnv"><option value="prod" ${tx.env !== "test" ? "selected" : ""}>${T("Produksjon (tripletex.no)")}</option><option value="test" ${tx.env === "test" ? "selected" : ""}>${T("Test (api-test.tripletex.tech)")}</option></select></label></div>
+    <div class="row" style="margin-top:14px"><button class="btn sm" id="txTest" ${txReady() ? "" : "disabled"}>${T("Test tilkoblingen")}</button><span class="muted sm" id="txRes"></span><span class="grow"></span>
+    ${tx.consumer || tx.employee ? `<button class="btn sm ghost" id="txClear">${T("Fjern nøklene")}</button>` : ""}</div></div>`;
+  const upd = () => { tx.consumer = $("#txCons", el).value.trim(); tx.employee = $("#txEmp", el).value.trim(); tx.env = $("#txEnv", el).value; saveSet(); $("#txTest", el).disabled = !txReady(); };
+  ["#txCons", "#txEmp", "#txEnv"].forEach(id => $(id, el).onchange = upd);
+  $("#txTest", el).onclick = () => { upd(); const r = $("#txRes", el); r.textContent = T("Tester …");
+    txCall([{path: "/token/session/>whoAmI", query: {fields: "company(name),employee(firstName,lastName)"}, paged: false, pick: ["company.name", "employee.firstName", "employee.lastName"]}])
+      .then(([x]) => { if (x.error) throw new Error(x.error + (x.detail ? ": " + x.detail : "")); r.textContent = "✓ " + T("Koblet til {c} som {n}", {c: x.value[0], n: (x.value[1] || "") + " " + (x.value[2] || "")}); })
+      .catch(e => { r.textContent = "✗ " + e.message; }); };
+  const cl = $("#txClear", el); if (cl) cl.onclick = () => { SET.tx = {env: tx.env}; saveSet(); renderTripletex(el); };
 }
 /* ---------- hovudbok ---------- */
 function qtyTxt(nr, a) {
@@ -2177,11 +2277,12 @@ function buildDoc() {
 
 /* ================================================================ INNSTILLINGER */
 function renderSettings(m) {
-  const tab = ["kontering", "nokler"].includes(SET.tab) ? SET.tab : "kontoplan";
-  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T({kontoplan: "Kontoplan", kontering: "Konteringsoppsett", nokler: "Fordelingsnøkler"}[tab])}</h1></div></div>
+  const tab = ["kontering", "nokler", "tripletex"].includes(SET.tab) ? SET.tab : "kontoplan";
+  m.innerHTML = `<div class="pagehead"><div><div class="k">${T("Innstillinger")}</div><h1>${T({kontoplan: "Kontoplan", kontering: "Konteringsoppsett", nokler: "Fordelingsnøkler", tripletex: "Tripletex"}[tab])}</h1></div></div>
     <div class="tabs"><button class="tab ${tab === "kontoplan" ? "on" : ""}" data-tab="kontoplan">${T("Kontoplan")}</button>
     <button class="tab ${tab === "kontering" ? "on" : ""}" data-tab="kontering">${T("Konteringsoppsett")}</button>
     <button class="tab ${tab === "nokler" ? "on" : ""}" data-tab="nokler">${T("Fordelingsnøkler")}</button>
+    <button class="tab ${tab === "tripletex" ? "on" : ""}" data-tab="tripletex">Tripletex</button>
     <span class="grow"></span><button class="btn sm ghost" id="setExp">${T("Eksporter innstillinger")}</button><button class="btn sm ghost" id="setImp">${T("Importer innstillinger")}</button>
     <input type="file" id="setFile" accept=".json" class="hidden"></div><div id="setBody"></div>
     <div class="savebar" id="saveBar"><span class="dot"></span><span id="sbTxt"></span><span class="grow"></span><button class="btn sm ghost" id="sbUndo">${T("Forkast endringer")}</button><button class="btn sm pri" id="sbSave">${T("Lagre")}</button></div>`;
@@ -2198,7 +2299,7 @@ function renderSettings(m) {
       const replace = confirm(T("Trykk OK for å erstatte innstillingene dine med fila, eller Avbryt for å slå dem sammen (fila går foran ved like kontoer)."));
       ["map", "avd", "acc", "formulas", "clientKeys"].forEach(k => { SET[k] = replace ? Object.assign({}, d[k] || {}) : Object.assign({}, SET[k], d[k] || {}); });
       saveSet(); render(); }); };
-  ({kontering: renderKontering, nokler: renderNokler, kontoplan: renderKontoplan})[tab]($("#setBody"), m);
+  ({kontering: renderKontering, nokler: renderNokler, kontoplan: renderKontoplan, tripletex: renderTripletex})[tab]($("#setBody"), m);
 }
 /* standard fordelingsnøklar per kunde */
 function renderNokler(el) {

@@ -34,5 +34,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/tripletex.js": {
+      "maxDuration": 60
+    }
+  }
 }
