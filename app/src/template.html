@@ -860,7 +860,7 @@ function behKonto(nr) {
 }
 const BEH_RULE = "4090-4099, 4190-4199, 4290-4299, 4690-4699";
 const DERIVE = [
-  ["mjolk.liter", "3071", "", "end", "m1"], ["mjolk.kg_kjott", "3041", "511-512", "end", "m2"],
+  ["mjolk.liter", "3071", "", "end", "m1"], ["mjolk.kg_kjott", "3041", "511-515", "end", "m2"],
   ["mjolk.kyr_ib", "1451", "511-512", "ib", "m1"], ["mjolk.kyr_ub", "1451", "511-512", "ub", "m1"],
   ["mjolk.ung_o_ib", "1451", "514", "ib", "m1"], ["mjolk.ung_o_ub", "1451", "514", "ub", "m1"],
   ["mjolk.ung_u_ib", "1451", "515", "ib", "m1"], ["mjolk.ung_u_ub", "1451", "515", "ub", "m1"],
@@ -2177,7 +2177,7 @@ function buildDoc() {
     const g = id => "grovfor." + id, ar = [];
     if (plants.length) { ar.push(yhead(T("Planteproduksjon")));
       plants.forEach(p => ar.push({cells: [SL(p, "sheet") + " (" + SL(p, "unit_label") + ")"].concat(yv(p.key + ".n", "n")), sub: true}));
-      const da = plants.filter(p => !["agurk", "tomat"].includes(p.key)); if (da.length > 1) ar.push({cells: [T("Sum dekar planteproduksjon")].concat(PREVY ? [fmt(da.reduce((s, p) => s + PV(p.key + ".n"), 0), "n"), fmt(da.reduce((s, p) => s + V(p.key + ".n"), 0), "n")] : [fmt(da.reduce((s, p) => s + V(p.key + ".n"), 0), "n")]), sum: true}); }
+      if (plants.filter(p => !["agurk", "tomat"].includes(p.key)).length > 1) ar.push(yr(T("Sum dekar planteproduksjon"), "grovfor.da_plante", {sum: true})); }
     if (hasGF) {
       ar.push(yhead(T("Grovfôrareal")));
       [["Kulturbeite (dekar)", "kb_eige"], ["Kulturbeite korrigert til «fulldyrka» (÷ 2,5)", "kb_vk"], ["Overflatedyrka korrigert (÷ 1,25)", "ov_vk"], ["Fulldyrka til eng og beite", "fulldyrka_eigen"]]
@@ -2244,7 +2244,7 @@ function buildDoc() {
     const k = p.key, n = V(k + ".n"), per = perTxt(p).replace(/^(per|pr) /, ""), gr = ROW[k + ".k_gruppe"], pv = hasPrev(k);
     const PY = pv ? [String(S.prev.aar), String(S.aar)] : [String(S.aar)], kv = (f, fm) => (pv ? [fmt(PV(f), fm), fmt(V(f), fm)] : [fmt(V(f), fm)]);
     out.push(P.h1(SL(p, "title"), big, fmt(n, "n") + " " + SL(p, "unit_label") + (gr ? "   ·   " + V(k + ".k_gruppe") : "") + "   ·   " + T("Regnskapsår {a}", {a: S.aar})));
-    const kr0 = kpiRows(p).filter(r => r.fmt !== "txt" && (big || !["k_varkost_da", "k_maskin_da", "k_korr_da"].includes(r.id)) && (Math.abs(V(k + "." + r.id)) > 0.0005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.0005)));
+    const kr0 = kpiRows(p).filter(r => r.fmt !== "txt" && r.id !== "k_korr_da" && (big || !["k_varkost_da", "k_maskin_da", "k_korr_da_storfe"].includes(r.id)) && (Math.abs(V(k + "." + r.id)) > 0.0005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.0005)));
     const extra = [["n", SL(p, "unit_label")], ["kvote", null], ["inn_total", T("Produksjonsinntekter i alt")], ["kost_total", T("Variable kostnader i alt")], ["db_u", T("Samlet DB uten tilskudd")], ["db_m", T("Samlet DB med tilskudd")], ["maskin", T("Maskinkostnader") + " " + lc(SL(p, "sheet"))], ["db_etter", T("Igjen til bygg, arbeid og kapital")]]
       .filter(([id]) => ROW[k + "." + id] && (!big || !["inn_total", "kost_total", "db_etter"].includes(id)) && (Math.abs(V(k + "." + id)) > 0.5 || (pv && Math.abs(PV(k + "." + id)) > 0.5)))
       .map(([id, l]) => ({cells: [id === "n" ? T("Omfang") + " (" + l + ")" : (l || clean(LBL(ROW[k + "." + id])))].concat(kv(k + "." + id, ROW[k + "." + id].fmt)), sum: ["db_u", "db_m", "db_etter"].includes(id)}));

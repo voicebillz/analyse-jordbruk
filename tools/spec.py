@@ -199,7 +199,9 @@ def grovfor_kpis_common(key):
         C("k_korr_da_prod", "Korrigerte dekar pr «kueining» i produksjonen",
           "DIV(grovfor.da_vk*DIV(sum_eigen_gf,grovfor.sum_eigen_alle),kueiningar)", "da", "n2", kpi=True,
           note="Grovfôrarealet produksjonen får (etter eigen grovfôrkostnad) delt på kueiningane i produksjonen"),
-    ]
+    ] + ([] if key in ("sau", "geit") else [
+        C("k_korr_da_storfe", "Korrigerte dekar pr «kueining» – storfe samla", "grovfor.korr_da_pr_ku_storfe", "da", "n2", kpi=True,
+          note="Som i Agro: grovfôrarealet til alle storfeproduksjonane delt på storfe-kueiningane")])
 
 
 # ---------------------------------------------------------------- kraftfôr-husdyr
@@ -303,6 +305,7 @@ def plante(key, sheet, title, dg, unit, sal_label, sal_src, sal_acc, vals, cost_
         C("k_db_m", "DB %s m/tilskot" % per_label, "DIV(db_m,n)", "kr/eining", kpi=True),
         C("k_pris", "Oppnådd pris pr kg", "DIV(sal,sal_kg)", "kr/eining", kpi=True),
         C("k_avling", "Avling %s (kg)" % per_label, "DIV(avling,n)", "kg", "n1", kpi=True),
+        C("k_salsavling", "Seld avling %s (kg)" % per_label, "DIV(sal_kg,n)", "kg", "n1", kpi=True),
         C("k_maskin", "Maskinkostnader %s" % per_label, "DIV(maskin,n)", "kr/eining", kpi=True),
         C("k_db_etter", "DB etter maskinkostnader %s" % per_label, "DIV(db_etter,n)", "kr/eining", kpi=True),
     ]
@@ -901,6 +904,8 @@ def grovfor_sheet():
           "ov_mk+fulldyrka_eigen+kb_mk", "da", "n1"),
         C("utm_smafe", "Småfe på utmarksbeite", "utm_sau+utm_lam", "stk", "n"),
         C("utm_storfe", "Storfe på utmarksbeite", "utm_kyr+utm_ungdyr", "stk", "n"),
+        C("da_plante", "Sum dekar planteproduksjon (korn, potet, grønsaker, gulrot, kålrot)",
+          "korn.n*ACTIVE(korn)+potet.n*ACTIVE(potet)+fgront.n*ACTIVE(fgront)+gulrot.n*ACTIVE(gulrot)+kalrot.n*ACTIVE(kalrot)", "da", "n1"),
         C("fem_utmark", "Fôreiningar (FEm) henta frå utmark",
           "utm_sau*1.05*95+utm_lam*1*90+utm_kyr*7.2*92+utm_ungdyr*4.8*92", "FEm", "n"),
         C("utm_da", "Utmark omrekna til «fulldyrka» dekar (900 FEm/da)", "fem_utmark/900", "da", "n1"),
@@ -911,6 +916,10 @@ def grovfor_sheet():
     rows.append(C("ku_storfe", "Kueiningar – storfe", "+".join("ku_" + k for k in GROVFOR_KEYS if k not in ("sau", "geit")), "stk", "n2"))
     rows.append(C("ku_smafe", "Kueiningar – småfe", "+".join("ku_" + k for k in GROVFOR_KEYS if k in ("sau", "geit")), "stk", "n2"))
     rows.append(C("sum_ku", "Sum «kueiningar»", "ku_storfe+ku_smafe", "stk", "n2", kpi=True))
+    storfe = [k for k in GROVFOR_KEYS if k not in ("sau", "geit")]
+    rows.append(C("da_storfe", "Korrigert grovfôrareal til storfe",
+                  "da_vk*DIV(" + "+".join("%s.sum_eigen_gf*ACTIVE(%s)" % (k, k) for k in storfe) + ",sum_eigen_alle)", "da", "n1"))
+    rows.append(C("korr_da_pr_ku_storfe", "Korrigerte dekar pr «kueining» – storfe", "DIV(da_storfe,ku_storfe)", "da", "n2"))
     for k in GROVFOR_KEYS:
         rows.append(C("eg_" + k, "Eigen grovfôrkostnad – %s" % PNAME[k], "%s.sum_eigen_gf*ACTIVE(%s)" % (k, k)))
     rows.append(C("sum_eigen_alle", "Sum eigen grovfôrkostnad (fordelingsnøkkel areal)", "+".join("eg_" + k for k in GROVFOR_KEYS)))
