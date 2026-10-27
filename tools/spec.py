@@ -195,7 +195,10 @@ def grovfor_kpis_common(key):
           "DIV(db_m,grovfor.da_vk*DIV(sum_eigen_gf,grovfor.sum_eigen_alle))", "kr/eining", kpi=True),
         C("k_varkost_da", "Variabel grovfôrkostnad pr dekar", "grovfor.varkost_pr_da", "kr/eining", kpi=True),
         C("k_maskin_da", "Maskinkostnader pr dekar grovfôr", "grovfor.maskin_pr_da", "kr/eining", kpi=True),
-        C("k_korr_da", "Korrigerte dekar pr «kueining»", "grovfor.korr_da_pr_ku", "da", "n2", kpi=True),
+        C("k_korr_da", "Korrigerte dekar pr «kueining» (heile garden)", "grovfor.korr_da_pr_ku", "da", "n2", kpi=True),
+        C("k_korr_da_prod", "Korrigerte dekar pr «kueining» i produksjonen",
+          "DIV(grovfor.da_vk*DIV(sum_eigen_gf,grovfor.sum_eigen_alle),kueiningar)", "da", "n2", kpi=True,
+          note="Grovfôrarealet produksjonen får (etter eigen grovfôrkostnad) delt på kueiningane i produksjonen"),
     ]
 
 
@@ -888,10 +891,16 @@ def grovfor_sheet():
         C("da_sal", "Dekar til sal av silofôr og høy", "silofor.n*ACTIVE(silofor)+hoy.n*ACTIVE(hoy)", "da", "n1"),
         C("fulldyrka_eigen", "Fulldyrka til eigen grovfôrbasert husdyrproduksjon", "fulldyrka-da_sal", "da", "n1"),
         C("kb_eige", "Kulturbeite til eige bruk", "kulturbeite-kb_utleigd", "da", "n1"),
-        C("da_mk", "Dekar grovfôr – maskinkostnadsgrunnlag (overflate/2 + fulldyrka + kulturbeite×10 %)",
-          "overflate/2+fulldyrka_eigen+kb_eige*0.1", "da", "n1"),
+        C("ov_vk", "Overflatedyrka korrigert til «fulldyrka» (delt på 1,25)", "overflate/1.25", "da", "n1"),
+        C("kb_vk", "Kulturbeite korrigert til «fulldyrka» (delt på 2,5)", "kb_eige/2.5", "da", "n1"),
         C("da_vk", "Korrigert grovfôrareal (overflate/1,25 + fulldyrka + kulturbeite/2,5)",
-          "overflate/1.25+fulldyrka_eigen+kb_eige/2.5", "da", "n1", kpi=True),
+          "ov_vk+fulldyrka_eigen+kb_vk", "da", "n1", kpi=True),
+        C("ov_mk", "Overflatedyrka korrigert for maskinkostnader (delt på 2)", "overflate/2", "da", "n1"),
+        C("kb_mk", "Kulturbeite korrigert for maskinkostnader (delt på 10)", "kb_eige*0.1", "da", "n1"),
+        C("da_mk", "Dekar grovfôr – maskinkostnadsgrunnlag (overflate/2 + fulldyrka + kulturbeite×10 %)",
+          "ov_mk+fulldyrka_eigen+kb_mk", "da", "n1"),
+        C("utm_smafe", "Småfe på utmarksbeite", "utm_sau+utm_lam", "stk", "n"),
+        C("utm_storfe", "Storfe på utmarksbeite", "utm_kyr+utm_ungdyr", "stk", "n"),
         C("fem_utmark", "Fôreiningar (FEm) henta frå utmark",
           "utm_sau*1.05*95+utm_lam*1*90+utm_kyr*7.2*92+utm_ungdyr*4.8*92", "FEm", "n"),
         C("utm_da", "Utmark omrekna til «fulldyrka» dekar (900 FEm/da)", "fem_utmark/900", "da", "n1"),
@@ -899,7 +908,9 @@ def grovfor_sheet():
     rows.append(H("4. UTREKNING – «Kueiningar» og eigen grovfôrkostnad pr produksjon (berre produksjonar med i totalen)"))
     for k in GROVFOR_KEYS:
         rows.append(C("ku_" + k, "Kueiningar – %s" % PNAME[k], "%s.kueiningar*ACTIVE(%s)" % (k, k), "stk", "n2"))
-    rows.append(C("sum_ku", "Sum «kueiningar»", "+".join("ku_" + k for k in GROVFOR_KEYS), "stk", "n2", kpi=True))
+    rows.append(C("ku_storfe", "Kueiningar – storfe", "+".join("ku_" + k for k in GROVFOR_KEYS if k not in ("sau", "geit")), "stk", "n2"))
+    rows.append(C("ku_smafe", "Kueiningar – småfe", "+".join("ku_" + k for k in GROVFOR_KEYS if k in ("sau", "geit")), "stk", "n2"))
+    rows.append(C("sum_ku", "Sum «kueiningar»", "ku_storfe+ku_smafe", "stk", "n2", kpi=True))
     for k in GROVFOR_KEYS:
         rows.append(C("eg_" + k, "Eigen grovfôrkostnad – %s" % PNAME[k], "%s.sum_eigen_gf*ACTIVE(%s)" % (k, k)))
     rows.append(C("sum_eigen_alle", "Sum eigen grovfôrkostnad (fordelingsnøkkel areal)", "+".join("eg_" + k for k in GROVFOR_KEYS)))
@@ -976,10 +987,11 @@ def total_sheet():
     ]
     rows.append(H("6. INPUT/UTREKNING – Nettoinntekt"))
     rows += [
-        I("do_andre", "Driftsoverskot andre næringar (skog, leigekøyring o.l.)", "kr", 117592.22, src="Avdeling 30/70 o.l.", kind="fast"),
+        I("do_skog", "Driftsoverskot skog/pelsdyr", "kr", 0, src="Avdeling 30 (skogbruk) og 50 (pelsdyr)", kind="fast"),
+        I("do_andre", "Driftsoverskot annan næring (leigekøyring, utleige o.l.)", "kr", 117592.22, src="Andre avdelingar enn jordbruk, skog og pelsdyr", kind="fast"),
         I("renteinn", "Renteinntekter", "kr", 117, src="80xx", kind="fast", acc="8000-8099", sign=-1),
         I("renteut", "Renteutgifter", "kr", 190284.05, src="8100-8179", kind="fast", acc="8100-8179", sign=1),
-        C("netto", "Nettoinntekt næring (driftsmessig)", "do_drift+do_andre+renteinn-renteut", kpi=True),
+        C("netto", "Nettoinntekt næring (driftsmessig)", "do_drift+do_skog+do_andre+renteinn-renteut", kpi=True),
     ]
     rows.append(H("7. OUTPUT – Nøkkeltal totaløkonomi"))
     rows += [
