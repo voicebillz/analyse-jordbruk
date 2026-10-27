@@ -1942,7 +1942,7 @@ function autoText(k) {
       T("Variabel grovfôrkostnad er {v} kr per dekar, og maskinkostnadene {m} kr per dekar.", {v: kr(V("grovfor.varkost_pr_da")), m: kr(V("grovfor.maskin_pr_da"))}));
   } else {
     const p = SHEET[k], n = V(k + ".n"), per = perTxt(p);
-    const inn = V(k + ".inn_total"), kost = V(k + ".kost_total"), dbu = V(k + ".db_u"), dbm = V(k + ".db_m"), til = V(k + ".tilskot");
+    const inn = V(k + ".inn_total"), kost = V(k + ".kost_total"), dbu = V(k + ".db_u"), dbm = V(k + ".db_m"), til = V(k + tilId(k));
     if (!n) P.push(T("Antall {u} er ikke registrert, så tall per enhet mangler.", {u: SL(p, "unit_label")}));
     let a = n ? T("Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr, eller {pe} kr {per}.", {inn: kr(inn), kost: kr(kost), db: kr(dbu), pe: kr(dbu / n), per})
       : T("Produksjonen hadde inntekter på {inn} kr og variable kostnader på {kost} kr. Dekningsbidraget uten tilskudd ble {db} kr.", {inn: kr(inn), kost: kr(kost), db: kr(dbu)});
@@ -2095,6 +2095,7 @@ const P = {
 function unitTxt(r) { return r.unit === "kr/eining" ? "kr" : (r.unit === "%" || r.unit === "tekst" ? "" : r.unit); }
 function kpiRows(p) { const out = []; let on = false; p.rows.forEach(r => { if (r.t === "head") { on = /OUTPUT – (Nøkkeltal|Sum faste)/.test(r.label); return; } if (on) out.push(Object.assign({sheet: p.key}, r)); }); return out; }
 function unitRows(p) { const out = []; let on = false, sec = ""; p.rows.forEach(r => { if (r.t === "head") { if (r.label.startsWith("5.")) { on = true; return; } if (r.label.startsWith("6.")) on = false; else if (on) sec = r.label; return; } if (on) out.push(Object.assign({sec}, r)); }); return out; }
+const tilId = k => (ROW[k + ".tilskot_tot"] ? ".tilskot_tot" : ".tilskot");
 const isSumLbl = l => /i alt|^Sum|^DB /.test(l);
 
 function buildDoc() {
@@ -2156,7 +2157,7 @@ function buildDoc() {
   if (prods.length) {
     C.push(P.h1(T("Dekningsbidrag")));
     const dbHead = [T("Produksjon"), T("Omfang"), T("DB uten tilskudd"), T("Tilskudd"), T("DB med tilskudd")].concat(PREVY ? [T("I fjor")] : []);
-    C.push(P.table(dbHead, prods.map(p => { const n = V(p.key + ".n"); return {cells: [SL(p, "sheet"), fmt(n, "n") + " " + SL(p, "unit_label"), kr(V(p.key + ".db_u")), kr(V(p.key + ".tilskot")), kr(V(p.key + ".db_m"))].concat(PREVY ? [hasPrev(p.key) ? kr(PV(p.key + ".db_m")) : "–"] : [])}; })
+    C.push(P.table(dbHead, prods.map(p => { const n = V(p.key + ".n"); return {cells: [SL(p, "sheet"), fmt(n, "n") + " " + SL(p, "unit_label"), kr(V(p.key + ".db_u")), kr(V(p.key + tilId(p.key))), kr(V(p.key + ".db_m"))].concat(PREVY ? [hasPrev(p.key) ? kr(PV(p.key + ".db_m")) : "–"] : [])}; })
       .concat([{sum: true, cells: [T("Samlet dekningsbidrag"), "", kr(V("total.sum_db_u")), kr(V("total.sum_tilskot")), kr(V("total.sum_db_m"))].concat(PREVY ? [kr(PV("total.sum_db_m"))] : [])}]),
       ["*", "auto", 72, 64, 72].concat(PREVY ? [64] : []), {numFrom: 2}));
     C.push(P.ct(T("Dekningsbidrag per produksjon"), "kr"));
@@ -2259,7 +2260,7 @@ function buildDoc() {
       if (own.trim()) out.push(P.box(own, T("Kommentarer"))); }
     else out.push({columns: [
       {width: 235, stack: [P.ct(T("Dekningsbidrag"), "kr"), P.legend([{color: PC.accent, label: T("DB uten tilskudd")}, {color: PC.hi, label: T("Tilskudd")}, {color: PC.s1, label: T("Maskinkostnader")}]),
-        P.svg(colSvg(yy.map(y => ({label: y.label, values: [y.f(k + ".db_u"), y.f(k + ".tilskot"), y.f(k + ".maskin")]})), {series: [{color: PC.accent}, {color: PC.hi}, {color: PC.s1}], width: 235, height: 100}), 235)]},
+        P.svg(colSvg(yy.map(y => ({label: y.label, values: [y.f(k + ".db_u"), y.f(k + tilId(k)), y.f(k + ".maskin")]})), {series: [{color: PC.accent}, {color: PC.hi}, {color: PC.s1}], width: 235, height: 100}), 235)]},
       {width: "*", stack: [P.box(comm, T("Kommentarer"))]}], columnGap: 16});
     const ur = unitRows(p).filter(r => isSumLbl(r.label) || Math.abs(V(k + "." + r.id)) > 0.005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.005));
     const uRow = r => ({cells: [clean(LBL(r))].concat(kv(k + "." + r.id, r.fmt)), sum: isSumLbl(r.label), sub: !isSumLbl(r.label)});

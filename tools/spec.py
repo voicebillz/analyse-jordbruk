@@ -133,9 +133,11 @@ def grovfor_husdyr(key, sheet, title, dg, unit_label, per_label, prod_rows, inn_
     rows.append(C("innmek", "Innandørsmekanisering fordelt", "faste.innmek_%s" % key))
 
     inn_sum = "+".join(["mjolk" if i == "geitmjolk" else i for i in inn_ids])
+    # distriktstilskot kjøt blir betalt via slakteoppgjeret: flytt det frå slakt til tilskot (som i Agro)
+    dk = any(r.get("id") == "distrikt_kjott" for r in info_rows)
     rows.append(H("4. UTREKNING – Totalt for produksjonen"))
     rows += [
-        C("inn_total", "Produksjonsinntekter i alt", inn_sum),
+        C("inn_total", "Produksjonsinntekter i alt" + (" (utan distriktstilskot kjøt)" if dk else ""), inn_sum + ("-distrikt_kjott" if dk else "")),
         C("gf_sum", "Eigen grovfôr – sum variable kostnader",
           "gf_safro+gf_plantevern+gf_plast+gf_gjodsel+gf_kalk+gf_konserv+gf_lager+gf_endring"),
         C("vk_gf", "Variabel grovfôrkostnad (utan plast og lagerendring eigenprodusert)",
@@ -146,7 +148,8 @@ def grovfor_husdyr(key, sheet, title, dg, unit_label, per_label, prod_rows, inn_
         C("gf_total", "Grovfôr – kostnad i alt", "gf_sum+kjop_grovfor+lager_innkjopt"),
         C("kost_total", "Variable kostnader i alt", "gf_total+beiteleige+kraftfor+vet+innkjop_dyr+andre_kost"),
         C("db_u", "Dekningsbidrag (DB) utan tilskot", "inn_total-kost_total", kpi=True),
-        C("db_m", "Dekningsbidrag (DB) med tilskot", "db_u+tilskot", kpi=True),
+    ] + ([C("tilskot_tot", "Tilskot inkl. distriktstilskot kjøt", "tilskot+distrikt_kjott")] if dk else []) + [
+        C("db_m", "Dekningsbidrag (DB) med tilskot", "db_u+" + ("tilskot_tot" if dk else "tilskot"), kpi=True),
         C("db_etter", "DB m/tilskot etter maskin- og innandørskostnad", "db_m-maskin-innmek"),
     ]
     if kueiningar:
@@ -159,6 +162,8 @@ def grovfor_husdyr(key, sheet, title, dg, unit_label, per_label, prod_rows, inn_
     for iid in inn_ids:
         rid = "mjolk" if iid == "geitmjolk" else iid
         pu.append((INN_POSTS[iid][0], rid))
+    if dk:
+        pu.append(("Distriktstilskot kjøt, flytta til tilskot", "0-distrikt_kjott"))
     pu += [("Produksjonsinntekter i alt", "inn_total"),
            ("Variable kostnader %s" % per_label, None),
            ("Eigen grovfôrproduksjon", "sum_eigen_gf"),
@@ -172,7 +177,7 @@ def grovfor_husdyr(key, sheet, title, dg, unit_label, per_label, prod_rows, inn_
            ("Sum variable kostnader", "kost_total"),
            ("Resultat %s" % per_label, None),
            ("DB utan tilskot", "db_u"),
-           ("Tilskot", "tilskot"),
+           ("Tilskot", "tilskot_tot" if dk else "tilskot"),
            ("DB med tilskot", "db_m"),
            ("Maskinkostnader", "maskin"),
            ("Innandørsmekanisering", "innmek"),
@@ -960,7 +965,8 @@ def total_sheet():
     rows.append(C("sum_inn", "Sum produksjonsinntekter", "+".join("%s.inn_total*ACTIVE(%s)" % (k, k) for k in PROD_KEYS)))
     rows.append(C("sum_var", "Sum variable kostnader", "+".join("%s.kost_total*ACTIVE(%s)" % (k, k) for k in PROD_KEYS)))
     rows.append(C("sum_db_u", "Sum DB utan tilskot", "+".join("%s.db_u*ACTIVE(%s)" % (k, k) for k in PROD_KEYS)))
-    rows.append(C("sum_tilskot", "Sum tilskot fordelt på produksjonane", "+".join("%s.tilskot*ACTIVE(%s)" % (k, k) for k in PROD_KEYS)))
+    tk = {p["key"]: ("tilskot_tot" if any(r.get("id") == "tilskot_tot" for r in p["rows"]) else "tilskot") for p in PRODS}
+    rows.append(C("sum_tilskot", "Sum tilskot fordelt på produksjonane (inkl. distriktstilskot kjøt)", "+".join("%s.%s*ACTIVE(%s)" % (k, tk[k], k) for k in PROD_KEYS)))
     rows.append(C("sum_db_m", "Sum DB med tilskot", "sum_db_u+sum_tilskot", kpi=True))
     rows.append(H("2. INPUT – Inntekter og kostnader som ikkje er fordelt på produksjon"))
     rows += [
