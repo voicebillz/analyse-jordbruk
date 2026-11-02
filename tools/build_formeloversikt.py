@@ -4,6 +4,7 @@ med alle postar, kontointervall og formlar (på bokmål), i same rekkjefølgje s
 
     python tools/build_formeloversikt.py
 """
+import json
 import os
 import re
 import shutil
@@ -163,15 +164,64 @@ def dedup_parens(s):
     return s
 
 
+KP_BASES = sorted({int(a["nr"].split(".")[0]) for a in json.load(open(os.path.join(os.path.dirname(__file__), "kontoplan_full.json"), encoding="utf-8")) if not a.get("inaktiv")})
+
+
+def acc_list(rule):
+    """Enkeltkontoar i kontoplanen som ein kontoregel omfattar (unntak trekt frå)."""
+    inc, exc = [], set()
+    for part in [x.strip() for x in str(rule).split(",") if x.strip()]:
+        neg = part.startswith("!")
+        m = re.match(r"^(\d{4})(?:-(\d{4}))?$", part.lstrip("!"))
+        if not m:
+            continue
+        lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
+        if neg:
+            exc.update(range(lo, hi + 1))
+        else:
+            inc += [x for x in range(lo, hi + 1) if x not in inc]
+    return [x for x in inc if x not in exc]
+
+
+def accounts_in(expr, key, depth=0, sign=1, out=None):
+    """Kontoane i same rekkjefølgje som i formelen; kontoar som blir trekte frå får minus."""
+    out = [] if out is None else out
+    toks = tokenize(expr)
+    for i, (k, v) in enumerate(toks):
+        if k != "id":
+            continue
+        neg = i > 0 and toks[i - 1] == ("op", "-")
+        sg = -sign if neg else sign
+        f = fullid(v, key)
+        r = ROWS.get(f)
+        if not r:
+            continue
+        sk = f.split(".")[0]
+        if r["t"] == "calc" and sk in (key, "faste") and depth < 6 and not per_prod(r["expr"]):
+            accounts_in(r["expr"], sk, depth + 1, sg, out)
+        elif r["t"] == "input":
+            rule = r.get("acc") if r.get("kind") in ("tilskot", "inn", "kost", "gf", "fast", "info") else (spec.INNMEK_ACC if r.get("kind") == "innmek" else None)
+            if rule:
+                for a in acc_list(rule):
+                    t = ("−" if sg < 0 else "") + str(a)
+                    if t not in out:
+                        out.append(t)
+            elif r["id"] in ("andre_inn", "andre_kost"):
+                t = ("−" if sg < 0 else "") + "øvrige %sxxx" % ("3" if r["id"] == "andre_inn" else "4")
+                if t not in out:
+                    out.append(t)
+    return out
+
+
 def main():
     wb = Workbook()
     ws = wb.active
     ws.title = "Nøkkeltall"
     ws["A1"] = "Nøkkeltall og formler – jordbruksanalyse"
     ws["A1"].font = TITLE
-    ws["A2"] = "Første rad er formelen med navn. Raden under viser formelen med kontointervallene satt inn. Enhet er tom når tallet er i kroner."
+    ws["A2"] = "Første rad er formelen med navn. Raden under viser formelen med kontointervallene satt inn. «Kontoer» lister hver enkelt konto i intervallene i formelen (minus = trekkes fra). Enhet er tom når tallet er i kroner."
     ws["A2"].font = MUTED
-    for i, h in enumerate(["Nøkkeltall", "Formel", "Enhet"], 1):
+    for i, h in enumerate(["Nøkkeltall", "Formel", "Kontoer", "Enhet"], 1):
         c = ws.cell(row=4, column=i, value=h)
         c.font, c.fill = HEAD, FILL_HEAD
     row = 5
@@ -182,7 +232,7 @@ def main():
             continue
         c = ws.cell(row=row, column=1, value=nb(sh.get("title") if key in ("grovfor", "faste", "total") else sh["sheet"]))
         c.font = SEC
-        for col in range(1, 4):
+        for col in range(1, 5):
             ws.cell(row=row, column=col).fill = FILL_SEC
         row += 1
         for r in kp:
@@ -190,19 +240,21 @@ def main():
             unit = "" if unit in ("kr", "kr/eining", "tekst") else ("%" if unit == "%" else nb(unit))
             ws.cell(row=row, column=1, value=nb(r["label"])).font = KPI
             ws.cell(row=row, column=2, value=formel(r["expr"], key)).font = TXT
-            ws.cell(row=row, column=3, value=unit).font = TXT
-            for col in range(1, 4):
+            ws.cell(row=row, column=3, value=", ".join(accounts_in(r["expr"], key))).font = TXT
+            ws.cell(row=row, column=4, value=unit).font = TXT
+            for col in range(1, 5):
                 ws.cell(row=row, column=col).alignment = WRAP
             row += 1
             ex = expand(r["expr"], key)
             c = ws.cell(row=row, column=2, value=ex)
             c.font, c.alignment = MUTED, WRAP
-            for col in range(1, 4):
+            for col in range(1, 5):
                 ws.cell(row=row, column=col).border = LINE
             row += 1
     ws.column_dimensions["A"].width = 44
-    ws.column_dimensions["B"].width = 120
-    ws.column_dimensions["C"].width = 9
+    ws.column_dimensions["B"].width = 95
+    ws.column_dimensions["C"].width = 60
+    ws.column_dimensions["D"].width = 9
     ws.freeze_panes = "A5"
     ws.sheet_view.showGridLines = False
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
