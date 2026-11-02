@@ -38,7 +38,8 @@ WORDS = {
     "siloballar": "siloballer", "Frilandsgrønsak": "Frilandsgrønnsak", "Frilandsgrønsaker": "Frilandsgrønnsaker",
     "grønsaker": "grønnsaker", "auke": "økning", "tenester": "tjenester", "teljingar": "tellinger",
     "korrigeringar": "korrigeringer", "lenka": "lenket", "UTREKNING": "BEREGNING", "arket": "arket",
-    "Geiter": "Geiter", "Sauer": "Sauer", "kjøpte": "kjøpte", "kontoar": "kontoer", "installasjonar": "installasjoner",
+    "Geiter": "Geiter", "Sauer": "Sauer", "kjøpte": "kjøpte", "kontoar": "kontoer", "rekna": "regnet", "Mjølkeku": "Melkeku", "graset": "gresset", "verdiar": "verdier", "Næringsoppgåve": "Næringsoppgave", "resultatrekneskap": "resultatregnskap", "annan": "annen", "utleige": "utleie", "avdelingar": "avdelinger", "heile": "hele", "garden": "gården", "flytta": "flyttet", "Distriktstilskot": "Distriktstilskudd", "distriktstilskot": "distriktstilskudd", "samla": "samlet", "Samla": "Samlet",
+    "mjølkeinntekta": "melkeinntekten", "slakteinntekta": "slakteinntekten", "avrekning": "avregning", "fordelingsnøklar": "fordelingsnøkler", "installasjonar": "installasjoner",
 }
 
 

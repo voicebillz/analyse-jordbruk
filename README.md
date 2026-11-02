@@ -54,3 +54,7 @@ Mappen [`spfx-oppdrag/`](spfx-oppdrag/) inneholder en SharePoint-app (SPFx) med 
 ### Samanlikningstal (statistikk)
 
 Under **Innstillingar → Statistikk** kan ein leggje inn «høgaste 30 %» og «middel» per statistikkår, produksjon og analysegruppe (påsettgruppe for mjølk og ammeku, oppdrettsgruppe for smågris og purkering), med kjelde og tal analysar. Rapporten brukar siste statistikkår som ikkje er nyare enn rekneskapsåret og viser tala ved sida av nøkkeltala. Datamodellen (`SET.stats[år][produksjon][gruppe][felt] = {topp, snitt}`) er laga slik at appen seinare kan fylle han frå eigne analysar.
+
+### Formeloversikt
+
+`python tools/build_formeloversikt.py` lagar `excel/Formeloversikt_jordbruk.xlsx` (og kopi i `public/`): éi fane per produksjon med alle postar, type (konto, produksjonsdata, fôrnorm, formel), kontointervall og formlar med namn, pluss Grovfôr, Faste kostnader, Totaløkonomi og Kontokobling. Fila kan lastast ned frå Konteringsoppsett på nettsida.
