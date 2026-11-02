@@ -506,7 +506,7 @@ const NN = {
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
   "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
-  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Formeloversikt (Excel)": "Formeloversikt (Excel)", "Per enhet": "Per eining", "Søk etter formel, f.eks. per liter": "Søk etter formel, t.d. pr liter", "Ingen formler passer søket.": "Ingen formlar passar søket.", "Vises i rapporten": "Blir vist i rapporten", "Statistikk": "Statistikk", "Sammenligningstall": "Samanlikningstal", "Høyeste 30 %": "Høgaste 30 %", "Middel": "Middel", "Denne analysen": "Denne analysen", "Statistikkår": "Statistikkår", "År": "År",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Med tilskudd (produksjonens farge)": "Med tilskot (fargen til produksjonen)", "Kuenheter per produksjon": "Kueiningar per produksjon", "kuenheter": "kueiningar", "DB med tilskudd per": "DB med tilskot per", "Tilskuddsandel av DB": "Tilskotsdel av DB", "av DB med tilskudd": "av DB med tilskot", "i fjor og i år": "i fjor og i år", "Hovednøkkeltall per produksjon": "Hovudnøkkeltal per produksjon", "DB m/t per enhet": "DB m/t per eining", "Endring": "Endring", "fordeling": "fordeling", "Hva dekningsbidraget består av": "Kva dekningsbidraget består av", "tilskudd": "tilskot", "fra i fjor": "frå i fjor", "Formeloversikt (Excel)": "Formeloversikt (Excel)", "Per enhet": "Per eining", "Søk etter formel, f.eks. per liter": "Søk etter formel, t.d. pr liter", "Ingen formler passer søket.": "Ingen formlar passar søket.", "Vises i rapporten": "Blir vist i rapporten", "Statistikk": "Statistikk", "Sammenligningstall": "Samanlikningstal", "Høyeste 30 %": "Høgaste 30 %", "Middel": "Middel", "Denne analysen": "Denne analysen", "Statistikkår": "Statistikkår", "År": "År",
   "Analysegruppe": "Analysegruppe", "Alle": "Alle", "Antall analyser i gruppen": "Tal analysar i gruppa", "Kilde (vises i rapporten)": "Kjelde (blir vist i rapporten)", "F.eks. analyser fra regnskapskontorene i regionen": "T.d. analysar frå rekneskapskontora i regionen",
   "Slett statistikkåret": "Slett statistikkåret", "Legg til et statistikkår for å begynne.": "Legg til eit statistikkår for å byrje.", "Tall per enhet": "Tal per eining", "Hvilket år er statistikken fra?": "Kva år er statistikken frå?",
   "Vil du slette all statistikk for {y}?": "Vil du slette all statistikk for {y}?", "Sammenligningstall fra {y}": "Samanlikningstal frå {y}", "{n} analyser": "{n} analysar",
@@ -2019,7 +2019,10 @@ function downloadPdf() {
 }
 
 /* ---------- SVG-diagram for PDF ---------- */
-const PC = {band: "#e4ede6", page: "#fbfbf8", cover: "#24503b", cover2: "#2e6249", accent: "#2e5e45", ink: "#1b211c", ink2: "#4a544c", muted: "#7b857d", line: "#e2e6df", soft: "#f3f6f2", s1: "#b4b8be", s2: "#d4737f", hi: "#12a150", grid: "#ebece8"};
+const PC = {band: "#e8f5f0", page: "#ffffff", cover: "#0b3b33", cover2: "#0f5547", accent: "#0b5d4b", ink: "#14201c", ink2: "#46524e", muted: "#7c8783", line: "#e3e8e6", soft: "#f3f8f6", s1: "#a8b4b0", s2: "#f97362", hi: "#10b981", grid: "#edf0ef", blue: "#3b82f6", amber: "#f59e0b", up: "#059669", down: "#e11d48"};
+/* fast farge per produksjon i heile rapporten */
+const CAT = ["#0b5d4b", "#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#f97362", "#0ea5e9", "#ec4899", "#84cc16", "#64748b"];
+const pcol = k => { const i = M && M.prods ? M.prods.findIndex(p => p.key === k) : -1; return CAT[(i >= 0 ? i : Math.max(0, PKEYS.indexOf(k))) % CAT.length]; };
 function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1))), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
 function shortNum(v) { const a = Math.abs(v); return a >= 1e6 ? NF1.format(v / 1e6) + " mill." : a >= 1e4 ? NF0.format(v / 1000) + " k" : NF0.format(v); }
 function barSvg(items, o = {}) {
@@ -2067,24 +2070,47 @@ function colSvg(groups, o = {}) {
     s += `<text x="${(padL + gi * gw + gw / 2).toFixed(1)}" y="${H - 3}" text-anchor="middle" font-family="Courier" font-size="7.4" fill="${PC.ink2}">${esc(g.label)}</text>`; });
   return s + "</svg>";
 }
+/* smultringdiagram med forklaring til høgre (PDF) */
+function donutSvg(items, o = {}) {
+  const W = o.width || 250, R = o.r || 52, r = R * (o.hole || 0.6), cx = R + 4, cy = Math.max(R + 4, items.length * 7 + 6), H = Math.max(cy * 2, items.length * 15 + 8);
+  const tot = items.reduce((sm, x) => sm + Math.max(0, x.v), 0) || 1; let a0 = -Math.PI / 2;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  const pt = (rad, a) => [(cx + rad * Math.cos(a)).toFixed(2), (cy + rad * Math.sin(a)).toFixed(2)];
+  items.filter(x => x.v > 0).forEach(x => { const a1 = a0 + Math.min(x.v / tot, 0.9999) * Math.PI * 2, big = a1 - a0 > Math.PI ? 1 : 0;
+    const [x0, y0] = pt(R, a0), [x1, y1] = pt(R, a1), [x2, y2] = pt(r, a1), [x3, y3] = pt(r, a0);
+    s += `<path d="M${x0},${y0} A${R},${R} 0 ${big} 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 ${big} 0 ${x3},${y3} Z" fill="${x.color}" stroke="#ffffff" stroke-width="1.2"/>`; a0 = a1; });
+  if (o.center) s += `<text x="${cx}" y="${cy - 1}" text-anchor="middle" font-family="Helvetica" font-size="10.5" font-weight="bold" fill="${PC.ink}">${esc(o.center)}</text><text x="${cx}" y="${cy + 10}" text-anchor="middle" font-family="Helvetica" font-size="6.8" fill="${PC.muted}">${esc(o.centerSub || "")}</text>`;
+  const lx = cx + R + 14, y0 = cy - items.length * 15 / 2 + 6;
+  items.forEach((x, i) => { const y = y0 + i * 15, lab = x.label.length > 22 ? x.label.slice(0, 21) + "…" : x.label;
+    s += `<rect x="${lx}" y="${y - 6.5}" width="8" height="8" rx="2" fill="${x.color}"/><text x="${lx + 13}" y="${y}" font-family="Helvetica" font-size="7.8" fill="${PC.ink2}">${esc(lab)}</text>`
+      + `<text x="${W}" y="${y}" text-anchor="end" font-family="Helvetica" font-size="7.8" font-weight="bold" fill="${PC.ink}">${esc(NF0.format(Math.round(x.v / tot * 100)))} %</text>`; });
+  return s + "</svg>";
+}
+/* endring frå i fjor som tekst og farge */
+function delta(cur, prev, pctOnly) {
+  if (prev == null || !isFinite(prev) || Math.abs(prev) < 1e-9) return null;
+  const d = (cur - prev) / Math.abs(prev) * 100; if (!isFinite(d)) return null;
+  return {text: (d >= 0 ? "+" : "−") + NF1.format(Math.abs(d)) + " %" + (pctOnly ? "" : " " + T("fra i fjor")), color: d >= 0 ? PC.up : PC.down};
+}
 /* ---------- byggjeklossar ---------- */
 const NOLINES = {hLineWidth: () => 0, vLineWidth: () => 0, paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0};
 const P = {
-  h1: (t, br = true, sub) => ({table: {widths: ["*"], body: [[{stack: [{text: t, style: "h1"}].concat(sub ? [{text: sub, style: "h1sub"}] : []), fillColor: PC.band, margin: [12, 8, 12, 8]}]]},
+  h1: (t, br = true, sub) => ({table: {widths: ["*"], body: [[{stack: [{text: t, style: "h1"}].concat(sub ? [{text: sub, style: "h1sub"}] : []), fillColor: PC.band, margin: [12, 6, 12, 6]}]]},
     layout: Object.assign({}, NOLINES, {vLineWidth: i => (i === 0 ? 4 : 0), vLineColor: () => PC.accent}), margin: [0, 0, 0, 8], pageBreak: br ? "before" : undefined}),
   h2: t => ({text: t, style: "h2"}),
   ct: (t, sub) => ({text: [{text: t.toUpperCase(), color: PC.ink2}].concat(sub ? [{text: "  ·  " + sub.toUpperCase(), color: PC.muted}] : []), fontSize: 7.4, bold: true, characterSpacing: 1.1, margin: [0, 10, 0, 6]}),
   kicker: t => ({text: t.toUpperCase(), style: "kicker"}),
   tiles(arr) {
     return {columns: arr.map(a => ({width: "*", table: {widths: ["*"], body: [[{stack: [
-      {text: a.k, style: "tileK"}, {text: a.v, style: "tileV"}, {text: a.s || " ", style: "tileS"}], fillColor: PC.soft, margin: [8, 7, 8, 7]}]]}, layout: NOLINES})),
-      columnGap: 8, margin: [0, 2, 0, 9]};
+      {text: a.k, style: "tileK"}, {text: a.v, style: "tileV", color: a.color || PC.ink}, a.d ? {text: a.d.text, fontSize: 7.4, bold: true, color: a.d.color, margin: [0, 1, 0, 0]} : {text: a.s || " ", style: "tileS"}], fillColor: PC.soft, margin: [9, 7, 8, 7]}]]},
+      layout: Object.assign({}, NOLINES, {hLineWidth: i => (i === 0 ? 2.2 : 0), hLineColor: () => a.color || PC.hi})})),
+      columnGap: 8, margin: [0, 2, 0, 10]};
   },
   table(head, rows, widths, opts = {}) {
     const nf = opts.numFrom ?? 1, body = [];
     if (head) body.push(head.map((h, i) => ({text: h, style: "th", alignment: i >= nf ? "right" : "left"})));
-    rows.forEach(r => body.push(r.cells.map((c, i) => ({text: c, style: r.head ? "tdHead" : r.sum ? "tdSum" : (r.sub ? "tdSub" : "td"),
-      alignment: i >= nf ? "right" : "left", fillColor: r.sum ? PC.soft : undefined, margin: r.sub && i === 0 ? [8, 0, 0, 0] : r.head && i === 0 ? [0, 4, 0, 0] : undefined}))));
+    rows.forEach(r => body.push(r.cells.map((c, i) => Object.assign({style: r.head ? "tdHead" : r.sum ? "tdSum" : (r.sub ? "tdSub" : "td"),
+      alignment: i >= nf ? "right" : "left", fillColor: r.sum ? PC.soft : undefined, margin: r.sub && i === 0 ? [8, 0, 0, 0] : r.head && i === 0 ? [0, 4, 0, 0] : undefined}, c && typeof c === "object" ? c : {text: c}))));
     return {table: {headerRows: head ? 1 : 0, widths, body, dontBreakRows: true}, margin: [0, 0, 0, opts.mb ?? 12],
       layout: {hLineWidth: (i, n) => (head && i === 1 ? 0.9 : (i === 0 || i === n.table.body.length ? 0 : 0.4)), vLineWidth: () => 0,
         hLineColor: i => (head && i === 1 ? PC.accent : PC.line), paddingTop: () => opts.tight ? 1.1 : 2.3, paddingBottom: () => opts.tight ? 1.1 : 2.3, paddingLeft: () => 4, paddingRight: () => 4}};
@@ -2113,20 +2139,33 @@ function buildDoc() {
   const PREVY = hasPrev() ? String(S.prev.aar) : null;
   const trp = (l, f, sign = 1, sum) => ({cells: PREVY ? [l, kr(sign * PV(f)), kr(sign * V(f))] : [l, kr(sign * V(f))], sum});
   const C = [];
-  /* 1. Forside */
-  const cv = (k, v) => ({width: "*", stack: [{text: k, color: "#bcd5c5", fontSize: 8.5}, {text: v, color: "#ffffff", fontSize: 19, bold: true, margin: [0, 3, 0, 0]}, {text: "kr", color: "#bcd5c5", fontSize: 8}]});
-  C.push({text: T("NØKKELTALLSANALYSE JORDBRUK"), color: "#bcd5c5", fontSize: 9.5, bold: true, characterSpacing: 2, margin: [0, 70, 0, 14]});
-  C.push({text: S.klient || "TestKunde", color: "#ffffff", fontSize: 34, bold: true});
-  C.push({text: T("Regnskapsår {a}", {a: S.aar}), color: "#e3eee7", fontSize: 14, margin: [0, 6, 0, 0]});
-  C.push({canvas: [{type: "line", x1: 0, y1: 0, x2: 70, y2: 0, lineWidth: 2.5, lineColor: "#8fc2a2"}], margin: [0, 26, 0, 30]});
-  C.push({columns: [cv(T("Dekningsbidrag med tilskudd"), kr(V("total.sum_db_m"))), cv(T("Driftsoverskudd jordbruk"), kr(doD)), cv(T("Nettoinntekt"), kr(V("total.netto")))], columnGap: 16});
-  C.push({text: "", margin: [0, 0, 0, 118]});
-  C.push({text: T("Innledning"), style: "coverH", margin: [0, 0, 0, 6]});
-  textFor("innledning").split(/\n\s*\n/).filter(x => x.trim()).forEach(x => C.push({text: x.trim(), style: "body", margin: [0, 0, 0, 6]}));
-  const toc = [T("Totaløkonomi")].concat(prods.length ? [T("Dekningsbidrag")] : [], hasGF || prods.some(p => p.group === "plante") ? [T("Areal og grovfôr")] : [], [T("Faste kostnader")], prods.map(p => SL(p, "title")), [T("Vedlegg: regnskapstall og korrigeringer")]);
-  C.push({text: T("Innhold"), style: "coverH", margin: [0, 10, 0, 6]});
-  C.push({columns: [{width: "*", ul: toc.slice(0, Math.ceil(toc.length / 2)), style: "body"}, {width: "*", ul: toc.slice(Math.ceil(toc.length / 2)), style: "body"}], columnGap: 16});
-  C.push({text: (S.utarbeidd ? T("Utarbeidet av") + " " + S.utarbeidd + "   ·   " : "") + new Date().toLocaleDateString("nb-NO"), style: "small", margin: [0, 14, 0, 0]});
+  const PREF = ["k_db_liter", "k_mjolkepris", "k_kjottpris", "k_pris", "k_slakt_vf", "k_avling", "k_lev_ku"];
+  const headK = p => { const kp = kpiRows(p).filter(r => r.fmt !== "txt" && Math.abs(V(p.key + "." + r.id)) > 0.0005); return PREF.map(id => kp.find(r => r.id === id)).find(Boolean) || kp[0]; };
+  /* 1. Forside: hovudtal for heile garden og alle produksjonar */
+  C.push({text: T("NØKKELTALLSANALYSE JORDBRUK"), color: "#9fd8c4", fontSize: 9, bold: true, characterSpacing: 2, margin: [0, 28, 0, 10]});
+  C.push({text: S.klient || "TestKunde", color: "#ffffff", fontSize: 30, bold: true});
+  C.push({text: T("Regnskapsår {a}", {a: S.aar}) + (S.utarbeidd ? "   ·   " + T("Utarbeidet av") + " " + S.utarbeidd : ""), color: "#d6efe6", fontSize: 11.5, margin: [0, 5, 0, 0]});
+  const cvT = (k, f, col) => { const v = V(f), d = hasPrev() ? delta(v, PV(f)) : null;
+    return {width: "*", stack: [{text: k, color: "#9fd8c4", fontSize: 8}, {text: kr(v), color: "#ffffff", fontSize: 17, bold: true, margin: [0, 3, 0, 1]},
+      d ? {text: d.text, color: d.color === PC.up ? "#6ee7b7" : "#fda4af", fontSize: 7.6, bold: true} : {text: "kr", color: "#9fd8c4", fontSize: 7.6}]}; };
+  C.push({columns: [cvT(T("Dekningsbidrag med tilskudd"), "total.sum_db_m"), cvT(T("Faste kostnader"), "total.faste"), cvT(T("Driftsoverskudd jordbruk"), "total.do_drift"), cvT(T("Nettoinntekt"), "total.netto")], columnGap: 14, margin: [0, 30, 0, 0]});
+  C.push({text: "", margin: [0, 0, 0, 52]});
+  if (prods.length) {
+    C.push({text: T("Hovednøkkeltall per produksjon"), style: "coverH", margin: [0, 0, 0, 6]});
+    const rowsC = prods.map(p => { const k = p.key, n = V(k + ".n"), hk = headK(p), d = hasPrev(k) ? delta(V(k + ".db_m"), PV(k + ".db_m"), true) : null;
+      return {cells: [{columns: [{width: 9, canvas: [{type: "rect", x: 0, y: 2.5, w: 6, h: 6, r: 1.5, color: pcol(k)}]}, {width: "*", text: SL(p, "sheet")}]}, fmt(n, "n") + " " + SL(p, "unit_label"), kr(V(k + ".db_u")), kr(V(k + ".db_m")), n ? kr(V(k + ".db_m") / n) : "–",
+        hk ? clean(LBL(hk)) + ": " + fmtR(V(k + "." + hk.id), hk.fmt) : "", d ? {text: d.text, color: d.color, bold: true} : "–"]}; });
+    rowsC.push({sum: true, cells: [T("Sum"), "", kr(V("total.sum_db_u")), kr(V("total.sum_db_m")), "", "", hasPrev() ? (delta(V("total.sum_db_m"), PV("total.sum_db_m"), true) || {}).text || "" : ""]});
+    C.push(P.table([T("Produksjon"), T("Omfang"), T("DB uten tilskudd"), T("DB med tilskudd"), T("DB m/t per enhet"), T("Nøkkeltall"), T("Endring")], rowsC.map(r => ({sum: r.sum, cells: r.cells})),
+      [62, 52, 58, 58, 52, "*", 46], {numFrom: 2, tight: true}));
+    const dbItems = prods.map(p => ({label: SL(p, "sheet"), v: Math.max(0, V(p.key + ".db_m")), color: pcol(p.key)}));
+    const tilsk = V("total.sum_tilskot"), dbu = V("total.sum_db_u");
+    C.push({columns: [
+      {width: "*", stack: [P.ct(T("Dekningsbidrag med tilskudd"), T("fordeling")), P.svg(donutSvg(dbItems, {width: 245, r: 50, center: shortNum(V("total.sum_db_m")), centerSub: "kr"}), 245)]},
+      {width: "*", stack: [P.ct(T("Hva dekningsbidraget består av"), "kr"), P.svg(donutSvg([{label: T("DB uten tilskudd"), v: Math.max(0, dbu), color: PC.accent}, {label: T("Tilskudd"), v: Math.max(0, tilsk), color: PC.amber}], {width: 245, r: 50, center: NF0.format(Math.round(tilsk / ((dbu + tilsk) || 1) * 100)) + " %", centerSub: T("tilskudd")}), 245)]}], columnGap: 20});
+  }
+  C.push({text: T("Innledning"), style: "coverH", margin: [0, 4, 0, 4]});
+  textFor("innledning").split(/\n\s*\n/).filter(x => x.trim()).forEach(x => C.push({text: x.trim(), style: "bodySm", margin: [0, 0, 0, 4]}));
   /* 2. Totaløkonomi (som gullstandarden: frå skattemessig til nettoinntekt, fjorår og i år) */
   const YH = PREVY ? [PREVY, String(S.aar)] : [String(S.aar)];
   const yv = (f, fm = "kr", sign = 1) => (PREVY ? [fmtR(sign * PV(f), fm), fmtR(sign * V(f), fm)] : [fmtR(sign * V(f), fm)]);
@@ -2168,8 +2207,8 @@ function buildDoc() {
       .concat([{sum: true, cells: [T("Samlet dekningsbidrag"), "", kr(V("total.sum_db_u")), kr(V("total.sum_tilskot")), kr(V("total.sum_db_m"))].concat(PREVY ? [kr(PV("total.sum_db_m"))] : [])}]),
       ["*", "auto", 72, 64, 72].concat(PREVY ? [64] : []), {numFrom: 2}));
     C.push(P.ct(T("Dekningsbidrag per produksjon"), "kr"));
-    C.push(P.legend([{color: PC.s1, label: T("Uten tilskudd")}, {color: PC.hi, label: T("Med tilskudd")}]));
-    C.push(P.svg(barSvg(prods.map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".db_u"), V(p.key + ".db_m")]})), {series: [{color: PC.s1}, {color: PC.hi}], labelW: 110, bar: prods.length > 6 ? 6 : 8})));
+    C.push(P.legend([{color: PC.s1, label: T("Uten tilskudd")}, {color: PC.accent, label: T("Med tilskudd (produksjonens farge)")}]));
+    C.push(P.svg(barSvg(prods.map(p => ({label: SL(p, "sheet"), values: [V(p.key + ".db_u"), V(p.key + ".db_m")], colors: [PC.s1, pcol(p.key)]})), {series: [{color: PC.s1}, {color: PC.hi}], labelW: 110, bar: prods.length > 6 ? 6 : 8})));
     C.push({stack: [
       {stack: [P.h2(T("Fra dekningsbidrag til nettoinntekt")), P.table([""].concat(YH), [
         yr(T("DB med tilskudd"), "total.sum_db_m", {sum: true})].concat(nz("total.andre_inn") ? [yr(T("Andre driftsinntekter"), "total.andre_inn")] : [])
@@ -2211,8 +2250,10 @@ function buildDoc() {
     }
     C.push(P.table([""].concat(YH), ar.concat(nk), yw, {tight: true}));
     if (hasGF) {
+      const kuI = prods.filter(p => ROW["grovfor.ku_" + p.key] && V("grovfor.ku_" + p.key) > 0.005).map(p => ({label: SL(p, "sheet") + " · " + fmt(V("grovfor.ku_" + p.key), "n1"), v: V("grovfor.ku_" + p.key), color: pcol(p.key)}));
+      if (kuI.length) C.push({columns: [{width: "*", stack: [P.ct(T("Kuenheter per produksjon")), P.svg(donutSvg(kuI, {width: 245, r: 40, center: fmt(V("grovfor.sum_ku"), "n1"), centerSub: T("kuenheter")}), 245)]},
+        {width: "*", stack: [P.ct(T("Grovfôrareal mot fôrbehov"), T("dekar")), P.svg(barSvg([{label: T("Arealbehov etter fôrnorm"), values: [V("grovfor.areal_norm")], colors: [PC.s1]}, {label: T("Korrigert grovfôrareal"), values: [V("grovfor.da_vk")], colors: [PC.hi]}], {width: 245, labelW: 110, valW: 40, bar: 12, fmt: v => NF1.format(v)}), 245)]}], columnGap: 20});
       C.push(P.box(textFor("grovfor"), T("Grovfôr")));
-      C.push({text: T("Kuenheter brukes for å fordele grovfôret mellom produksjonene. Dyretallet er snittet av 1.1. og 31.12. Én kuenhet er 1 ku eller avlsokse, 4 ungdyr over 1 år, 8 ungdyr under 1 år, 6 vinterfôrede sauer eller 7 geiter. Kulturbeite regnes om til fulldyrka ved å dele på 2,5 for grovfôr og på 10 for maskinkostnader."), style: "small", margin: [0, 0, 0, 10]});
     }
   }
 
@@ -2235,9 +2276,13 @@ function buildDoc() {
     .concat(V("faste.pct_anna") > 0.0005 ? [{cells: [T("Annen bruk"), pct(V("faste.pct_anna")), kr(V("faste.maskin_anna"))]}] : []);
   const iFord = prods.filter(p => ROW["faste.innmek_" + p.key] && Math.abs(V("faste.innmek_" + p.key)) > 0.5).map(p => ({cells: [SL(p, "sheet"), pct(V("faste.im_pct_" + p.key)), kr(V("faste.innmek_" + p.key))]}));
   C.push(P.table([""].concat(YH), fg.concat([yhead(T("Nøkkeltall"))], fk), yw, {tight: true}));
+  const fGr = [["Maskinkostnader", "faste.maskin_sum", PC.accent], ["Bygningskostnader", "faste.bygg_sum", PC.blue], ["Andre faste kostnader", "faste.andre_sum", PC.amber]].map(([l, f, c]) => ({label: T(l), v: Math.max(0, V(f)), color: c}));
+  const mItems = prods.filter(p => V("faste.maskin_" + p.key) > 0.5).map(p => ({label: SL(p, "sheet") + " · " + kr(V("faste.maskin_" + p.key)), v: V("faste.maskin_" + p.key), color: pcol(p.key)}))
+    .concat(V("faste.maskin_anna") > 0.5 ? [{label: T("Annen bruk") + " · " + kr(V("faste.maskin_anna")), v: V("faste.maskin_anna"), color: PC.s1}] : []);
   C.push({columns: [
-    {width: "*", stack: mFord.length ? [P.h2(T("Maskinkostnader fordelt på produksjoner")), P.table([T("Produksjon"), T("Andel"), T("Beløp")], mFord, ["*", 52, 72], {tight: true})] : []},
-    {width: "*", stack: iFord.length ? [P.h2(T("Herav innandørsmekanisering")), P.table([T("Produksjon"), T("Andel"), T("Beløp")], iFord, ["*", 52, 72], {tight: true})] : []}], columnGap: 18});
+    {width: "*", stack: [P.ct(T("Faste kostnader"), T("fordeling")), P.svg(donutSvg(fGr, {width: 245, r: 44, center: shortNum(V("faste.faste_sum")), centerSub: "kr"}), 245)]},
+    {width: "*", stack: mItems.length ? [P.ct(T("Maskinkostnader fordelt på produksjoner")), P.svg(donutSvg(mItems, {width: 245, r: 44, center: shortNum(V("faste.maskin_sum")), centerSub: "kr"}), 245)] : []}], columnGap: 20});
+  if (iFord.length) C.push({text: T("Herav innandørsmekanisering") + ": " + prods.filter(p => ROW["faste.innmek_" + p.key] && Math.abs(V("faste.innmek_" + p.key)) > 0.5).map(p => SL(p, "sheet") + " " + kr(V("faste.innmek_" + p.key)) + " kr (" + pct(V("faste.im_pct_" + p.key)) + ")").join(", ") + ".", style: "small", margin: [0, 0, 0, 6]});
 
   /* 6. Produksjonane: nøkkeltal for fjorår og i år, graf, kommentar og tal per eining */
   /* store produksjonar får eiga side med graf og kommentar; små blir kompakte og deler side */
@@ -2249,13 +2294,25 @@ function buildDoc() {
     const k = p.key, n = V(k + ".n"), per = perTxt(p).replace(/^(per|pr) /, ""), gr = ROW[k + ".k_gruppe"], pv = hasPrev(k);
     const PY = pv ? [String(S.prev.aar), String(S.aar)] : [String(S.aar)], kv = (f, fm) => (pv ? [fmtR(PV(f), fm), fmtR(V(f), fm)] : [fmtR(V(f), fm)]);
     out.push(P.h1(SL(p, "title"), big, fmt(n, "n") + " " + SL(p, "unit_label") + (gr ? "   ·   " + V(k + ".k_gruppe") : "") + "   ·   " + T("Regnskapsår {a}", {a: S.aar})));
+    const tdl = f => (pv ? delta(V(f), PV(f)) : null), hk = headK(p), col = pcol(k);
+    const tl = [{k: T("DB med tilskudd"), v: kr(V(k + ".db_m")) + " kr", d: tdl(k + ".db_m"), color: col},
+      {k: T("DB med tilskudd per") + " " + per, v: kr(n ? V(k + ".db_m") / n : 0) + " kr", d: pv && PV(k + ".n") ? delta(V(k + ".db_m") / (n || 1), PV(k + ".db_m") / PV(k + ".n")) : null, color: col}]
+      .concat(hk ? [{k: clean(LBL(hk)), v: fmtR(V(k + "." + hk.id), hk.fmt) + (unitTxt(hk) && hk.fmt !== "pct" ? " " + unitTxt(hk) : ""), d: tdl(k + "." + hk.id), color: col}] : [])
+      .concat(big ? [{k: T("Tilskuddsandel av DB"), v: pct(V(k + ".db_m") ? V(k + tilId(k)) / V(k + ".db_m") : 0), s: T("av DB med tilskudd"), color: col}] : []);
+    out.push(P.tiles(tl));
     const dupUnit = r => /^DIV\((db_u|db_m|innmek|maskin|tilskot|tilskot_tot),n\)$/.test(String(fexpr(k + "." + r.id)).replace(/\s/g, ""));
-    const kr0 = kpiRows(p).filter(r => r.fmt !== "txt" && r.id !== "k_korr_da" && !(big && dupUnit(r)) && !(r.id === "k_korr_da_prod" && ROW[k + ".k_korr_da_storfe"]) && (big || !["k_varkost_da", "k_maskin_da", "k_korr_da_storfe"].includes(r.id)) && (Math.abs(V(k + "." + r.id)) > 0.0005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.0005)));
+    const kr0 = kpiRows(p).filter(r => r.fmt !== "txt" && r.id !== "k_korr_da" && !(big && dupUnit(r)) && !(r.id === "k_korr_da_prod" && ROW[k + ".k_korr_da_storfe"]) && !["k_varkost_da", "k_maskin_da", "k_korr_da_storfe"].includes(r.id) && !/^k_innmek/.test(r.id) && (!hk || r.id !== hk.id) && (Math.abs(V(k + "." + r.id)) > 0.0005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.0005)));
     const extra = [["n", SL(p, "unit_label")], ["kvote", null], ["inn_total", T("Produksjonsinntekter i alt")], ["kost_total", T("Variable kostnader i alt")], ["db_u", T("Samlet DB uten tilskudd")], ["db_m", T("Samlet DB med tilskudd")], ["maskin", T("Maskinkostnader") + " " + lc(SL(p, "sheet"))], ["db_etter", T("Igjen til bygg, arbeid og kapital")]]
-      .filter(([id]) => ROW[k + "." + id] && (big ? !["n", "inn_total", "kost_total", "db_etter", "maskin"].includes(id) : ["db_u", "db_m", "db_etter"].includes(id)) && (Math.abs(V(k + "." + id)) > 0.5 || (pv && Math.abs(PV(k + "." + id)) > 0.5)))
+      .filter(([id]) => ROW[k + "." + id] && (big ? !["n", "inn_total", "kost_total", "db_etter", "maskin", "db_m"].includes(id) : ["db_u", "db_etter"].includes(id)) && (Math.abs(V(k + "." + id)) > 0.5 || (pv && Math.abs(PV(k + "." + id)) > 0.5)))
       .map(([id, l]) => ({cells: [id === "n" ? T("Omfang") + " (" + l + ")" : (l || clean(LBL(ROW[k + "." + id])))].concat(kv(k + "." + id, ROW[k + "." + id].fmt)), sum: ["db_u", "db_m", "db_etter"].includes(id)}));
+    if (big) { const yy0 = (pv ? [{label: String(S.prev.aar), f: PV}] : []).concat([{label: String(S.aar), f: V}]);
+      const ci = unitRows(p).filter(r => /Variable kostnader/i.test(r.sec) && !/^Sum/.test(r.label) && V(k + "." + r.id) > 0.005).map((r, i) => ({label: clean(LBL(r)), v: V(k + "." + r.id), color: CAT[(i + 1) % CAT.length]}));
+      out.push({columns: [
+        {width: 230, stack: [P.ct(T("Dekningsbidrag"), pv ? T("i fjor og i år") : "kr"), P.legend([{color: col, label: T("DB uten tilskudd")}, {color: PC.amber, label: T("Tilskudd")}, {color: PC.s1, label: T("Maskinkostnader")}]),
+          P.svg(colSvg(yy0.map(y => ({label: y.label, values: [y.f(k + ".db_u"), y.f(k + tilId(k)), y.f(k + ".maskin")]})), {series: [{color: col}, {color: PC.amber}, {color: PC.s1}], width: 230, height: 80}), 230)]},
+        {width: "*", stack: ci.length ? [P.ct(T("Variable kostnader per") + " " + per, T("fordeling")), P.svg(donutSvg(ci, {width: 268, r: 40, center: kr(V(k + ".kost_total") / (n || 1)), centerSub: "kr " + T("per") + " " + per}), 268)] : []}], columnGap: 18}); }
     const st = statsFor(k), sv = (id, fm) => { if (!st) return []; const x = st.get(id); return [isSet(x.topp) ? fmtR(x.topp, fm) : "", isSet(x.snitt) ? fmtR(x.snitt, fm) : ""]; };
-    const kRows = (big ? kr0 : kr0.slice(0, 8)).map(r => ({cells: [clean(LBL(r)) + (unitTxt(r) && unitTxt(r) !== "kr" && r.fmt !== "pct" ? " (" + unitTxt(r) + ")" : "")].concat(kv(k + "." + r.id, r.fmt), sv(r.id, r.fmt))}))
+    const kRows = (big ? kr0 : kr0.slice(0, 4)).map(r => ({cells: [clean(LBL(r)) + (unitTxt(r) && unitTxt(r) !== "kr" && r.fmt !== "pct" ? " (" + unitTxt(r) + ")" : "")].concat(kv(k + "." + r.id, r.fmt), sv(r.id, r.fmt))}))
       .concat(st && big ? [] : extra.map(x => (st ? Object.assign(x, {cells: x.cells.concat(["", ""])}) : x)));
     const kw = pv ? ["*", 46, 46] : ["*", 56], half = Math.ceil(kRows.length / 2);
     if (st) { out.push(P.table([T("Nøkkeltall")].concat(PY, [T("Høyeste 30 %"), T("Middel")]), kRows, ["*"].concat(PY.map(() => 52), [56, 52]), {tight: true, mb: 3}));
@@ -2265,19 +2322,17 @@ function buildDoc() {
     const comm = [textFor(k), textFor("forventet_" + k)].filter(x => String(x || "").trim()).join("\n\n");
     if (!big) { const own = [S.texts[k] && S.texts[k].edited ? S.texts[k].text : "", textFor("forventet_" + k)].filter(x => String(x || "").trim()).join("\n\n");
       if (own.trim()) out.push(P.box(own, T("Kommentarer"))); }
-    else if (st) { if (comm.trim()) out.push(P.box(comm, T("Kommentarer"))); }
-    else out.push({columns: [
-      {width: 235, stack: [P.ct(T("Dekningsbidrag"), "kr"), P.legend([{color: PC.accent, label: T("DB uten tilskudd")}, {color: PC.hi, label: T("Tilskudd")}, {color: PC.s1, label: T("Maskinkostnader")}]),
-        P.svg(colSvg(yy.map(y => ({label: y.label, values: [y.f(k + ".db_u"), y.f(k + tilId(k)), y.f(k + ".maskin")]})), {series: [{color: PC.accent}, {color: PC.hi}, {color: PC.s1}], width: 235, height: 88}), 235)]},
-      {width: "*", stack: [P.box(comm, T("Kommentarer"), true)]}], columnGap: 16});
+    else { const own = S.texts[k] && S.texts[k].edited, c2 = own ? comm : [String(textFor(k)).split(/\n\s*\n/)[0], textFor("forventet_" + k)].filter(x => String(x || "").trim()).join("\n\n");
+      if (c2.trim()) out.push(P.box(c2, T("Kommentarer"), true)); }
     const ur = unitRows(p).filter(r => isSumLbl(r.label) || Math.abs(V(k + "." + r.id)) > 0.005 || (pv && Math.abs(PV(k + "." + r.id)) > 0.005));
     const uRow = r => ({cells: [clean(LBL(r))].concat(kv(k + "." + r.id, r.fmt)), sum: isSumLbl(r.label), sub: !isSumLbl(r.label)});
     const secOf = re => ur.filter(r => re.test(r.sec)), secT = re => { const r = ur.find(x => re.test(x.sec)); return r ? clean(r.sec) : ""; };
     const uw = pv ? ["*", 46, 46] : ["*", 56], uh = [T("Dekningsbidrag per") + " " + per].concat(PY);
-    const left = [{cells: [secT(/inntekter/i)].concat(PY.map(() => "")), head: true}].concat(secOf(/inntekter/i).map(uRow), [{cells: [secT(/Resultat/i)].concat(PY.map(() => "")), head: true}], secOf(/Resultat/i).map(uRow));
+    const left = [{cells: [secT(/inntekter/i)].concat(PY.map(() => "")), head: true}].concat(secOf(/inntekter/i).map(uRow), [{cells: [secT(/Resultat/i)].concat(PY.map(() => "")), head: true}], secOf(/Resultat/i).filter(r => /^(DB |Tilsk)/.test(clean(LBL(r))) && !/etter/.test(LBL(r))).map(uRow));
     const right = [{cells: [secT(/Variable kostnader/i)].concat(PY.map(() => "")), head: true}].concat(secOf(/Variable kostnader/i).map(uRow));
     if (big) { out.push({columns: [{width: "*", stack: [P.table(uh, left, uw, {tight: true, mb: 6})]}, {width: "*", stack: [P.table(uh, right, uw, {tight: true, mb: 6})]}], columnGap: 16}); }
-    if (big) C.push(...out); else { if (firstSmall) C.push({text: "", pageBreak: "before"}); C.push({stack: out, unbreakable: true, margin: [0, firstSmall ? 0 : 10, 0, 0]}); firstSmall = false; }
+    if (big) C.push(...out); else { if (firstSmall) C.push({text: "", pageBreak: "before"}); else C.push({text: "", margin: [0, 6, 0, 0]});
+      out[0] = Object.assign(out[0], {headlineLevel: 1}); C.push(...out); firstSmall = false; }
   });
   /* 7. Rekneskapstal */
   C.push(P.h1(T("Vedlegg: regnskapstall og korrigeringer")));
@@ -2313,10 +2368,13 @@ function buildDoc() {
       prods.map(p => ({cells: [SL(p, "sheet")].concat(KG.map(g => M.members[g.id].includes(p.key) ? pct((M.keys[g.id][p.key] || 0) / 100) : "–"))})), ["*"].concat(KG.map(() => 62)))]}); }
   return {
     pageSize: "A4", pageMargins: [40, 54, 40, 46], content: C,
+    /* ein liten produksjon startar på ny side om overskrifta havnar for langt nede */
+    pageBreakBefore: node => node.headlineLevel === 1 && node.startPosition.top > 841.89 - 46 - 230,
     info: {title: T("Nøkkeltallsanalyse jordbruk") + " – " + (S.klient || ""), author: S.utarbeidd || ""},
     background: page => page === 1
-      ? {canvas: [{type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: PC.page}, {type: "rect", x: 0, y: 0, w: 595.28, h: 430, color: PC.cover},
-        {type: "rect", x: 0, y: 430, w: 595.28, h: 5, color: "#8fc2a2"}, {type: "ellipse", x: 560, y: 60, r1: 150, r2: 150, color: PC.cover2}]}
+      ? {canvas: [{type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: PC.page}, {type: "rect", x: 0, y: 0, w: 595.28, h: 262, color: PC.cover},
+        {type: "ellipse", x: 575, y: 10, r1: 120, r2: 120, color: PC.cover2},
+        {type: "rect", x: 0, y: 262, w: 595.28, h: 4, color: PC.hi}]}
       : {canvas: [{type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: PC.page}, {type: "rect", x: 0, y: 0, w: 595.28, h: 4, color: PC.accent},
         {type: "line", x1: 40, y1: 40, x2: 555.28, y2: 40, lineWidth: 0.5, lineColor: PC.line}]},
     header: page => page === 1 ? null : {margin: [40, 22, 40, 0], columns: [{text: T("Nøkkeltallsanalyse jordbruk") + "  ·  " + (S.klient || ""), style: "hdr"}, {text: T("Regnskapsår {a}", {a: S.aar}), style: "hdr", alignment: "right"}]},
