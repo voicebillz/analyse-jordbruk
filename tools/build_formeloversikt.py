@@ -121,13 +121,18 @@ def expand(expr, key, depth=0):
         if not r:
             return n
         sk = f.split(".")[0]
-        if r["t"] == "calc" and sk == key and depth < 6 and not per_prod(r["expr"]):
-            inner = expand(r["expr"], key, depth + 1)
+        if r["t"] == "calc" and sk in (key, "faste") and depth < 6 and not per_prod(r["expr"]):
+            inner = expand(r["expr"], sk, depth + 1)
             return inner if re.fullmatch(r"[^ ]+", inner) else "(" + inner + ")"
         if r["t"] == "input":
             kind = r.get("kind")
             if kind in ("tilskot", "inn", "kost", "gf", "fast", "info") and r.get("acc"):
-                return "konto " + acc_txt(r["acc"]).replace(", ", "+")
+                a = acc_txt(r["acc"]).replace(", ", "+")
+                return "(konto %s)" % a if "+" in a else "konto " + a
+            if kind == "innmek":
+                return "(konto %s)" % acc_txt(spec.INNMEK_ACC).replace(", ", "+")
+            if kind == "pct":
+                return lbl(f) + " (fordelingsnøkkel)"
             if r["id"] in ("andre_inn", "andre_kost"):
                 return "øvrige %sxxx" % ("3" if r["id"] == "andre_inn" else "4")
         return lbl(f) + ("" if sk == key else " (%s)" % SHEET_NAME[sk])
@@ -135,7 +140,27 @@ def expand(expr, key, depth=0):
     if pp:
         return "sum av " + " / ".join(lbl("%s.%s" % x) for x in pp) + " for produksjonene som er med"
     out = render(tokenize(expr), ref, lambda k: "(1 hvis %s er med)" % PROD_NAME.get(k, k), "txt")
-    return out.replace(" / ", " ÷ ")
+    return dedup_parens(out.replace(" / ", " ÷ "))
+
+
+def dedup_parens(s):
+    """Fjernar doble parentesar «((x))» og parentes rundt heile uttrykket."""
+    while True:
+        pairs, st = {}, []
+        for i, ch in enumerate(s):
+            if ch == "(":
+                st.append(i)
+            elif ch == ")" and st:
+                pairs[st.pop()] = i
+        drop = None
+        for o, c in pairs.items():
+            if s[o + 1:o + 2] == "(" and pairs.get(o + 1) == c - 1:
+                drop = (o, c)
+                break
+        if not drop:
+            break
+        s = s[:drop[0]] + s[drop[0] + 1:drop[1]] + s[drop[1] + 1:]
+    return s
 
 
 def main():
