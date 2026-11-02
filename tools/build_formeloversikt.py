@@ -113,130 +113,73 @@ def row_info(sh, r):
     return "Produksjonsdata", src, "Hentes fra mengde i regnskapet (kan overstyres)" if auto else "Fylles inn", ""
 
 
-def section_name(label):
-    s = nb(label)
-    for a, b in (("1. INPUT – ", ""), ("2. INPUT – ", ""), ("3. INPUT – ", ""), ("4. INPUT – ", ""), ("5. INPUT – ", ""), ("6. INPUT – ", ""),
-                 ("3. UTREKNING – ", ""), ("4. UTREKNING – ", ""), ("5. UTREKNING – ", ""), ("1. UTREKNING – ", ""), ("4b. UTREKNING – ", ""),
-                 ("4. BEREGNING – ", ""), ("3. BEREGNING – ", ""), ("5. BEREGNING – ", ""), ("1. BEREGNING – ", ""), ("4b. BEREGNING – ", ""),
-                 ("6. INPUT/UTREKNING – ", ""), ("6. INPUT/BEREGNING – ", ""), ("5. OUTPUT – ", ""), ("6. OUTPUT – ", ""), ("7. OUTPUT – ", "")):
-        if s.startswith(a):
-            return s[len(a):]
-    return s
-
-
-def write_sheet(wb, sh):
-    ws = wb.create_sheet(SHEET_NAME[sh["key"]][:31])
-    ws["A1"] = nb(sh.get("title", sh["sheet"]))
-    ws["A1"].font = TITLE
-    ws["A2"] = nb(sh.get("desc", "")) if sh.get("desc") else ""
-    ws["A2"].font = SUB
-    if sh.get("per_label"):
-        ws["A3"] = "Per enhet = %s. Nøkkeltall er uthevet." % nb(sh["per_label"])
-        ws["A3"].font = MUTED
-    heads = ["Post", "Type", "Kontointervall / kilde", "Formel", "Enhet", "I rapporten", "Formel (tekniske navn)"]
-    r0 = 5
-    for i, h in enumerate(heads, 1):
-        c = ws.cell(row=r0, column=i, value=h)
-        c.font, c.fill, c.alignment = HEAD, FILL_HEAD, Alignment(vertical="center")
-    row = r0 + 1
-    for r in sh["rows"]:
-        if r["t"] == "head":
-            c = ws.cell(row=row, column=1, value=section_name(r["label"]))
-            for col in range(1, len(heads) + 1):
-                ws.cell(row=row, column=col).fill = FILL_SEC
-            c.font = SEC
-            row += 1
-            continue
-        typ, src, form, tech = row_info(sh, r)
-        unit = {"kr/eining": "kr", "tekst": ""}.get(r.get("unit", ""), nb(r.get("unit", "")))
-        vals = [nb(r["label"]), typ, src, form, unit, "Nøkkeltall" if r.get("kpi") else "", tech]
-        for i, v in enumerate(vals, 1):
-            c = ws.cell(row=row, column=i, value=v)
-            c.font = KPI if (r.get("kpi") and i == 1) else (MUTED if i == 7 else TXT)
-            c.alignment, c.border = WRAP, LINE
-            if r.get("kpi"):
-                c.fill = FILL_KPI
-        tf = TYPE_FILL.get(typ)
-        if tf:
-            ws.cell(row=row, column=2).fill = PatternFill("solid", fgColor=tf)
-        row += 1
-    for col, w in zip("ABCDEFG", (46, 17, 34, 70, 8, 12, 40)):
-        ws.column_dimensions[col].width = w
-    ws.freeze_panes = "B6"
-    ws.auto_filter.ref = "A%d:G%d" % (r0, row - 1)
-    ws.sheet_view.showGridLines = False
-
-
-def les_meg(wb):
-    ws = wb.active
-    ws.title = "Les meg"
-    lines = [
-        ("Formeloversikt – nøkkeltallsanalyse jordbruk", TITLE),
-        ("Alle poster, kontointervaller og formler i analysen, én fane per produksjon. Lages automatisk fra samme oppsett som nettsiden og analyse-arket.", SUB),
-        ("", TXT),
-        ("Slik leser du fanene", SEC),
-        ("• Post: navnet slik det står i analysen og rapporten. Nøkkeltall er uthevet og merket i kolonnen «I rapporten».", TXT),
-        ("• Type: Konto = summen av Tripletex-kontoene i kontointervallet. Produksjonsdata = antall, mengder og areal. Fôrnorm = standardverdi. Formel = regnes ut fra andre poster.", TXT),
-        ("• Kontointervall: f.eks. «4000-4019» betyr alle kontoer fra 4000 til 4019. «unntatt» betyr at kontoene holdes utenfor. Inntekter regnes som positive tall.", TXT),
-        ("• Formel: postene står i [hakeparentes]. ÷ er delt på, × er ganger. En post fra en annen fane har fanenavnet i parentes, f.eks. [Maskinkostnader – Melk] (Faste kostnader).", TXT),
-        ("• (1 hvis Melk er med) er 1 når produksjonen er med i analysen, ellers 0. Brukes i totalene.", TXT),
-        ("• Per enhet: postene delt på antall dyr/dekar (se teksten øverst i hver fane).", TXT),
-        ("", TXT),
-        ("Rekkefølge i analysen", SEC),
-        ("1. Kontoene i saldobalansen kobles til produksjoner (fanen Kontokobling), fellespotter fordeles med fordelingsnøkler.", TXT),
-        ("2. Hver produksjon: inntekter − variable kostnader = DB uten tilskudd; + tilskudd = DB med tilskudd.", TXT),
-        ("3. Faste kostnader trekkes fra samlet DB → driftsoverskudd jordbruk; avstemmes mot skattemessig resultat (Totaløkonomi).", TXT),
-        ("", TXT),
-        ("Formlene kan endres i nettsiden under Innstillinger → Konteringsoppsett. Denne oversikten viser standardoppsettet.", MUTED),
-    ]
-    for i, (t, f) in enumerate(lines, 1):
-        c = ws.cell(row=i, column=1, value=t)
-        c.font = f
-        c.alignment = Alignment(wrap_text=True, vertical="top")
-    ws.column_dimensions["A"].width = 130
-    ws.sheet_view.showGridLines = False
-
-
-def kontokobling(wb):
-    ws = wb.create_sheet("Kontokobling")
-    ws["A1"] = "Kontokobling – hvor kontoene havner"
-    ws["A1"].font = TITLE
-    ws["A2"] = "Standard kobling fra Tripletex-konto til produksjon. Første produksjon i lista som er med i analysen får kontoen. Kan overstyres i Kontoplan i nettsiden."
-    ws["A2"].font = SUB
-    heads = ["Kontointervall", "Går til", "Merknad"]
-    for i, h in enumerate(heads, 1):
-        c = ws.cell(row=4, column=i, value=h)
-        c.font, c.fill = HEAD, FILL_HEAD
-    row = 5
-    for acc, targets in spec.ACCOUNT_PROD:
-        names = [PROD_NAME.get(t, POOL.get(t, t)) for t in targets]
-        note = "Fordeles med fordelingsnøkkel" if any(t.startswith("POOL") for t in targets) else ("Første som er med" if len(targets) > 1 else "")
-        for i, v in enumerate([acc_txt(acc), " → ".join(names), note], 1):
-            c = ws.cell(row=row, column=i, value=v)
-            c.font, c.alignment, c.border = TXT, WRAP, LINE
-        row += 1
-    row += 1
-    ws.cell(row=row, column=1, value="Kontoer med produktkode (suffiks), f.eks. 1451.20.511").font = SEC
-    row += 1
-    for suf, targets in spec.SUFFIX_PROD:
-        for i, v in enumerate([".%s" % suf, " → ".join(PROD_NAME.get(t, POOL.get(t, t)) for t in targets), ""], 1):
-            c = ws.cell(row=row, column=i, value=v)
-            c.font, c.alignment, c.border = TXT, WRAP, LINE
-        row += 1
-    for col, w in zip("ABC", (48, 60, 32)):
-        ws.column_dimensions[col].width = w
-    ws.freeze_panes = "A5"
-    ws.sheet_view.showGridLines = False
+def expand(expr, key, depth=0):
+    """Formel med kontointervall sette inn: utrekna postar i same ark blir opna i parentes."""
+    def ref(n):
+        f = fullid(n, key)
+        r = ROWS.get(f)
+        if not r:
+            return n
+        sk = f.split(".")[0]
+        if r["t"] == "calc" and sk == key and depth < 6 and not per_prod(r["expr"]):
+            inner = expand(r["expr"], key, depth + 1)
+            return inner if re.fullmatch(r"[^ ]+", inner) else "(" + inner + ")"
+        if r["t"] == "input":
+            kind = r.get("kind")
+            if kind in ("tilskot", "inn", "kost", "gf", "fast", "info") and r.get("acc"):
+                return "konto " + acc_txt(r["acc"]).replace(", ", "+")
+            if r["id"] in ("andre_inn", "andre_kost"):
+                return "øvrige %sxxx" % ("3" if r["id"] == "andre_inn" else "4")
+        return lbl(f) + ("" if sk == key else " (%s)" % SHEET_NAME[sk])
+    pp = per_prod(expr)
+    if pp:
+        return "sum av " + " / ".join(lbl("%s.%s" % x) for x in pp) + " for produksjonene som er med"
+    out = render(tokenize(expr), ref, lambda k: "(1 hvis %s er med)" % PROD_NAME.get(k, k), "txt")
+    return out.replace(" / ", " ÷ ")
 
 
 def main():
     wb = Workbook()
-    les_meg(wb)
-    for sh in spec.PRODS:
-        write_sheet(wb, sh)
-    for sh in spec.COMMON:
-        write_sheet(wb, sh)
-    kontokobling(wb)
+    ws = wb.active
+    ws.title = "Nøkkeltall"
+    ws["A1"] = "Nøkkeltall og formler – jordbruksanalyse"
+    ws["A1"].font = TITLE
+    ws["A2"] = "Første rad er formelen med navn. Raden under viser formelen med kontointervallene satt inn. Enhet er tom når tallet er i kroner."
+    ws["A2"].font = MUTED
+    for i, h in enumerate(["Nøkkeltall", "Formel", "Enhet"], 1):
+        c = ws.cell(row=4, column=i, value=h)
+        c.font, c.fill = HEAD, FILL_HEAD
+    row = 5
+    for sh in spec.PRODS + [spec.COMMON[1], spec.COMMON[0], spec.COMMON[2]]:
+        key = sh["key"]
+        kp = [r for r in sh["rows"] if r["t"] == "calc" and r.get("kpi") and r.get("fmt") != "txt"]
+        if not kp:
+            continue
+        c = ws.cell(row=row, column=1, value=nb(sh.get("title") if key in ("grovfor", "faste", "total") else sh["sheet"]))
+        c.font = SEC
+        for col in range(1, 4):
+            ws.cell(row=row, column=col).fill = FILL_SEC
+        row += 1
+        for r in kp:
+            unit = r.get("unit", "")
+            unit = "" if unit in ("kr", "kr/eining", "tekst") else ("%" if unit == "%" else nb(unit))
+            ws.cell(row=row, column=1, value=nb(r["label"])).font = KPI
+            ws.cell(row=row, column=2, value=formel(r["expr"], key)).font = TXT
+            ws.cell(row=row, column=3, value=unit).font = TXT
+            for col in range(1, 4):
+                ws.cell(row=row, column=col).alignment = WRAP
+            row += 1
+            ex = expand(r["expr"], key)
+            c = ws.cell(row=row, column=2, value=ex)
+            c.font, c.alignment = MUTED, WRAP
+            for col in range(1, 4):
+                ws.cell(row=row, column=col).border = LINE
+            row += 1
+    ws.column_dimensions["A"].width = 44
+    ws.column_dimensions["B"].width = 120
+    ws.column_dimensions["C"].width = 9
+    ws.freeze_panes = "A5"
+    ws.sheet_view.showGridLines = False
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     wb.save(OUT)
     pub = os.path.join(ROOT, "public", os.path.basename(OUT))

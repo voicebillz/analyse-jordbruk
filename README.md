@@ -57,4 +57,4 @@ Under **Innstillingar → Statistikk** kan ein leggje inn «høgaste 30 %» og �
 
 ### Formeloversikt
 
-`python tools/build_formeloversikt.py` lagar `excel/Formeloversikt_jordbruk.xlsx` (og kopi i `public/`): éi fane per produksjon med alle postar, type (konto, produksjonsdata, fôrnorm, formel), kontointervall og formlar med namn, pluss Grovfôr, Faste kostnader, Totaløkonomi og Kontokobling. Fila kan lastast ned frå Konteringsoppsett på nettsida.
+`python tools/build_formeloversikt.py` lagar `excel/Formeloversikt_jordbruk.xlsx` (og kopi i `public/`): eitt ark med alle nøkkeltala sorterte per produksjon. Første rad er formelen med namn, rada under er same formel med kontointervalla sette inn. Fila kan lastast ned frå Konteringsoppsett på nettsida.

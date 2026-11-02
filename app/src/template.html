@@ -137,6 +137,9 @@ h1,h2,h3{font-weight:400;margin:0}
 .inp.num:not(:placeholder-shown){border-color:color-mix(in srgb,var(--warning) 45%,transparent)}
 select option{background:var(--panel-solid);color:var(--ink)}
 .kparts .search{max-width:320px}
+.ksec{display:flex;align-items:baseline;gap:12px;margin:26px 0 10px;font-size:20px}
+.expr.locked .tok{cursor:default}
+.expr .lock{margin-left:auto;font-size:11px;color:var(--ink-3);white-space:nowrap}
 .seg button.on .muted{color:inherit;opacity:.75}
 .kused{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
 .fsec{margin-top:6px}
@@ -506,7 +509,7 @@ const NN = {
   "Kontoer uten kobling til produksjon": "Kontoar utan kopling til produksjon", "Nøkkel": "Nøkkel", "av": "av", "Andel": "Del", "manuelt": "manuelt", "automatisk": "automatisk", "Produksjonen er ikke med": "Produksjonen er ikkje med", "Du har endringer som ikke er lagret": "Du har endringar som ikkje er lagra", "Alle endringer er lagret": "Alle endringar er lagra", "Forkast endringer": "Forkast endringar",
   "Vil du forkaste endringene siden sist du lagret?": "Vil du forkaste endringane sidan sist du lagra?", "Du har endringer i innstillingene som ikke er lagret. Trykk OK for å lagre dem, eller Avbryt for å forkaste dem.": "Du har endringar i innstillingane som ikkje er lagra. Trykk OK for å lagre dei, eller Avbryt for å forkaste dei.",
   "Klikk for å bytte ut": "Klikk for å byte ut", "Klikk for å endre leddet": "Klikk for å endre leddet", "Klikk for å endre formelen": "Klikk for å endre formelen", "Ledd i": "Ledd i", "Verdi": "Verdi", "Regnetegn": "Rekneteikn", "Ganger": "Gonger", "Delt på": "Delt på",
-  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "Med tilskudd (produksjonens farge)": "Med tilskot (fargen til produksjonen)", "Kuenheter per produksjon": "Kueiningar per produksjon", "kuenheter": "kueiningar", "DB med tilskudd per": "DB med tilskot per", "Tilskuddsandel av DB": "Tilskotsdel av DB", "av DB med tilskudd": "av DB med tilskot", "i fjor og i år": "i fjor og i år", "Hovednøkkeltall per produksjon": "Hovudnøkkeltal per produksjon", "DB m/t per enhet": "DB m/t per eining", "Endring": "Endring", "fordeling": "fordeling", "Hva dekningsbidraget består av": "Kva dekningsbidraget består av", "tilskudd": "tilskot", "fra i fjor": "frå i fjor", "Formeloversikt (Excel)": "Formeloversikt (Excel)", "Per enhet": "Per eining", "Søk etter formel, f.eks. per liter": "Søk etter formel, t.d. pr liter", "Ingen formler passer søket.": "Ingen formlar passar søket.", "Vises i rapporten": "Blir vist i rapporten", "Statistikk": "Statistikk", "Sammenligningstall": "Samanlikningstal", "Høyeste 30 %": "Høgaste 30 %", "Middel": "Middel", "Denne analysen": "Denne analysen", "Statistikkår": "Statistikkår", "År": "År",
+  "Bytt til en annen post": "Byt til ein annan post", "Fjern leddet": "Fjern leddet", "Kontoer": "Kontoar", "fast formel": "fast formel", "Formelen for nøkkeltall er fast. Endre det som inngår i radene under.": "Formelen for nøkkeltal er fast. Endre det som inngår i radene under.", "Formlene kan endres": "Formlane kan endrast", "Fast formel – endre det som inngår": "Fast formel – endre det som inngår", "Med tilskudd (produksjonens farge)": "Med tilskot (fargen til produksjonen)", "Kuenheter per produksjon": "Kueiningar per produksjon", "kuenheter": "kueiningar", "DB med tilskudd per": "DB med tilskot per", "Tilskuddsandel av DB": "Tilskotsdel av DB", "av DB med tilskudd": "av DB med tilskot", "i fjor og i år": "i fjor og i år", "Hovednøkkeltall per produksjon": "Hovudnøkkeltal per produksjon", "DB m/t per enhet": "DB m/t per eining", "Endring": "Endring", "fordeling": "fordeling", "Hva dekningsbidraget består av": "Kva dekningsbidraget består av", "tilskudd": "tilskot", "fra i fjor": "frå i fjor", "Formeloversikt (Excel)": "Formeloversikt (Excel)", "Per enhet": "Per eining", "Søk etter formel, f.eks. per liter": "Søk etter formel, t.d. pr liter", "Ingen formler passer søket.": "Ingen formlar passar søket.", "Vises i rapporten": "Blir vist i rapporten", "Statistikk": "Statistikk", "Sammenligningstall": "Samanlikningstal", "Høyeste 30 %": "Høgaste 30 %", "Middel": "Middel", "Denne analysen": "Denne analysen", "Statistikkår": "Statistikkår", "År": "År",
   "Analysegruppe": "Analysegruppe", "Alle": "Alle", "Antall analyser i gruppen": "Tal analysar i gruppa", "Kilde (vises i rapporten)": "Kjelde (blir vist i rapporten)", "F.eks. analyser fra regnskapskontorene i regionen": "T.d. analysar frå rekneskapskontora i regionen",
   "Slett statistikkåret": "Slett statistikkåret", "Legg til et statistikkår for å begynne.": "Legg til eit statistikkår for å byrje.", "Tall per enhet": "Tal per eining", "Hvilket år er statistikken fra?": "Kva år er statistikken frå?",
   "Vil du slette all statistikk for {y}?": "Vil du slette all statistikk for {y}?", "Sammenligningstall fra {y}": "Samanlikningstal frå {y}", "{n} analyser": "{n} analysar",
@@ -2671,8 +2674,8 @@ function renderKontering(el, m) {
   { let h = ""; sh.rows.forEach(r => { if (r.t === "head") h = /^\d\./.test(r.label) ? "" : r.label; else if (h) unitHead[r.id] = h; }); }
   const calcs = sh.rows.filter(r => r.t === "calc");
   const parts = {res: calcs.filter(r => !isDetailSec(secs[r.id])), kpi: calcs.filter(r => /Nøkkeltal/.test(secs[r.id] || "")), unit: calcs.filter(r => /OUTPUT – Per/.test(secs[r.id] || ""))};
-  const part = parts[SET.kPart] ? SET.kPart : "res", q = String(SET.kQ || "").trim().toLowerCase();
-  const shown = q ? calcs.filter(r => (LBL(r) + " " + (unitHead[r.id] || "")).toLowerCase().includes(q)) : parts[part];
+  const q = String(SET.kQ || "").trim().toLowerCase();
+  const shown = q ? calcs.filter(r => (LBL(r) + " " + (unitHead[r.id] || "")).toLowerCase().includes(q)) : [];
   const nOv = Object.keys(SET.acc).length + Object.keys(SET.formulas).length;
   const vtxt = full => (V ? fmt(V(full), ROW[full].fmt) : "");
   const contribTip = full => { const c = (M && M.contrib[full]) || []; if (!c.length) return "";
@@ -2707,15 +2710,19 @@ function renderKontering(el, m) {
     const name = calc ? `<button class="lnk ${open ? "on" : ""}" data-open="${esc(p2)}">${esc(LBL(rr))}${sheetTag(f, key)} <span class="chev">${open ? "▾" : "▸"}</span></button>` : `${esc(LBL(rr))}${sheetTag(f, key)}`;
     return `<div class="post"><span class="pn">${name}</span><span>${calc ? exprEd(f) : source(f)}</span><span class="pv" ${!calc && contribTip(f) ? `data-tt="${esc(contribTip(f))}"` : ""}>${vtxt(f)}</span></div>
       ${calc && open ? `<div class="nest">${rowsOf(f, p2)}</div>` : ""}`; }).join("");
+  const locked = full => { const sec = secs[ROW[full].id] || ""; return /Nøkkeltal|OUTPUT – Per/.test(sec); };
+  const exprLocked = full => { let h; try { h = fhtml(ftok(fexpr(full)), full.split(".")[0]); } catch (e) { h = ""; }
+    return `<div class="expr locked" title="${T("Formelen for nøkkeltall er fast. Endre det som inngår i radene under.")}"><span class="eq">=</span>${h}<span class="lock">🔒 ${T("fast formel")}</span></div>`; };
   const card = full => { const r = ROW[full], ov = !!SET.formulas[full], rows = rowsOf(full, full);
     return `<div class="fx ${ov ? "ovr" : ""}" id="fx-${full}"><div class="fx-h"><span class="nm">${esc(LBL(r))}${unitHead[r.id] ? ` <span class="muted sm">${esc(SL(sh, "sheet"))} · ${esc(clean(unitHead[r.id]))}</span>` : ""}${r.kpi ? ` <span class="badge auto" title="${T("Vises i rapporten")}">${T("Nøkkeltall")}</span>` : ""}</span>${ov ? `<span class="pill warn">${T("Endret")}</span><button class="btn sm ghost" data-fstd="${full}">${T("Standard")}</button>` : ""}<span class="val">${vtxt(full)}</span></div>
-      ${exprEd(full)}${rows ? `<div class="posts">${rows}</div>` : ""}</div>`; };
+      ${locked(full) ? exprLocked(full) : exprEd(full)}${rows ? `<div class="posts">${rows}</div>` : ""}</div>`; };
   el.innerHTML = `<div class="card"><div class="row"><select class="sel" id="kSel" style="min-width:240px">${keys.map(k => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(isProd(k) ? SL(SHEET[k], "sheet") : SL(SHEET[k], "title"))}${M && M.active.has(k) ? " •" : ""}</option>`).join("")}</select>
       <span class="grow"></span>${nOv ? `<span class="pill warn">${nOv} ${T("endringer")}</span>` : ""}<a class="btn sm ghost" href="Formeloversikt_jordbruk.xlsx" download>${T("Formeloversikt (Excel)")}</a><button class="btn sm" id="resetStd">${T("Tilbakestill standard")}</button></div></div>
     <p class="hint">${T("Klikk på regnetegnet for å bytte mellom + − × ÷, × for å fjerne et ledd og + Ledd for å legge til. Klikk på et utregnet ledd for å se hva det består av.")}</p>
-    <div class="card kparts"><div class="row" style="margin:0"><div class="seg" role="tablist">${KP_PARTS.map(([id, l]) => `<button class="${!q && part === id ? "on" : ""}" data-kpart="${id}">${T(l)} <span class="muted sm">${parts[id].length}</span></button>`).join("")}</div>
+    <div class="card kparts"><div class="row" style="margin:0"><span class="muted sm">${KP_PARTS.map(([id, l]) => `<button class="lnk" data-kgo="kp-${id}">${T(l)} (${parts[id].length})</button>`).join(" · ")}</span>
       <span class="grow"></span><input class="search" id="kQ" placeholder="${T("Søk etter formel, f.eks. per liter")}" value="${esc(q)}"></div></div>
-    ${shown.length ? shown.map(r => card(sel + "." + r.id)).join("") : `<div class="card"><p class="muted" style="margin:0">${T("Ingen formler passer søket.")}</p></div>`}`;
+    ${q ? (shown.length ? shown.map(r => card(sel + "." + r.id)).join("") : `<div class="card"><p class="muted" style="margin:0">${T("Ingen formler passer søket.")}</p></div>`)
+      : KP_PARTS.filter(([id]) => parts[id].length).map(([id, l]) => `<h2 class="ksec" id="kp-${id}">${T(l)}<span class="muted sm">${id === "res" ? T("Formlene kan endres") : T("Fast formel – endre det som inngår")}</span></h2>${parts[id].map(r => card(sel + "." + r.id)).join("")}`).join("")}`;
   const redraw = () => { const y = window.scrollY; if (S.sb.length) compute(); renderKontering(el, m); window.scrollTo({top: y}); };
   const setFlat = (full, terms) => { const r = ROW[full];
     if (!terms.length) { alert(T("Formelen må ha minst ett ledd.")); return; }
@@ -2726,7 +2733,7 @@ function renderKontering(el, m) {
     if (e2 === r.expr || flatToExpr(flatTerms(r.expr) || []) === e2) delete SET.formulas[full]; else SET.formulas[full] = e2; saveSet(); redraw(); };
   const fl = b => { const full = b.closest(".expr").dataset.full; return [full, flatTerms(fexpr(full))]; };
   $("#kSel").onchange = e => { SET.kSheet = e.target.value; KOPEN.clear(); SET.kQ = ""; saveSet(); renderKontering(el, m); };
-  $$("[data-kpart]", el).forEach(b => b.onclick = () => { SET.kPart = b.dataset.kpart; SET.kQ = ""; saveSet(); renderKontering(el, m); });
+  $$("[data-kgo]", el).forEach(b => b.onclick = () => { const t = document.getElementById(b.dataset.kgo); if (t) t.scrollIntoView({behavior: "smooth", block: "start"}); });
   const kq = $("#kQ", el); kq.oninput = e => { SET.kQ = e.target.value; const pos = e.target.selectionStart; renderKontering(el, m); const n = $("#kQ", el); n.focus(); n.setSelectionRange(pos, pos); };
   $("#resetStd").onclick = () => { if (confirm(T("Vil du tilbakestille alle formler og kontoer til standard?"))) { SET.acc = {}; SET.formulas = {}; saveSet(); redraw(); } };
   $$(".chip .x", el).forEach(b => b.onclick = e => { e.stopPropagation(); const full = b.closest(".chips").dataset.full, toks = accFor(full).split(",").map(x => x.trim()).filter(Boolean);
