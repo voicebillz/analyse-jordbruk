@@ -219,9 +219,9 @@ def main():
     ws.title = "Nøkkeltall"
     ws["A1"] = "Nøkkeltall og formler – jordbruksanalyse"
     ws["A1"].font = TITLE
-    ws["A2"] = "Første rad er formelen med navn. Raden under viser formelen med kontointervallene satt inn. «Kontoer» lister hver enkelt konto i intervallene i formelen (minus = trekkes fra). Enhet er tom når tallet er i kroner."
+    ws["A2"] = "Første rad er formelen med navn. Raden under viser formelen med kontointervallene satt inn. Enhet er tom når tallet er i kroner. Bruk «Kommentar» til notater om endringer."
     ws["A2"].font = MUTED
-    for i, h in enumerate(["Nøkkeltall", "Formel", "Kontoer", "Enhet"], 1):
+    for i, h in enumerate(["Nøkkeltall", "Formel", "Enhet", "Kommentar / endringer"], 1):
         c = ws.cell(row=4, column=i, value=h)
         c.font, c.fill = HEAD, FILL_HEAD
     row = 5
@@ -240,8 +240,8 @@ def main():
             unit = "" if unit in ("kr", "kr/eining", "tekst") else ("%" if unit == "%" else nb(unit))
             ws.cell(row=row, column=1, value=nb(r["label"])).font = KPI
             ws.cell(row=row, column=2, value=formel(r["expr"], key)).font = TXT
-            ws.cell(row=row, column=3, value=", ".join(accounts_in(r["expr"], key))).font = TXT
-            ws.cell(row=row, column=4, value=unit).font = TXT
+            ws.cell(row=row, column=3, value=unit).font = TXT
+            ws.cell(row=row, column=4).fill = PatternFill("solid", fgColor="FFFBEA")
             for col in range(1, 5):
                 ws.cell(row=row, column=col).alignment = WRAP
             row += 1
@@ -250,11 +250,13 @@ def main():
             c.font, c.alignment = MUTED, WRAP
             for col in range(1, 5):
                 ws.cell(row=row, column=col).border = LINE
+            ws.merge_cells(start_row=row - 1, start_column=4, end_row=row, end_column=4)
+            ws.cell(row=row - 1, column=4).alignment = WRAP
             row += 1
     ws.column_dimensions["A"].width = 44
     ws.column_dimensions["B"].width = 95
-    ws.column_dimensions["C"].width = 60
-    ws.column_dimensions["D"].width = 9
+    ws.column_dimensions["C"].width = 9
+    ws.column_dimensions["D"].width = 50
     ws.freeze_panes = "A5"
     ws.sheet_view.showGridLines = False
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
