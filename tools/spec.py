@@ -62,20 +62,20 @@ GF_COST_POSTS = [
     ("kjop_grovfor", "Kjøp grovfôr", "4030", "4030"),
     ("beiteleige", "Beiteleige / dyr på beite", "4031", "4031"),
     ("lager_innkjopt", "Endring innkjøpt grovfôrlager", "4093", "4093"),
-    ("kraftfor", "Kraftfôr mm.", "4020-4029, 4040-4049, 4092, 4094", "4020-4029, 4040-4049, 4092, 4094"),
+    ("kraftfor", "Kraftfôr mm.", "4020-4029, 4040-4049, 4092, 4094, rabatt 4070", "4020-4029, 4040-4049, 4070, 4092, 4094"),
     ("vet", "Veterinær, medisin, semin mm.", "4120, 4192, 4520-4529", "4120, 4192, 4520-4529"),
     ("innkjop_dyr", "Innkjøp dyr", "4600-4689", "4600-4689"),
     ("andre_kost", "Andre variable kostnader", "4130-4139, 4193, 4530-4549, 4560-4569 + andre 4xxx", "4130-4139, 4193, 4530-4549, 4560-4569"),
 ]
 KF_COST_POSTS = [
-    ("kraftfor", "Kraftfôr mm.", "4020-4029, 4040-4049, 4092, 4094", "4020-4029, 4040-4049, 4092, 4094"),
+    ("kraftfor", "Kraftfôr mm.", "4020-4029, 4040-4049, 4092, 4094, rabatt 4070", "4020-4029, 4040-4049, 4070, 4092, 4094"),
     ("vet", "Veterinær, medisin, inseminering", "4120, 4192, 4520-4529", "4120, 4192, 4520-4529"),
     ("innkjop_dyr", "Innkjøp dyr", "4600-4689", "4600-4689"),
     ("andre_kost", "Andre variable kostnader", "4130-4139, 4193, 4530-4549, 4560-4569 + andre 4xxx", "4130-4139, 4193, 4530-4549, 4560-4569"),
 ]
 
 INN_POSTS = {
-    "mjolk": ("Mjølk", "3070-3073, 3163/3173 (.482)", "3070-3073, 3163, 3173"),
+    "mjolk": ("Mjølk", "3071-3073, 3163/3173 (.482)", "3071-3073, 3163, 3173"),
     "geitmjolk": ("Mjølk", "3075, 3079, 3163/3173 (.482)", "3075, 3079, 3163, 3173"),
     "slakt": ("Slakt", "3040-3049, 3162, 3172, 3078", "3040-3049, 3162, 3172, 3078"),
     "livdyr": ("Livdyrsal", "3050-3059", "3050-3059"),
@@ -320,8 +320,8 @@ def plante(key, sheet, title, dg, unit, sal_label, sal_src, sal_acc, vals, cost_
 
 
 P_GJODSEL = ("gjodsel_kalk", "Gjødsel og kalk", "4050, 4057, 4095", "4050, 4057, 4095")
-P_PLANTEVERN = ("plantevern", "Plantevernmiddel", "4110, 4111, 4191", "4110, 4111, 4191")
-P_EMBALLASJE = ("emballasje", "Emballasje", "4140-4142, 4194", "4140-4142, 4194")
+P_PLANTEVERN = ("plantevern", "Plantevernmiddel", "4110, 4111, 4191, 4543", "4110, 4111, 4191, 4543")
+P_EMBALLASJE = ("emballasje", "Emballasje og pakking", "4140-4142, 4194, 4545", "4140-4142, 4194, 4545")
 P_ENERGI = ("energi", "Brensel, energi (veksthus)", "6200-6249 når kopla til produksjonen", "6200-6249")
 P_ANDRE = ("andre_kost", "Andre variable kostnader", "4540-4549, 4160 + andre 4xxx", "4540-4549, 4160, 4170")
 
@@ -396,7 +396,7 @@ PRODS.append(plante(
     "gulrot", "Gulrot", "Gulrot", "2500-2590", "da", "Sal av gulrot", "3014", "3014",
     dict(n=25, avling=125000, sal_kg=115000, tilskot=35000, sal=575000, beh_endring=10000, gjodsel_kalk=17000,
          plantevern=14000, fro=30000, emballasje=45000, andre_kost=40000),
-    [P_GJODSEL, P_PLANTEVERN, ("fro", "Frø", "4012", "4012"), P_EMBALLASJE, P_ANDRE],
+    [P_GJODSEL, P_PLANTEVERN, ("fro", "Frø", "4004, 4012", "4004, 4012"), P_EMBALLASJE, P_ANDRE],
     desc="Gulrot (driftsgrein 2500–2590)."))
 
 # ---- KÅLROT
@@ -817,7 +817,7 @@ FASTE_ANDRE = [
     ("a_arbeidsvederlag", "Arbeidsvederlag i selskap", "5600-5699", 0),
     ("a_refusjon", "Refusjon avløysar / sjukdom (-)", "3440-3442, 5800-5899", -62681),
     ("a_leige_jord", "Leige av jord, beite og mjølkekvote", "6471, 6472, 6475", 0),
-    ("a_vedlikehald", "Vedlikehald jord, vegar, grøfter og anna", "6650-6699", 5000),
+    ("a_vedlikehald", "Vedlikehald jord, vegar, grøfter og anna", "4151, 6650-6699", 5000),
     ("a_energi", "Energi (straum, brensel) som ikkje er fordelt", "6200-6249", 23734.87),
     ("a_admin", "Administrasjon (rekneskap, kontor, telefon, kontingentar, forsikring)", "6700-6999, 7100-7499, 7500, 7502, 7509, 7600-7799", 156309.53),
     ("a_bil", "Bil og transportmiddel", "6011-6014, 7000-7099", 0),
@@ -1036,7 +1036,9 @@ SUFFIX_PROD = [
 ACCOUNT_PROD = [
     ("3000-3008, 3096, 3410, 4000, 4291-4292", ["korn"]),
     ("3010-3011, 3421, 4010, 4091, 4293", ["potet"]),
-    ("3013, 3015, 3020, 3039, 3420, 4012, 4294", ["fgront", "gulrot", "kalrot"]),
+    ("3013, 3015, 3020-3021, 3039, 3420, 4012, 4294", ["fgront", "gulrot", "kalrot"]),
+    ("4004", ["gulrot"]),
+    ("4141-4142, 4545", ["fgront", "gulrot", "kalrot", "potet", "agurk", "tomat"]),
     ("3014", ["gulrot", "fgront"]),
     ("3018, 4018", ["tomat"]),
     ("3019, 4019", ["agurk"]),
@@ -1046,17 +1048,21 @@ ACCOUNT_PROD = [
     ("3451", ["oksar", "mellomkalv", "mjolk", "ammekyr"]),
     ("3041, 3051, 4021, 4041, 4521-4522, 4531, 4534, 4610, 4691, 4131", ["mjolk", "oksar", "mellomkalv", "ammekyr"]),
     ("3042, 3052, 3452, 4620, 4692", ["ammekyr"]),
-    ("3043, 3053, 3453, 4023, 4043, 4523, 4535, 4630, 4693, 4133", ["smagris", "slaktegris", "purkering"]),
-    ("3044, 3054, 3074, 3454, 4024, 4524, 4533, 4134, 4640, 4694", ["sau"]),
+    ("3043, 3053, 3453, 4023, 4042-4043, 4523, 4535, 4630, 4693, 4133", ["smagris", "slaktegris", "purkering"]),
+    ("3044, 3054, 3074, 3454, 4024, 4524, 4533, 4538, 4134, 4640, 4694", ["sau"]),
     ("3045, 3055, 3075, 3079, 4130, 4650, 4695", ["geit"]),
-    ("3076, 3097, 3456, 4026, 4046, 4526, 4536, 4136", ["egg", "kylling"]),
+    ("3076, 3097, 3456, 4026, 4046, 4526, 4536-4537, 4136", ["egg", "kylling"]),
     ("3046, 3056, 4660, 4696", ["egg", "kylling"]),
     # Fellespottar (fordelast med kvar sin nøkkel, sjå Fordelingsnøklar i nettsida)
-    ("3413, 3430, 3460, 4001, 4050, 4057, 4095, 4110, 4191, 4560-4569", ["POOL_AREAL"]),
-    ("4030-4031, 4080, 4090, 4093, 4098, 4140, 4194, 4297", ["POOL_GF"]),
+    ("3413, 3430, 3460, 4001, 4050, 4057, 4095, 4110, 4191, 4540, 4543, 4560-4569", ["POOL_AREAL"]),
+    ("4030-4031, 4080, 4090, 4093, 4098, 4140, 4194, 4297, 4510, 4512", ["POOL_GF"]),
     ("4020, 4040, 4094, 4120, 4192-4193, 4520, 4530, 4532, 4539", ["POOL_HUSDYR"]),
+    # felles husdyrposter utan dyreslag: frakt, rabatt, forbruksmateriell, generell slakt og beholdningsendring buskap
+    ("3040, 4060, 4070, 4145, 4690", ["POOL_HUSDYR"]),
     ("3457, 3470, 3490, 3499", ["POOL_TILSK"]),
-    ("4550-4559", ["FASTE"]),
+    ("4550-4559, 4151", ["FASTE"]),
+    # ikkje fordelt på produksjon (totaløkonomi): andre inntekter, sal av driftsmiddel, hest/videresal
+    ("3030, 3048-3049, 3059, 3060, 3070, 3080, 3098-3099, 4029, 4150, 4300-4349, 4680", ["TOTAL"]),
     ("3440-3442", ["FASTE"]),
     # Andre tilskot utan eigen kopling: fellespott (fordelast med nøkkel)
     ("3400-3439, 3443-3499", ["POOL_TILSK"]),
